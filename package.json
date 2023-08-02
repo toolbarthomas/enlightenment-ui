@@ -1,0 +1,31 @@
+{
+  "name": "enlightenment-ui",
+  "version": "0.1.0",
+  "description": "Lit Element Component library with Enlightenment",
+  "main": "index.js",
+  "devDependencies": {
+    "esbuild": "^0.18.17",
+    "typescript": "^5.1.6"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "node node/esbuild.enlightenment-ui.mjs && node node/esbuild.enlightenment-ui.mjs -m"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/toolbarthomas/enlightenment-ui.git"
+  },
+  "keywords": [
+    "lit",
+    "enlightenment",
+    "webcomponents",
+    "sass",
+    "esbuild"
+  ],
+  "author": "Thomas van der Velde <contact@toolbarthomas.net>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/toolbarthomas/enlightenment-ui/issues"
+  },
+  "homepage": "https://github.com/toolbarthomas/enlightenment-ui#readme"
+}
