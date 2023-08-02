@@ -5,16 +5,24 @@
   "main": "index.js",
   "devDependencies": {
     "esbuild": "^0.18.17",
+    "glob": "^10.3.3",
     "typescript": "^5.1.6"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "node node/esbuild.enlightenment-ui.mjs && node node/esbuild.enlightenment-ui.mjs -m"
+    "prebuild": "npm link @toolbarthomas/enlightenment",
+    "build": "node node/esbuild.enlightenment-ui.mjs && node node/esbuild.enlightenment-ui.mjs -m",
+    "dev": "node node/esbuild.enlightenment-ui.mjs -s"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/toolbarthomas/enlightenment-ui.git"
   },
+  "files": [
+    "dist/",
+    "node/",
+    "src/"
+  ],
   "keywords": [
     "lit",
     "enlightenment",
