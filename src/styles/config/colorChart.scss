@@ -1,0 +1,43 @@
+@use "sass:math";
+
+@import "../variables/colors";
+
+:root {
+  @each $color, $shades in $colors {
+    $index: 0;
+
+    @if length($shades) == 1 {
+      $shade: nth($shades, 1);
+
+      --#{$color}: hsl(#{nth($shade, 1), nth($shade, 2), nth($shade, 3)});
+
+      @for $i from 1 through 19 {
+        --#{$color}-a#{$i * 5}: hsla(
+          #{nth($shade, 1),
+          nth($shade, 2),
+          nth($shade, 3)},
+          #{math.div($i * 5, 100)}
+        );
+      }
+    } @else {
+      @each $shade in $shades {
+        $index: $index + 1;
+
+        --#{$color}-#{$index * 100}: hsl(
+          #{nth($shade, 1),
+          nth($shade, 2),
+          nth($shade, 3)}
+        );
+
+        @for $i from 1 through 19 {
+          --#{$color}-#{$index * 100}-a#{$i * 5}: hsla(
+            #{nth($shade, 1),
+            nth($shade, 2),
+            nth($shade, 3)},
+            #{math.div($i * 5, 100)}
+          );
+        }
+      }
+    }
+  }
+}

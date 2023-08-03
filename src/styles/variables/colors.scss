@@ -1,0 +1,13 @@
+/**
+ * Defines the available colors for the actual UI package. The defined colors
+ * will be exposed within config/color by generating the following pallete and
+ * its opacity values in steps of 5%.
+ */
+$colors: (
+  "white": (
+    (212, 100%, 0%),
+  ),
+  "black": (
+    (212, 0%, 0%),
+  ),
+);

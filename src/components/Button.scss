@@ -1,3 +1,17 @@
 button {
-  color: red;
+  align-items: center;
+  appearance: none;
+  border-radius: var(--space-6);
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  font-family: var(--webfont-base);
+  font-size: var(--space-14);
+  font-weight: 400;
+  justify-content: center;
+  outline: none;
+  overflow: hidden;
+  padding: var(--space-8) var(--space-12);
+  position: relative;
+  text-align: center;
 }
