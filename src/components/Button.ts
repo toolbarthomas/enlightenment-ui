@@ -7,8 +7,12 @@ import {
 
 import sprite from "assets/svg/sprite.svg";
 
+import styles from "./Button.scss";
+
 @customElement("ui-button")
 class EnlightenmentButton extends Enlightenment {
+  static styles = [styles];
+
   constructor() {
     super();
 
@@ -16,7 +20,7 @@ class EnlightenmentButton extends Enlightenment {
   }
 
   render() {
-    // console.log("render");
+    console.log("render");
     return html`<button>Button</button>`;
   }
 }

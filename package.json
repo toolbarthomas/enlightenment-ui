@@ -16,7 +16,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "prebuild": "npm link @toolbarthomas/enlightenment",
     "build": "node node/esbuild.enlightenment-ui.mjs && node node/esbuild.enlightenment-ui.mjs -m",
-    "dev": "node node/esbuild.enlightenment-ui.mjs -s"
+    "dev": "node node/esbuild.enlightenment-ui.mjs -d"
   },
   "repository": {
     "type": "git",

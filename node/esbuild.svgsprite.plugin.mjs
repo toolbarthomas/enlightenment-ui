@@ -10,10 +10,11 @@ import { rimrafSync } from "rimraf";
 /**
  * Generates a new optimized SVG sprite from the defined sources that should be
  * resolved within the build directory.
+ *
  * @param {String | String[]} sources Generates the sprite from the defined
  * source(s).
  */
-export const generateSVGSprite = (sources, destination) => {
+export const generateSVGSprite = (sources) => {
   return new Promise((callback) => {
     const entry = Array.isArray(sources) ? sources : [sources];
 
@@ -50,22 +51,24 @@ export const generateSVGSprite = (sources, destination) => {
         throw Error("Unable to generate sprite without any entries...");
       }
 
-      // try {
-      //   existsSync(destination) && rimrafSync(destination);
-      //   mkdirpSync(dirname(destination));
-      //   writeFileSync(destination, sprite);
-      //   console.log("write");
-      // } catch (error) {
-      //   if (error) {
-      //     throw Error(error.toString());
-      //   }
-      // }
-
       return callback(sprite.toString());
     });
   });
 };
 
+/**
+ * Additional SVG loader that resolves non-existing SVG source as optional
+ * spritesheet. The spritesheet will be generated from the svg entries that are
+ * relative from the defined path:
+ *
+ * import(images/svg/sprite.svg) // Reads entries from 'image/svg' directory.
+ *
+ * Keep in mind that at least 1 SVG source needs to be present within the
+ * actual context directory, Esbuild does not know how to resolve the
+ * defined import otherwise.
+ *
+ * @returns
+ */
 export const svgspritePlugin = () => ({
   name: "svgsprite",
   setup(build) {
@@ -80,6 +83,7 @@ export const svgspritePlugin = () => ({
       return {
         path: args.path,
         namespace: "sprite",
+        pluginData: args.importer,
       };
 
       return { external: true, namespace: "sprite" };
@@ -95,6 +99,15 @@ export const svgspritePlugin = () => ({
           (source) => resolve(source) != resolve(args.path)
         );
 
+        if (!sources.length) {
+          console.warn(
+            `No SVG source has been found within '${cwd}', ESbuild will throw an Error:`
+          );
+        }
+
+        console.log(
+          `Generate sprite "${basename(args.path)}" for: ${args.pluginData}`
+        );
         contents = await generateSVGSprite(sources, args.path);
       }
 
@@ -103,28 +116,5 @@ export const svgspritePlugin = () => ({
         loader: "file",
       };
     });
-
-    // // Ensure the svgsprite is generated within the build directory.
-    // build.onResolve({ filter: /sprite.svg$/ }, async (args) => {
-    //   const cwd = dirname(args.path);
-    //   const sources = globSync(join("*", cwd, "*.svg")).filter(
-    //     (source) => resolve(source) != resolve(args.path)
-    //   );
-
-    //   const sprite = await generateSVGSprite(sources);
-
-    //   console.log("Mysprite", sprite);
-
-    //   if (existsSync(args.path)) {
-    //     return;
-    //   }
-    //   console.log(args);
-
-    //   return {
-    //     // path: args.path,
-    //     external: true,
-    //     namespace: "file",
-    //   };
-    // });
   },
 });

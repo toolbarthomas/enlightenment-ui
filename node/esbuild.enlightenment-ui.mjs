@@ -19,6 +19,7 @@ import { svgspritePlugin } from "./esbuild.svgsprite.plugin.mjs";
     entryPoints: [...globSync("./src/components/*.ts")],
     format: "esm",
     keepNames: true,
+    minify: argv.m || argv.minify || false,
     outdir,
     outExtension,
     platform: "browser",
@@ -32,7 +33,7 @@ import { svgspritePlugin } from "./esbuild.svgsprite.plugin.mjs";
     ],
   };
 
-  if (argv.s || argv.serve) {
+  if (argv.d || argv.devmode) {
     (await esbuild.context(config))
       .serve({ servedir: "dist" })
       .then((result) => {
