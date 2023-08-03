@@ -4,6 +4,8 @@ import { resolvePlugin } from "@toolbarthomas/enlightenment/node/esbuild.resolve
 import { argv } from "@toolbarthomas/enlightenment/node/argv.mjs";
 import { globSync } from "glob";
 
+import { svgspritePlugin } from "./esbuild.svgsprite.plugin.mjs";
+
 (async () => {
   const format = argv.f || argv.format || "esm";
   const suffix = argv.m || argv.minify ? ".min" : "";
@@ -26,6 +28,7 @@ import { globSync } from "glob";
         minify: argv.m || argv.minify || false,
       }),
       stylePlugin(),
+      svgspritePlugin(),
     ],
   };
 
