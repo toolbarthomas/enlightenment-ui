@@ -3,20 +3,22 @@
   "version": "0.1.0",
   "description": "Lit Element Component library with Enlightenment",
   "main": "index.js",
-  "devDependencies": {
+  "dependencies": {
     "@fontsource/nunito-sans": "^5.0.7",
     "esbuild": "^0.18.17",
     "glob": "^10.3.3",
     "imagemin": "^8.0.1",
     "is-svg": "^5.0.0",
-    "mkdirp": "^3.0.1",
-    "rimraf": "^5.0.1",
     "svgo": "^3.0.2",
     "svgstore": "^3.0.1",
     "typescript": "^5.1.6"
   },
+  "devDependencies": {
+    "rimraf": "^5.0.1"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "npm run build",
     "prebuild": "npm link @toolbarthomas/enlightenment && node node/utils/_cleanup.mjs",
     "build": "node node/esbuild.enlightenment-ui.mjs && node node/esbuild.enlightenment-ui.mjs -m",
     "postbuild": "node node/esbuild.assets.mjs -s",

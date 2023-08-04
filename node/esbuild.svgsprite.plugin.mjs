@@ -1,8 +1,6 @@
 import { basename, extname, dirname, join, resolve, sep } from "node:path";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { globSync } from "glob";
-import { mkdirpSync } from "mkdirp";
-import { rimrafSync } from "rimraf";
 import imagemin from "imagemin";
 import svgstore from "svgstore";
 
