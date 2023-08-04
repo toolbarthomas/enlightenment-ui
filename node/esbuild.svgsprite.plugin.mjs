@@ -1,11 +1,12 @@
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { basename, extname, dirname, join, resolve, sep } from "node:path";
-
-import imagemin from "imagemin";
-import svgstore from "svgstore";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { globSync } from "glob";
 import { mkdirpSync } from "mkdirp";
 import { rimrafSync } from "rimraf";
+import imagemin from "imagemin";
+import svgstore from "svgstore";
+
+import { svgOptimizer } from "./utils/optimizers.mjs";
 
 /**
  * Generates a new optimized SVG sprite from the defined sources that should be
@@ -22,7 +23,7 @@ export const generateSVGSprite = (sources) => {
       return callback();
     }
 
-    imagemin(entry, { plugins: [] }).then((stream) => {
+    imagemin(entry, { plugins: [svgOptimizer] }).then((stream) => {
       if (!stream.length) {
         throw Error(
           `Unable to optimize sprite, no valid Buffer has been assigned for ${this.name}`
