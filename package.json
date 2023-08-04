@@ -4,6 +4,7 @@
   "description": "Lit Element Component library with Enlightenment",
   "main": "index.js",
   "devDependencies": {
+    "@fontsource/nunito-sans": "^5.0.7",
     "esbuild": "^0.18.17",
     "glob": "^10.3.3",
     "imagemin": "^8.0.1",
@@ -16,7 +17,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prebuild": "npm link @toolbarthomas/enlightenment",
+    "prebuild": "npm link @toolbarthomas/enlightenment && node node/utils/_cleanup.mjs",
     "build": "node node/esbuild.enlightenment-ui.mjs && node node/esbuild.enlightenment-ui.mjs -m",
     "postbuild": "node node/esbuild.assets.mjs -s",
     "dev": "node node/esbuild.assets.mjs -s -d & node node/esbuild.enlightenment-ui.mjs -d"
@@ -42,8 +43,5 @@
   "bugs": {
     "url": "https://github.com/toolbarthomas/enlightenment-ui/issues"
   },
-  "homepage": "https://github.com/toolbarthomas/enlightenment-ui#readme",
-  "dependencies": {
-    "@fontsource/nunito-sans": "^5.0.7"
-  }
+  "homepage": "https://github.com/toolbarthomas/enlightenment-ui#readme"
 }

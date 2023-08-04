@@ -6,6 +6,7 @@ import { globSync } from "glob";
 
 import { Enlightenment } from "@toolbarthomas/enlightenment/index.mjs";
 
+import config from "./config.mjs";
 import { svgspritePlugin } from "./esbuild.svgsprite.plugin.mjs";
 
 import { defaultLoader } from "./utils/loader.mjs";
@@ -13,19 +14,18 @@ import { defaultLoader } from "./utils/loader.mjs";
 (async () => {
   const format = argv.f || argv.format || "esm";
   const suffix = argv.m || argv.minify ? ".min" : "";
-  const outdir = "dist";
   const outExtension = {
     ".js": `${suffix}${format === "cjs" ? ".cjs" : ".js"}`,
   };
 
-  const config = {
+  const options = {
     bundle: true,
     entryPoints: [...globSync("./src/components/*.ts")],
     format: "esm",
     keepNames: true,
     loader: { ...defaultLoader },
     minify: argv.m || argv.minify || false,
-    outdir,
+    outdir: config.outdir,
     outExtension,
     platform: "browser",
     plugins: [
@@ -39,15 +39,17 @@ import { defaultLoader } from "./utils/loader.mjs";
   };
 
   if (argv.d || argv.devmode) {
-    const context = await esbuild.context(config);
-    context.serve({ servedir: "dist" }).then((result) => {
+    const context = await esbuild.context(options);
+    context.serve({ servedir: options.dist }).then((result) => {
       console.log(
         `Enlightenment UI test server starter: ${result.host}:${result.port}`
       );
     });
   } else {
-    esbuild.build(config).then(() => {
-      console.log(`Enlightenment UI library created: ${outdir}/*${suffix}.js`);
+    esbuild.build(options).then(() => {
+      console.log(
+        `Enlightenment UI library created: ${options.outdir}/*${suffix}.js`
+      );
     });
   }
 })();
