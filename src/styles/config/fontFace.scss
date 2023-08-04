@@ -1,20 +1,31 @@
 @import "../variables/typography";
 
 :root {
-  --webfont-base: $webfontBase;
+  --webfont-base: "#{$webfontBase}";
 }
 
-@mixin fontFace($cwd: "", $name: "", $style: normal, $weight: 400) {
-  @font-face {
-    src: url("#{$cwd}.woff2"), url("#{$cwd}.woff");
-    font-family: $name;
-    font-style: $style;
-    font-weight: $weight;
-    font-display: swap;
+@mixin fontFace($path, $name: $webfontBase, $style: normal, $weight: 400) {
+  @if $path {
+    @font-face {
+      src: url("#{$path}.woff2"), url("#{$path}.woff");
+      font-family: $name;
+      font-style: $style;
+      font-weight: $weight;
+      font-display: swap;
+    }
   }
 }
 
 @include fontFace(
-  $name: $webfontBase,
-  $cwd: "@fontsource/nunito-sans/files/nunito-sans-latin-400-normal"
+  $path: "@fontsource/nunito-sans/files/nunito-sans-latin-400-normal"
+);
+
+@include fontFace(
+  $path: "@fontsource/nunito-sans/files/nunito-sans-latin-500-normal",
+  $weight: 500
+);
+
+@include fontFace(
+  $path: "@fontsource/nunito-sans/files/nunito-sans-latin-700-normal",
+  $weight: 700
 );

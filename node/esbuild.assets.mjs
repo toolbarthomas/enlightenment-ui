@@ -25,7 +25,7 @@ import { defaultLoader } from "./utils/loader.mjs";
   if (argv.d || argv.devmode) {
     const context = await esbuild.context(options);
     await context.watch();
-    console.log(`Watching for changed from: ${options.entryPoints.join(", ")}`);
+    console.log(`Watching for changes from: ${options.entryPoints.join(", ")}`);
   } else {
     esbuild.build(options).then(() => {
       console.log(

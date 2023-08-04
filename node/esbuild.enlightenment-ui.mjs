@@ -34,9 +34,9 @@ import { defaultLoader } from "./utils/loader.mjs";
 
   if (argv.d || argv.devmode) {
     const context = await esbuild.context(options);
-    context.serve({ servedir: options.dist }).then((result) => {
+    context.serve({ servedir: options.outdir }).then((result) => {
       console.log(
-        `Enlightenment UI test server starter: ${result.host}:${result.port}`
+        `Enlightenment UI test server starter: ${result.host}:${result.port} => ${config.outdir}`
       );
     });
   } else {
