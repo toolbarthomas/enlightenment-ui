@@ -40,5 +40,8 @@
   "bugs": {
     "url": "https://github.com/toolbarthomas/enlightenment-ui/issues"
   },
-  "homepage": "https://github.com/toolbarthomas/enlightenment-ui#readme"
+  "homepage": "https://github.com/toolbarthomas/enlightenment-ui#readme",
+  "dependencies": {
+    "@fontsource/nunito-sans": "^5.0.7"
+  }
 }
