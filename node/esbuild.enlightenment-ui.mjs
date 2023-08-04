@@ -12,25 +12,19 @@ import { svgspritePlugin } from "./esbuild.svgsprite.plugin.mjs";
 import { defaultLoader } from "./utils/loader.mjs";
 
 (async () => {
-  const format = argv.f || argv.format || "esm";
-  const suffix = argv.m || argv.minify ? ".min" : "";
-  const outExtension = {
-    ".js": `${suffix}${format === "cjs" ? ".cjs" : ".js"}`,
-  };
-
   const options = {
     bundle: true,
     entryPoints: [...globSync("./src/components/*.ts")],
-    format: "esm",
+    format: argv.format || "esm",
     keepNames: true,
     loader: { ...defaultLoader },
     minify: argv.m || argv.minify || false,
     outdir: config.outdir,
-    outExtension,
-    platform: "browser",
+    outExtension: config.outExtension,
+    platform: argv.platform || "browser",
     plugins: [
       resolvePlugin({
-        destination: `./enlightenment${suffix}.js`,
+        destination: `./${argv.name || "enlightenment"}${config.suffix}.js`,
         minify: argv.m || argv.minify || false,
       }),
       stylePlugin(),
@@ -48,7 +42,7 @@ import { defaultLoader } from "./utils/loader.mjs";
   } else {
     esbuild.build(options).then(() => {
       console.log(
-        `Enlightenment UI library created: ${options.outdir}/*${suffix}.js`
+        `Enlightenment UI library created: ${options.outdir}/*${config.suffix}.js`
       );
     });
   }
