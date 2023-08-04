@@ -29,7 +29,8 @@
     "url": "git+https://github.com/toolbarthomas/enlightenment-ui.git"
   },
   "files": [
-    "dist/",
+    "dist/*.html",
+    "dist/*.js",
     "node/",
     "src/"
   ],
