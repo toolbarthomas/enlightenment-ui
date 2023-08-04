@@ -1,3 +1,8 @@
 @import "./config/boxModel";
 @import "./config/colorChart";
 @import "./config/fontFace";
+
+body {
+  font-family: $webfontBase;
+  background: yellow;
+}

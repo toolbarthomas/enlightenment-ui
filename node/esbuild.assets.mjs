@@ -27,7 +27,9 @@ import { defaultLoader, staticLoader } from "./utils/loader.mjs";
   };
 
   if (argv.d || argv.devmode) {
-    (await esbuild.context(config)).watch();
+    const context = await esbuild.context(config);
+    await context.watch();
+    console.log(`Watching for changed from: ${config.entryPoints.join(", ")}`);
   } else {
     esbuild.build(config).then(() => {
       console.log(`Enlightenment assets generated: ${outdir}/*${suffix}.js`);

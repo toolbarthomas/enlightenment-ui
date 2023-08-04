@@ -18,6 +18,8 @@ import { defaultLoader, staticLoader } from "./utils/loader.mjs";
     ".js": `${suffix}${format === "cjs" ? ".cjs" : ".js"}`,
   };
 
+  console.log("use", defaultLoader);
+
   const config = {
     bundle: true,
     entryPoints: [...globSync("./src/components/*.ts")],
@@ -39,13 +41,12 @@ import { defaultLoader, staticLoader } from "./utils/loader.mjs";
   };
 
   if (argv.d || argv.devmode) {
-    (await esbuild.context(config))
-      .serve({ servedir: "dist" })
-      .then((result) => {
-        console.log(
-          `Enlightenment UI test server starter: ${result.host}:${result.port}`
-        );
-      });
+    const context = await esbuild.context(config);
+    context.serve({ servedir: "dist" }).then((result) => {
+      console.log(
+        `Enlightenment UI test server starter: ${result.host}:${result.port}`
+      );
+    });
   } else {
     esbuild.build(config).then(() => {
       console.log(`Enlightenment UI library created: ${outdir}/*${suffix}.js`);

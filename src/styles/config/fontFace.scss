@@ -1,12 +1,20 @@
+@import "../variables/typography";
+
 :root {
-  --webfont-base: "";
+  --webfont-base: $webfontBase;
 }
 
-@font-face {
-  src: url("@fontsource/nunito-sans/files/nunito-sans-latin-400-normal.woff2"),
-    url("@fontsource/nunito-sans/files/nunito-sans-latin-400-normal.woff");
-  font-family: "Lexend Webfont";
-  font-style: normal;
-  font-weight: 300;
-  font-display: swap;
+@mixin fontFace($cwd: "", $name: "", $style: normal, $weight: 400) {
+  @font-face {
+    src: url("#{$cwd}.woff2"), url("#{$cwd}.woff");
+    font-family: $name;
+    font-style: $style;
+    font-weight: $weight;
+    font-display: swap;
+  }
 }
+
+@include fontFace(
+  $name: $webfontBase,
+  $cwd: "@fontsource/nunito-sans/files/nunito-sans-latin-400-normal"
+);
