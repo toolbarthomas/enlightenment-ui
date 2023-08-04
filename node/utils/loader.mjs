@@ -1,3 +1,5 @@
+import { Enlightenment } from "@toolbarthomas/enlightenment/index.mjs";
+
 /**
  * Esbuild utility reducer to define a valid loader configuration to use within the
  * builder context.
@@ -24,4 +26,16 @@ export const staticLoader = (value, type) => {
   }, {});
 
   return loader || {};
+};
+
+/**
+ * Defines the default extensions that are used to generate the UI package
+ * correctly. We assume that the following extensions can be requested within
+ * the component context:
+ *   1. The imported asset from the script context: JS => import(foo.scss)
+ *   2. Any imported asset from the script's imported assets: SCSS => @import(bar.png)
+ */
+export const defaultLoader = {
+  ...staticLoader(Enlightenment.supportedImageExtensions, "copy"),
+  ...staticLoader(Enlightenment.supportedWebfontExtensions, "copy"),
 };

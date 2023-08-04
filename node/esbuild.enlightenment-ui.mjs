@@ -8,7 +8,7 @@ import { Enlightenment } from "@toolbarthomas/enlightenment/index.mjs";
 
 import { svgspritePlugin } from "./esbuild.svgsprite.plugin.mjs";
 
-import { staticLoader } from "./utils/loader.mjs";
+import { defaultLoader, staticLoader } from "./utils/loader.mjs";
 
 (async () => {
   const format = argv.f || argv.format || "esm";
@@ -16,11 +16,6 @@ import { staticLoader } from "./utils/loader.mjs";
   const outdir = "dist";
   const outExtension = {
     ".js": `${suffix}${format === "cjs" ? ".cjs" : ".js"}`,
-  };
-  const defaultLoader = {
-    ...staticLoader(Enlightenment.supportedImageExtensions, "copy"),
-    //@TODO .svg could conflict with svgsprite plugin
-    ...staticLoader(Enlightenment.supportedWebfontExtensions, "copy"),
   };
 
   const config = {
