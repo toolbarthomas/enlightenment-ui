@@ -8,7 +8,7 @@ import { Enlightenment } from "@toolbarthomas/enlightenment/index.mjs";
 
 import { svgspritePlugin } from "./esbuild.svgsprite.plugin.mjs";
 
-import { defaultLoader, staticLoader } from "./utils/loader.mjs";
+import { defaultLoader } from "./utils/loader.mjs";
 
 (async () => {
   const format = argv.f || argv.format || "esm";
@@ -17,8 +17,6 @@ import { defaultLoader, staticLoader } from "./utils/loader.mjs";
   const outExtension = {
     ".js": `${suffix}${format === "cjs" ? ".cjs" : ".js"}`,
   };
-
-  console.log("use", defaultLoader);
 
   const config = {
     bundle: true,

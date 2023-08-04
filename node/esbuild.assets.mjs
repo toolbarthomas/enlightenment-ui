@@ -4,7 +4,7 @@ import { resolvePlugin } from "@toolbarthomas/enlightenment/node/esbuild.resolve
 import { argv } from "@toolbarthomas/enlightenment/node/argv.mjs";
 
 import { Enlightenment } from "@toolbarthomas/enlightenment/index.mjs";
-import { defaultLoader, staticLoader } from "./utils/loader.mjs";
+import { defaultLoader } from "./utils/loader.mjs";
 
 (async () => {
   const suffix = argv.m || argv.minify ? ".min" : "";
