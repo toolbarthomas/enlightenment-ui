@@ -107,7 +107,6 @@ button {
     &[disabled],
     &--is-disabled {
       &::before {
-        z-index: -1;
         position: absolute;
         top: 0;
         right: 0;
@@ -169,9 +168,9 @@ button {
       }
     }
 
-    &--is-disabled {
-      opacity: 0.8;
-    }
+    // &--is-disabled {
+    //   opacity: 0.8;
+    // }
   }
 }
 
@@ -187,6 +186,10 @@ button {
   }
 
   &__label {
+    slot {
+      @include visuallyHidden();
+    }
+
     .button--is-visually-hidden &,
     slot {
       @include visuallyHidden();
