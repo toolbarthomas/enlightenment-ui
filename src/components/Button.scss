@@ -1,3 +1,8 @@
+@import "../styles/mixins/visually-hidden";
+@import "../styles/mixins/box-sizing";
+
+@include boxSizing();
+
 @mixin buttonColor($color: "white", $light: 500, $shade: 800, $delta: 200) {
   $invert: 900;
   @if $light > 500 {
@@ -7,20 +12,67 @@
   &--in-#{$color} {
     color: var(--#{$color}-#{$shade});
     background-color: var(--#{$color}-#{$light});
-    border-bottom: solid var(--space-2) var(--black-a5);
-    // box-shadow: 0 var(--space-1) var(--space-2) var(--#{$color}-#{$shade}-a40),
-    //   0 var(--space-4) var(--space-8) var(--#{$color}-#{$shade}-a20);
+    box-shadow: inset 0 calc(var(--space-0) - var(--space-1)) 0 0
+      var(--black-a10);
+    // border-bottom: solid var(--space-2) var(--black-a10);
+    // border-top: solid var(--space-1) var(--#{$color}-#{$light});
+
+    &.button--is-disabled,
+    &[disabled] {
+      &::before {
+        background: repeating-linear-gradient(
+          45deg,
+          var(--#{$color}-#{$light}-a10),
+          var(--#{$color}-#{$light}-a10) var(--space-12),
+          var(--#{$color}-#{$shade}-a10) var(--space-12),
+          var(--#{$color}-#{$shade}-a10) var(--space-24)
+        );
+      }
+    }
+
+    &.button--is-faded {
+      background: linear-gradient(
+        0deg,
+        var(--#{$color}-#{$light}),
+        var(--#{$color}-#{$light - $delta})
+      );
+      border: none;
+      box-shadow: 0 var(--space-2) var(--space-4) var(--#{$color}-#{$shade}-a10);
+
+      &::before {
+        box-shadow: inset 0 var(--space-1) 0 var(--#{$color}-100-a20);
+        border: solid var(--space-2) var(--black-a5);
+      }
+    }
 
     &:focus-visible {
       color: var(--#{$color}-#{$invert});
       text-decoration: underline;
-      box-shadow: 0 0 0 var(--space-2) currentColor;
+      outline: solid var(--space-2) currentColor;
+      outline-offset: var(--space-2);
     }
 
     .button__ripple {
       background-color: var(--#{$color}-200);
     }
+
+    .button__icon {
+      fill: var(--#{$color}-#{$shade + 100});
+    }
+
+    .button__indicator {
+      border-color: var(--#{$color}-#{$shade}-a50);
+
+      &::before {
+        border-top-color: var(--#{$color}-#{$shade}-a70);
+      }
+    }
   }
+}
+
+:host {
+  display: inline-block;
+  vertical-align: middle;
 }
 
 a,
@@ -32,41 +84,63 @@ button {
     border: none;
 
     cursor: pointer;
-    display: inline-flex;
+    display: flex;
     font-family: var(--webfont-base);
     font-size: var(--space-14);
     font-weight: 500;
     justify-content: center;
     outline: none;
     overflow: hidden;
-    padding: var(--space-8) var(--space-16)
-      calc(var(--space-8) - var(--space-1));
+    padding: var(--space-8) var(--space-16);
     position: relative;
     text-align: center;
     transition: var(--velocity-default) var(--easing-default);
     transition-property: box-shadow color opacity;
     @include buttonColor($color: "dawn");
 
-    &,
-    &:focus-visible {
-      outline: none;
+    &[disabled],
+    &--is-disabled {
+      cursor: not-allowed;
     }
 
-    &:active {
-      transition-delay: 20ms;
-      opacity: 1;
-      transform: scale(0.98);
-      border-bottom-color: transparent;
+    &--is-faded,
+    &[disabled],
+    &--is-disabled {
+      &::before {
+        z-index: -1;
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        content: "";
+        border-radius: inherit;
+        display: block;
+      }
+    }
+
+    &:active:not([disabled]) {
+      &::before {
+        border: none;
+      }
     }
 
     @include buttonColor($color: "dusk", $shade: 400, $light: 800, $delta: 100);
     @include buttonColor($color: "blue", $shade: 800, $light: 400, $delta: 100);
+
+    &--is-visually-hidden {
+      padding: var(--space-8);
+    }
 
     &--is-medium {
       font-size: var(--space-16);
       border-radius: var(--space-8);
       padding: var(--space-12) var(--space-24)
         calc(var(--space-12) - var(--space-1));
+
+      &.button--is-visually-hidden {
+        padding: var(--space-10);
+      }
     }
 
     &--is-large {
@@ -75,6 +149,10 @@ button {
       font-size: var(--space-18);
       padding: var(--space-16) var(--space-32)
         calc(var(--space-16) - var(--space-1));
+
+      &.button--is-visually-hidden {
+        padding: var(--space-10);
+      }
     }
 
     &--is-square {
@@ -85,13 +163,21 @@ button {
       border-radius: var(--space-48);
       padding-left: var(--space-24);
       padding-right: var(--space-24);
+
+      &.button--is-visually-hidden {
+        padding: var(--space-8);
+      }
+    }
+
+    &--is-disabled {
+      opacity: 0.8;
     }
   }
 }
 
 .button {
   &__ripple {
-    animation: slideIn var(--velocity-slow) 1;
+    animation: rippleAnimation var(--velocity-slow) 1;
     background-color: var(--white);
     border-radius: 50%;
     opacity: 1;
@@ -99,11 +185,113 @@ button {
     transform: scale(0);
     user-select: none;
   }
+
+  &__label {
+    .button--is-visually-hidden &,
+    slot {
+      @include visuallyHidden();
+    }
+  }
+
+  &__icon-wrapper {
+    display: flex;
+    flex-shrink: 0;
+    position: relative;
+    align-items: center;
+    justify-content: center;
+    width: var(--space-24);
+    height: var(--space-24);
+    order: -1;
+
+    .button:not(.button--is-visually-hidden) & {
+      margin-right: var(--space-8);
+      margin-left: calc(var(--space-0) - var(--space-10));
+    }
+
+    .button--is-disabled & {
+      opacity: 0.6;
+    }
+
+    .button--is-rtl:not(.button--is-visually-hidden) & {
+      order: 0;
+      margin-left: var(--space-8);
+      margin-right: calc(var(--space-0) - var(--space-10));
+    }
+
+    .button--is-small & {
+      width: var(--space-16);
+      height: var(--space-16);
+    }
+
+    .button--is-large & {
+      width: var(--space-32);
+      height: var(--space-32);
+    }
+  }
+
+  &__icon {
+    fill: currentColor;
+    width: 100%;
+    height: 100%;
+
+    .button--is-loading & {
+      visibility: hidden;
+    }
+
+    &.button--is-large,
+    &.button--is-medium {
+      width: 80%;
+      height: 80%;
+    }
+  }
+
+  &__indicator {
+    display: block;
+    width: 100%;
+    height: 100%;
+    flex-grow: 1;
+    flex-shrink: 0;
+    position: relative;
+    border-radius: var(--space-48);
+    border: solid var(--space-2) currentColor;
+
+    .button--is-medium & {
+      border-width: var(--space-4);
+    }
+
+    .button--is-large & {
+      border-width: var(--space-6);
+    }
+
+    &::before {
+      display: block;
+      position: inherit;
+      border-radius: inherit;
+      box-sizing: content-box;
+      content: " ";
+      width: 100%;
+      height: 100%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      border-radius: inherit;
+      border: inherit;
+      border-color: transparent;
+      border-top-color: currentColor;
+      animation: rotateAnimation var(--velocity-slowest) linear infinite;
+    }
+  }
 }
 
-@keyframes slideIn {
+@keyframes rippleAnimation {
   to {
     transform: scale(4);
     opacity: 0;
+  }
+}
+
+@keyframes rotateAnimation {
+  to {
+    transform: translate(-50%, -50%) rotate(1turn);
   }
 }

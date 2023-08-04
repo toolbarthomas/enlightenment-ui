@@ -13,19 +13,52 @@ import styles from "./Button.scss";
 @customElement("ui-button")
 class EnlightenmentButton extends Enlightenment {
   static styles = [styles];
-  kw;
 
   @property({ type: String })
   color = "dawn";
 
   @property({ type: String })
+  direction = "ltr";
+
+  @property({
+    converter: (value) => (value !== undefined ? true : false),
+    type: String,
+  })
+  disabled: boolean;
+
+  @property({ type: String })
   label?: string;
+
+  @property({ type: String })
+  loadingMessage = "Loading";
 
   @property({ type: String })
   shape = "soft";
 
   @property({ type: String })
-  size = "small";
+  size = "medium";
+
+  @property({ type: String })
+  skin = "default";
+
+  @property({ type: String })
+  icon: string;
+
+  @property({
+    converter: (value) => {
+      return value !== undefined || false;
+    },
+    type: Boolean,
+  })
+  hideText: boolean;
+
+  @property({
+    converter: (value) => {
+      return value !== undefined || false;
+    },
+    type: Boolean,
+  })
+  loading: boolean;
 
   @property({ type: Function })
   onClick?: Function;
@@ -46,8 +79,6 @@ class EnlightenmentButton extends Enlightenment {
 
     const context = this.useRef(this.context);
 
-    console.log(event.target);
-
     if (context && this.isComponentContext(event.target)) {
       const ripple = document.createElement("span");
       ripple.classList.add("button__ripple");
@@ -59,6 +90,18 @@ class EnlightenmentButton extends Enlightenment {
       ripple.style.height = `${diameter}px`;
       ripple.style.left = `${event.clientX - (context.offsetLeft + radius)}px`;
       ripple.style.top = `${event.clientY - (context.offsetTop + radius)}px`;
+
+      // Center the ripple if the click was triggered from the keyboard.
+      if (
+        diameter / 2 <=
+        Math.abs(event.clientX - (context.offsetLeft + radius))
+      ) {
+        ripple.style.left = `${context.clientWidth / 2 - diameter / 2}px`;
+        ripple.style.top = `${context.clientHeight / 2 - diameter / 2}px`;
+        console.log(ripple.style.left, ripple.style.top);
+      }
+
+      console.log(diameter / 2, ripple.style.left);
 
       context.appendChild(ripple);
       context.addEventListener("animationend", () => ripple.remove(), {
@@ -79,20 +122,71 @@ class EnlightenmentButton extends Enlightenment {
     this.onClick && this.onClick(event);
   }
 
+  renderAfter() {
+    if (this.icon || this.loading) {
+      return html`
+        <span class="button__icon-wrapper">
+          ${this.renderIndicator()} ${this.renderIcon()}
+        </span>
+      `;
+    }
+  }
+
+  renderBefore() {
+    if (this.loading) {
+      return html`<span class="button__label">${this.loadingMessage}</span>`;
+    }
+
+    if (this.hideText) {
+      return html`
+        <span class="button__label"><slot>${this.label}</slot></span>
+      `;
+    }
+
+    return html`<slot>${this.label}</slot>`;
+  }
+
+  renderIndicator() {
+    return this.loading && html`<span class="button__indicator"></span>`;
+  }
+
+  renderIcon() {
+    return (
+      this.icon && this.renderImage(this.icon, { classname: "button__icon" })
+    );
+  }
+
   render() {
     const classes = [
       "button",
+      `button--in-${this.color}`,
+      `button--is-${this.direction}`,
       `button--is-${this.shape}`,
       `button--is-${this.size}`,
-      `button--in-${this.color}`,
+      `button--is-${this.skin}`,
     ];
 
-    return html`<button
-      @click="${this.handleClick}"
-      ref="${ref(this.context)}"
-      class="${classes.join(" ")}"
-    >
-      <slot>${this.label}</slot>
-    </button>`;
+    if (this.disabled) {
+      classes.push("button--is-disabled");
+    }
+
+    if (this.hideText) {
+      classes.push("button--is-visually-hidden");
+    }
+
+    if (this.loading) {
+      classes.push("button--is-loading");
+    }
+
+    return html`
+      <button
+        @click="${this.handleClick}"
+        ?disabled=${this.disabled}
+        ref="${ref(this.context)}"
+        class="${classes.join(" ")}"
+      >
+        ${this.renderBefore()} ${this.renderAfter()}
+      </button>
+    `;
   }
 }

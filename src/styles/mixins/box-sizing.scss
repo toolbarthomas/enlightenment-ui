@@ -1,0 +1,12 @@
+/**
+ * CSS box-sizing snippet for all elements.
+ */
+@mixin boxSizing() {
+  * {
+    &,
+    &::after,
+    &::before {
+      box-sizing: border-box;
+    }
+  }
+}
