@@ -19,6 +19,7 @@
 
     &.button--is-disabled,
     &[disabled] {
+      opacity: 0.8;
       &::before {
         background: repeating-linear-gradient(
           45deg,
@@ -30,18 +31,111 @@
       }
     }
 
+    &.button--is-clear,
     &.button--is-faded {
+      border: none;
+      box-shadow: none;
+      color: var(--#{$color}-700);
+
+      &::after {
+        position: absolute;
+        left: var(--space-16);
+        max-width: 0%;
+        right: var(--space-16);
+        display: block;
+        top: 50%;
+        border-radius: var(--space-1);
+        margin-top: var(--space-8);
+        pointer-events: none;
+        user-select: none;
+        opacity: 0;
+        content: " ";
+        height: var(--space-2);
+        background-color: currentColor;
+        transition: var(--velocity-default) var(--easing-default);
+        transition-property: max-width opacity;
+      }
+
+      &.button--is-medium {
+        &::after {
+          margin-top: var(--space-10);
+        }
+      }
+
+      &.button--is-large {
+        &::after {
+          margin-top: var(--space-12);
+        }
+      }
+
+      &,
+      &.button--is-disabled,
+      &[disabled] {
+        opacity: 0.8;
+        &,
+        &:before {
+          background: none transparent;
+        }
+      }
+
+      &:focus-visible {
+        outline: none;
+        color: var(--#{$color}-#{$light});
+        text-decoration: none;
+      }
+
+      &:not(.button--is-loading) {
+        &:hover,
+        &:focus-visible,
+        &:active {
+          &::after {
+            max-width: 100%;
+            visibility: visible;
+            opacity: 1;
+          }
+        }
+      }
+
+      &[disabled],
+      &.button--is-disabled {
+        &::after {
+          background-color: var(--#{$color}-#{$shade + 100});
+          bottom: auto;
+          display: block;
+          margin: 0;
+          max-width: 100%;
+          opacity: 0.6;
+          top: auto;
+          visibility: visible;
+        }
+      }
+
+      .button__ripple {
+        background-color: var(--#{$color}-700);
+        opacity: 0.4;
+      }
+    }
+
+    &.button--is-shaded {
       background: linear-gradient(
         0deg,
         var(--#{$color}-#{$light}),
         var(--#{$color}-#{$light - $delta})
       );
       border: none;
+      text-shadow: 0 var(--space-2) 0 var(--#{$color}-#{$light});
       box-shadow: 0 var(--space-2) var(--space-4) var(--#{$color}-#{$shade}-a10);
 
       &::before {
-        box-shadow: inset 0 var(--space-1) 0 var(--#{$color}-100-a20);
-        border: solid var(--space-2) var(--black-a5);
+        transition: border var(--velocity-default) var(--easing-default);
+        box-shadow: inset 0 var(--space-4) var(--space-8)
+            var(--#{$color}-100-a5),
+          inset 0 var(--space-1) 0 var(--#{$color}-100-a50);
+        border: solid var(--space-2) var(--black-a10);
+      }
+
+      .button__ripple {
+        opacity: 0.5;
       }
     }
 
@@ -103,7 +197,7 @@ button {
       cursor: not-allowed;
     }
 
-    &--is-faded,
+    &--is-shaded,
     &[disabled],
     &--is-disabled {
       &::before {
@@ -120,12 +214,12 @@ button {
 
     &:active:not([disabled]) {
       &::before {
-        border: none;
+        border-color: transparent;
       }
     }
 
     @include buttonColor($color: "dusk", $shade: 400, $light: 800, $delta: 100);
-    @include buttonColor($color: "blue", $shade: 800, $light: 400, $delta: 100);
+    @include buttonColor($color: "blue", $shade: 800, $light: 500, $delta: 100);
 
     &--is-visually-hidden {
       padding: var(--space-8);
@@ -177,6 +271,7 @@ button {
 .button {
   &__ripple {
     animation: rippleAnimation var(--velocity-slow) 1;
+    animation-fill-mode: forwards;
     background-color: var(--white);
     border-radius: 50%;
     opacity: 1;

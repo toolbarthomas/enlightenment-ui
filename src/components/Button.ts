@@ -88,8 +88,13 @@ class EnlightenmentButton extends Enlightenment {
       const radius = diameter / 2;
       ripple.style.width = `${diameter}px`;
       ripple.style.height = `${diameter}px`;
-      ripple.style.left = `${event.clientX - (context.offsetLeft + radius)}px`;
-      ripple.style.top = `${event.clientY - (context.offsetTop + radius)}px`;
+      ripple.style.left = `${
+        event.clientX - (context.offsetLeft + radius) + window.scrollX
+      }px`;
+      ripple.style.top = `${
+        event.clientY - (context.offsetTop + radius) + window.scrollY
+      }px`;
+      console.log();
 
       // Center the ripple if the click was triggered from the keyboard.
       if (
@@ -98,10 +103,7 @@ class EnlightenmentButton extends Enlightenment {
       ) {
         ripple.style.left = `${context.clientWidth / 2 - diameter / 2}px`;
         ripple.style.top = `${context.clientHeight / 2 - diameter / 2}px`;
-        console.log(ripple.style.left, ripple.style.top);
       }
-
-      console.log(diameter / 2, ripple.style.left);
 
       context.appendChild(ripple);
       context.addEventListener("animationend", () => ripple.remove(), {
