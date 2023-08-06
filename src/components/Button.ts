@@ -42,6 +42,24 @@ class EnlightenmentButton extends Enlightenment {
   skin = "default";
 
   @property({ type: String })
+  type = "button";
+
+  // Renders the component as anchor element with the defined href attribute
+  // that is always resolved as internal URL.
+  @property({
+    converter: (value: any) => {
+      console.log("convert", typeof value);
+      if (typeof value !== "string") {
+        return;
+      }
+
+      return Enlightenment.resolveURL(value);
+    },
+    type: String,
+  })
+  href: string;
+
+  @property({ type: String })
   icon: string;
 
   @property({
@@ -60,6 +78,12 @@ class EnlightenmentButton extends Enlightenment {
     type: Boolean,
   })
   loading: boolean;
+
+  @property({
+    converter: Enlightenment.isTarget,
+    type: Boolean,
+  })
+  target = "_self";
 
   @property({ type: Function })
   onClick?: Function;
@@ -118,6 +142,10 @@ class EnlightenmentButton extends Enlightenment {
    * Defines the click logic for the rendered component.
    */
   handleClick(event: MouseEvent) {
+    if (this.href) {
+      return;
+    }
+
     event && event.preventDefault();
 
     if (this.disabled) {
@@ -194,12 +222,26 @@ class EnlightenmentButton extends Enlightenment {
       classes.push("button--has-icon");
     }
 
+    if (this.href) {
+      return html`<a
+        ?disabled=${this.disabled}
+        @click="${this.handleClick}"
+        class="${classes.join(" ")}"
+        href="${this.href}"
+        ref="${ref(this.context)}"
+        target="${this.target}"
+      >
+        ${this.renderBefore()} ${this.renderAfter()}
+      </a>`;
+    }
+
     return html`
       <button
-        @click="${this.handleClick}"
         ?disabled=${this.disabled}
-        ref="${ref(this.context)}"
+        @click="${this.handleClick}"
         class="${classes.join(" ")}"
+        ref="${ref(this.context)}"
+        type="${this.type}"
       >
         ${this.renderBefore()} ${this.renderAfter()}
       </button>
