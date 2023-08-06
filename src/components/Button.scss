@@ -39,7 +39,7 @@
 
     :host([mode="dark"]) & {
       &.button--is-clear {
-        color: var(--#{$color}-500);
+        color: var(--#{$color}-400);
       }
     }
 
@@ -113,7 +113,8 @@
       .button__label {
         &::after {
           position: absolute;
-          left: 0;
+          left: 50%;
+          transform: translateX(-50%);
           display: block;
           bottom: 0;
           width: 0;
@@ -124,7 +125,7 @@
           content: " ";
           height: var(--space-2);
           background-color: currentColor;
-          transition: var(--velocity-default) var(--easing-default);
+          transition: var(--velocity-default) ease-in-out;
           transition-property: width, opacity;
         }
       }
@@ -153,7 +154,7 @@
           .button__label {
             &::after {
               width: 100%;
-              opacity: 1;
+              opacity: 0.8;
             }
           }
         }
@@ -339,10 +340,10 @@ button {
       $textColor: var(--white)
     );
     @include buttonColor(
-      $color: "blue2",
-      $shade: 800,
-      $light: 600,
-      $delta: 100
+      $color: "red",
+      $shade: 600,
+      $light: 400,
+      $textColor: var(--white)
     );
 
     &--is-visually-hidden {
