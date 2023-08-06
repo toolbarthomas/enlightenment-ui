@@ -8,7 +8,8 @@
   $light: 500,
   $shade: 800,
   $delta: 200,
-  $textColor: false
+  $textColor: false,
+  $max: 900
 ) {
   $invert: 900;
   @if $light > 500 {
@@ -19,10 +20,21 @@
     background-color: var(--#{$color}-#{$light});
     box-shadow: inset 0 calc(var(--space-0) - var(--space-1)) 0 0
       var(--black-a10);
+
     @if $textColor {
+      :host([mode="dark"]) & {
+        color: var(--#{$color}-900);
+      }
+
       color: $textColor;
     } @else {
       color: var(--#{$color}-#{$shade});
+
+      @if $shade + 100 <= $max {
+        :host([mode="dark"]) & {
+          color: var(--#{$color}-#{$shade + 100});
+        }
+      }
     }
 
     &:not(.button--is-disabled):not(.button--is-clear):not(
@@ -30,8 +42,10 @@
       ):hover {
       background-color: var(--#{$color}-#{$light + 100});
 
-      :host([mode="dark"]) & {
-        background-color: var(--#{$color}-#{$light - 100});
+      @if $light - 100 >= 100 {
+        :host([mode="dark"]) & {
+          background-color: var(--#{$color}-#{$light - 100});
+        }
       }
     }
 
@@ -54,6 +68,36 @@
       box-shadow: none;
       color: var(--#{$color}-700);
 
+      &,
+      &.button--is-disabled,
+      &[disabled] {
+        opacity: 0.8;
+        &,
+        &:before {
+          background: none transparent;
+        }
+      }
+
+      &[disabled],
+      &.button--is-disabled {
+        &::after {
+          @if $shade + 100 <= $max {
+            background-color: var(--#{$color}-#{$shade + 100});
+          }
+        }
+
+        .button__icon {
+          fill: currentColor;
+        }
+      }
+
+      .button__ripple {
+        background-color: var(--#{$color}-700);
+        opacity: 0.4;
+      }
+    }
+
+    &.button--is-clear {
       &::after {
         position: absolute;
         left: var(--space-16);
@@ -70,35 +114,25 @@
         height: var(--space-2);
         background-color: currentColor;
         transition: var(--velocity-default) var(--easing-default);
-        transition-property: max-width opacity;
-      }
-
-      &.button--is-medium {
-        &::after {
-          margin-top: var(--space-10);
-        }
-      }
-
-      &.button--is-large {
-        &::after {
-          margin-top: var(--space-12);
-        }
-      }
-
-      &,
-      &.button--is-disabled,
-      &[disabled] {
-        opacity: 0.8;
-        &,
-        &:before {
-          background: none transparent;
-        }
+        transition-property: max-width, opacity;
       }
 
       &:focus-visible {
         outline: none;
-        color: var(--#{$color}-#{$light});
         text-decoration: none;
+      }
+
+      &[disabled],
+      &.button--is-disabled {
+        &::after {
+          bottom: auto;
+          display: block;
+          margin: 0;
+          max-width: 100%;
+          opacity: 0.6;
+          top: auto;
+          visibility: visible;
+        }
       }
 
       &:not(.button--is-loading) {
@@ -111,25 +145,6 @@
             opacity: 1;
           }
         }
-      }
-
-      &[disabled],
-      &.button--is-disabled {
-        &::after {
-          background-color: var(--#{$color}-#{$shade + 100});
-          bottom: auto;
-          display: block;
-          margin: 0;
-          max-width: 100%;
-          opacity: 0.6;
-          top: auto;
-          visibility: visible;
-        }
-      }
-
-      .button__ripple {
-        background-color: var(--#{$color}-700);
-        opacity: 0.4;
       }
     }
 
@@ -175,7 +190,7 @@
 
       &::before {
         transition: var(--velocity-default) var(--easing-default);
-        transition-property: border box-shadow;
+        transition-property: border, box-shadow;
         box-shadow: inset 0 var(--space-4) var(--space-8)
             var(--#{$color}-100-a5),
           inset 0 var(--space-1) 0 var(--#{$color}-100-a50);
@@ -196,9 +211,9 @@
     }
 
     &:focus-visible {
-      color: var(--#{$color}-#{$invert});
+      // color: var(--#{$color}-#{$invert});
       text-decoration: underline;
-      outline: solid var(--space-2) currentColor;
+      outline: solid var(--space-4) var(--#{$color}-700);
       outline-offset: var(--space-2);
     }
 
@@ -210,8 +225,20 @@
     .button__icon {
       @if $textColor {
         fill: $textColor;
+
+        :host([mode="dark"]) & {
+          fill: var(--#{$color}-900);
+        }
       } @else {
-        fill: var(--#{$color}-#{$shade - 100});
+        @if $shade - 100 >= 100 {
+          fill: var(--#{$color}-#{$shade - 100});
+        }
+
+        @if $shade + 100 <= $max {
+          :host([mode="dark"]) & {
+            fill: var(--#{$color}-#{$shade + 100});
+          }
+        }
       }
     }
 
@@ -255,7 +282,7 @@ button {
     position: relative;
     text-align: center;
     transition: var(--velocity-default) var(--easing-default);
-    transition-property: box-shadow color opacity;
+    transition-property: background-color, box-shadow, color, opacity;
     @include buttonColor($color: "dawn");
 
     &[disabled],
@@ -291,6 +318,12 @@ button {
       $light: 600,
       $delta: 100,
       $textColor: var(--white)
+    );
+    @include buttonColor(
+      $color: "blue2",
+      $shade: 800,
+      $light: 600,
+      $delta: 100
     );
 
     &--is-visually-hidden {

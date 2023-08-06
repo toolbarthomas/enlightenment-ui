@@ -51,10 +51,9 @@ class EnlightenmentButton extends Enlightenment {
   hideText: boolean;
 
   @property({
-    // reflect: true,
     type: String,
   })
-  layout: "inline";
+  layout = "inline";
 
   @property({
     converter: Enlightenment.isBoolean,
