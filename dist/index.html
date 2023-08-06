@@ -99,6 +99,53 @@
     <ui-button mode="dark" size="medium" color="dusk" shape="pill" skin="shaded" loading icon="svg--chevron-right">Full
   </div>
 
+  <h3>Button callbacks</h3>
+  <script>
+    /**
+     * Attention! The following example includes the element and the callback
+     * into the DOM directly. You should wrap the actual button within an
+     * Lit Element or Enlightenment interface and assign the actual handler via
+     * its property: .onclick etc.
+     */
+    const btn = document.createElement('ui-button');
+    btn.onClick = (event) =>
+    {
+      if (!btn.hasAttribute('loading')) {
+        btn.setAttribute('loading', "true");
+      } else {
+        btn.setAttribute('disabled', "true");
+      }
+    };
+    btn.innerHTML = "Load something";
+    document.body.appendChild(btn);
+
+    const btn2 = document.createElement('ui-button');
+    btn2.onClick = (event) =>
+    {
+      console.log(parseInt(btn2.label), btn2.label);
+      btn2.setAttribute('label', String((parseInt(btn2.label || 0) + 1) || btn2.label))
+    };
+    btn2.label = "0";
+    document.body.appendChild(btn2);
+
+    const btn3 = document.createElement('ui-button');
+    btn3.onClick = (event) => btn3.remove && btn3.remove();
+    btn3.color = "red";
+    btn3.label = "Delete me";
+    document.body.appendChild(btn3);
+
+    const btn4 = document.createElement('ui-button');
+    btn4.onClick = (event) =>
+    {
+      const answer = window.prompt('Update the label');
+      btn4.setAttribute('label', answer);
+    };
+    btn4.color = "blue";
+    btn4.label = "<h3>Update</h3>";
+    document.body.appendChild(btn4);
+
+  </script>
+
 
 </body>
 

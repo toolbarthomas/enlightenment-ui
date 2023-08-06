@@ -120,7 +120,15 @@ class EnlightenmentButton extends Enlightenment {
   handleClick(event: MouseEvent) {
     event && event.preventDefault();
 
+    if (this.disabled) {
+      return;
+    }
+
     this.appenRipple(event);
+
+    if (this.preventEvent) {
+      return;
+    }
 
     this.onClick && this.onClick(event);
   }
