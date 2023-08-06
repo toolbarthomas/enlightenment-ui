@@ -21,7 +21,7 @@ class EnlightenmentButton extends Enlightenment {
   direction = "ltr";
 
   @property({
-    converter: (value) => (value !== undefined ? true : false),
+    converter: Enlightenment.isBoolean,
     type: String,
   })
   disabled: boolean;
@@ -45,17 +45,19 @@ class EnlightenmentButton extends Enlightenment {
   icon: string;
 
   @property({
-    converter: (value) => {
-      return value !== undefined || false;
-    },
+    converter: Enlightenment.isBoolean,
     type: Boolean,
   })
   hideText: boolean;
 
   @property({
-    converter: (value) => {
-      return value !== undefined || false;
-    },
+    // reflect: true,
+    type: String,
+  })
+  layout: "inline";
+
+  @property({
+    converter: Enlightenment.isBoolean,
     type: Boolean,
   })
   loading: boolean;
@@ -163,6 +165,7 @@ class EnlightenmentButton extends Enlightenment {
       "button",
       `button--in-${this.color}`,
       `button--is-${this.direction}`,
+      `button--is-${this.layout}`,
       `button--is-${this.shape}`,
       `button--is-${this.size}`,
       `button--is-${this.skin}`,
