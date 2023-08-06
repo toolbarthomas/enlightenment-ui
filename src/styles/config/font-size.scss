@@ -1,0 +1,19 @@
+@import "../variables/typography.scss";
+
+:root {
+  @each $heading, $size in $font-size-headings {
+    @if $size * 0.875 * 0.875 >= 1rem {
+      --font-size-#{$heading}: #{$size * 0.875 * 0.875};
+    } @else {
+      --font-size-#{$heading}: #{$size};
+    }
+
+    @if $size * 0.875 >= 1rem {
+      --font-size-#{$heading}-tablet: #{$size * 0.875};
+    } @else {
+      --font-size-#{$heading}-tablet: #{$size};
+    }
+
+    --font-size-#{$heading}-desktop: #{$size};
+  }
+}

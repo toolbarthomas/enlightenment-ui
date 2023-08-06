@@ -47,14 +47,7 @@ class EnlightenmentButton extends Enlightenment {
   // Renders the component as anchor element with the defined href attribute
   // that is always resolved as internal URL.
   @property({
-    converter: (value: any) => {
-      console.log("convert", typeof value);
-      if (typeof value !== "string") {
-        return;
-      }
-
-      return Enlightenment.resolveURL(value);
-    },
+    converter: (value: any) => Enlightenment.resolveURL(value),
     type: String,
   })
   href: string;

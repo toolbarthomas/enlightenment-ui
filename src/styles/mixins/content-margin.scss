@@ -1,0 +1,22 @@
+@use "sass:math";
+
+@import "../variables/breakpoints";
+
+/*
+ * Defines the response vertical margin that should be used for content
+ elements.
+ */
+@mixin contentMargin($margin: 1em, $multiplier: 1.0675) {
+  margin-top: $margin;
+  margin-bottom: math.div($margin, 3) * 2;
+
+  @media (min-width: $tablet) {
+    margin-top: $margin * $multiplier;
+    margin-bottom: math.div($margin * $multiplier, 3) * 2;
+  }
+
+  @media (min-width: $desktop) {
+    margin-top: $margin * $multiplier * $multiplier;
+    margin-bottom: math.div($margin * $multiplier * $multiplier, 3) * 2;
+  }
+}

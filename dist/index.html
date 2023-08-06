@@ -7,9 +7,11 @@
   <link rel="stylesheet" href="index.css">
 
   <script src="Button.js" type="module"></script>
+  <script src="Content.js" type="module"></script>
 </head>
 
 <body>
+  <h2>Button</h2>
   <h3>Button Size</h3>
   <ui-button size="small">Default button</ui-button>
   <ui-button>Medium button</ui-button>
@@ -154,6 +156,78 @@
     document.body.appendChild(btn4);
 
   </script>
+
+  <h2>Content</h2>
+  <ui-content title="Default Content">
+    <h1>Veniam qui nisi commodo Lorem excepteur.</h1>
+    <p>In enim et fugiat magna. Mollit exercitation ullamco deserunt nostrud sit mollit. Cillum et qui mollit Lorem
+      Lorem.</p>
+  </ui-content>
+
+  <ui-content layout="fluid" label="Content in grey" color="grey">
+    <div slot="summary">
+      Somebody summary
+    </div>
+
+    <ui-content>
+      <h1>Veniam qui nisi commodo Lorem excepteur.</h1>
+      <p>In enim et fugiat magna. Mollit exercitation ullamco deserunt nostrud sit mollit. Cillum et qui mollit Lorem
+        Lorem.</p>
+      <h2>Labore reprehenderit anim qui amet labore consequat qui.</h2>
+      <p>In enim et fugiat magna. Mollit exercitation ullamco deserunt nostrud sit mollit. Cillum et qui mollit Lorem
+        Lorem.</p>
+
+      <h3>Anim veniam do pariatur id incididunt ullamco nulla incididunt.</h3>
+      <p>In enim et fugiat magna. Mollit exercitation ullamco deserunt nostrud sit mollit. Cillum et qui mollit Lorem
+        Lorem.</p>
+
+      <h4>Sunt quis occaecat quis culpa do do non minim aliquip occaecat officia cillum veniam.</h4>
+      <p>In enim et fugiat magna. Mollit exercitation ullamco deserunt nostrud sit mollit. Cillum et qui mollit Lorem
+        Lorem.</p>
+
+      <h5>Esse dolor officia enim consequat minim magna irure id aliqua est cillum consectetur magna.</h5>
+      <p>In enim et fugiat magna. <q>Mollit exercitation ullamco deserunt nostrud sit mollit.</q> Cillum et qui mollit
+        Lorem
+        Lorem.</p>
+
+      <h6>Labore tempor excepteur quis cillum reprehenderit elit laboris reprehenderit aute eiusmod qui eiusmod ut
+        exercitation.</h6>
+      <blockquote cite="Author">
+        In do consectetur laboris proident adipisicing tempor elit nulla et ad duis.
+      </blockquote>
+      <p>In enim et <abbr title="Abbreviation">fugiat magna</abbr>. <strong>Mollit exercitation</strong> ullamco
+        deserunt
+        <em>nostrud sit mollit.</em>
+        Cillum et qui
+        mollit Lorem
+        Lorem.
+      </p>
+    </ui-content>
+  </ui-content>
+
+  <ui-content layout="fluid" label="Content in Darkmode" mode="dark">
+    <p slot="summary">Adipisicing nulla ut sit deserunt.</p>
+
+    <ui-content>
+      <h1>Veniam qui nisi commodo Lorem excepteur.</h1>
+      <p>In enim et fugiat magna. Mollit exercitation ullamco deserunt nostrud sit mollit. Cillum et qui mollit Lorem
+        Lorem.</p>
+      <h2>Labore reprehenderit anim qui amet labore consequat qui.</h2>
+    </ui-content>
+  </ui-content>
+
+  <ui-content layout="fluid" label="Content in grey Darkmode" mode="dark" color="grey">
+    <p slot="summary">Adipisicing nulla ut sit deserunt.</p>
+
+    <ui-content>
+      <h1>Veniam qui nisi commodo Lorem excepteur.</h1>
+      <p>In enim et fugiat magna. Mollit exercitation ullamco deserunt nostrud sit mollit. Cillum et qui mollit Lorem
+        Lorem.</p>
+      <h2>Labore reprehenderit anim qui amet labore consequat qui.</h2>
+      <ui-button mode="dark" color="dusk">Cancel</ui-button> or
+      <ui-button mode="dark" color="red">Do something dangerous</ui-button>
+    </ui-content>
+  </ui-content>
 
 
 </body>

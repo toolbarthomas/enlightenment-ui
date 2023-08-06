@@ -1,13 +1,14 @@
 @import "./config/animation";
-@import "./config/boxModel";
-@import "./config/colorChart";
-@import "./config/fontFace";
+@import "./config/box-model";
+@import "./config/color-chart";
+@import "./config/font-face";
+@import "./config/font-size";
 
 @import "./mixins/box-sizing";
 body {
   margin: 0;
   padding: 0;
-  font-family: $webfontBase;
+  font-family: $webfont-base;
   background: #f1f1f1;
 
   @include boxSizing();

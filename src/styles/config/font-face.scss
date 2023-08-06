@@ -1,10 +1,10 @@
 @import "../variables/typography";
 
 :root {
-  --webfont-base: "#{$webfontBase}";
+  --webfont-base: "#{$webfont-base}";
 }
 
-@mixin fontFace($path, $name: $webfontBase, $style: normal, $weight: 400) {
+@mixin fontFace($path, $name: $webfont-base, $style: normal, $weight: 400) {
   @if $path {
     @font-face {
       src: url("#{$path}.woff2"), url("#{$path}.woff");
