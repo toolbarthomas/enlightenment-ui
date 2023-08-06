@@ -22,7 +22,7 @@ class EnlightenmentButton extends Enlightenment {
 
   @property({
     converter: Enlightenment.isBoolean,
-    type: String,
+    type: Boolean,
   })
   disabled: boolean;
 
@@ -92,6 +92,7 @@ class EnlightenmentButton extends Enlightenment {
     super();
 
     this.svgSpriteSource = sprite;
+    this.disableGlobalEvents = true;
   }
 
   /**
