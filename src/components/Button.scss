@@ -211,7 +211,7 @@
       @if $textColor {
         fill: $textColor;
       } @else {
-        fill: var(--#{$color}-#{$shade + 100});
+        fill: var(--#{$color}-#{$shade - 100});
       }
     }
 
