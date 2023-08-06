@@ -146,7 +146,7 @@ class EnlightenmentButton extends Enlightenment {
       `;
     }
 
-    return html`<slot>${this.label}</slot>`;
+    return html`<span class="button__label"><slot>${this.label}</slot></span>`;
   }
 
   renderIndicator() {

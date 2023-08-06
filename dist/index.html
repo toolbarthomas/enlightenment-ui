@@ -19,10 +19,11 @@
   <ui-button label="Color Dawn"></ui-button>
   <ui-button color="dusk">Color Dusk</ui-button>
   <ui-button color="blue">Color Blue</ui-button>
+  <ui-button color="grey">Color Grey</ui-button>
 
   <h3>Button shapes</h3>
   <ui-button>Shape Soft</ui-button>
-  <ui-button shape="pill">Shape Pill</ui-button>
+  <ui-button shape="pill" color="grey">Shape Pill</ui-button>
   <ui-button shape="square">Shape Square</ui-button>
 
   <h3>Buttons Skins</h3>
@@ -33,7 +34,7 @@
   <ui-button size="medium" skin="clear" color="blue">Clear blue</ui-button>
   <ui-button size="large" skin="clear" color="dusk" shape="pill">Clear Dusk</ui-button>
   <ui-button size="medium" color="dusk" skin="faded" shape="pill">Small Faded Dusk</ui-button>
-  <ui-button size="medium" skin="faded" shape="pill">Faded Medium</ui-button>
+  <ui-button size="medium" color="grey" skin="faded" shape="pill">Faded Medium</ui-button>
   <ui-button size="large" color="blue" skin="faded" shape="pill" icon="svg--chevron-right" direction="rtl">Large Faded
     Blue</ui-button>
 
@@ -66,8 +67,9 @@
   <ui-button hideText icon="svg--chevron-right">No Label</ui-button>
   <ui-button size="large" hideText icon="svg--chevron-right">No Label</ui-button>
   <ui-button skin="shaded" size="small" hideText icon="svg--chevron-right">No Label</ui-button>
-  <ui-button skin="shaded" hideText icon="svg--chevron-right">No Label</ui-button>
-  <ui-button skin="shaded" color="dusk" size="large" hideText icon="svg--chevron-right">No Label</ui-button>
+  <ui-button skin="shaded" shape="pill" hideText icon="svg--chevron-right">No Label</ui-button>
+  <ui-button skin="shaded" color="dusk" shape="pill" size="large" hideText icon="svg--chevron-right">No
+    Label</ui-button>
 
   <h3>Loading Variants</h3>
   <ui-button size="small" loading icon="svg--chevron-right">Loading small</ui-button>
@@ -78,13 +80,21 @@
   <ui-button size="large" skin="clear" color="blue" loading icon="svg--chevron-right">Loading Clear Blue</ui-button>
 
   <h3>Layout Variants</h3>
-  <ui-button layout="full-width" size="large" color="blue" icon="svg--chevron-right">Full Width</ui-button>
+  <ui-button layout="full-width" size="small" shape="square" icon="svg--chevron-right">Full Width</ui-button>
+  <ui-button layout="full-width" size="medium" color="dusk" skin="clear" icon="svg--chevron-right">Full
+    Width</ui-button>
+  <ui-button layout="full-width" size="large" shape="pill" skin="faded" color="blue" icon="svg--chevron-right">Full
+    Width</ui-button>
 
   <h3>Button darkmode</h3>
-  <ui-button mode="dark" size="medium" icon="svg--chevron-right">Full Width</ui-button>
-  <ui-button mode="dark" size="medium" color="blue2" icon="svg--chevron-right">Full Width</ui-button>
-  <ui-button mode="dark" size="medium" color="blue" icon="svg--chevron-right">Full Width</ui-button>
-  <ui-button mode="dark" size="medium" color="dusk" icon="svg--chevron-right">Full Width</ui-button>
+  <div style="background-color: black; padding: 20px;">
+    <ui-button mode="dark" size="medium" icon="svg--chevron-right">Full Width</ui-button>
+    <ui-button mode="dark" skin="clear" size="medium">😎 Dark Mode</ui-button>
+    <ui-button mode="dark" size="medium" color="blue" skin="clear" loading icon="svg--chevron-right">Full
+      Width</ui-button>
+    <ui-button mode="dark" size="medium" color="dusk" icon="svg--chevron-right">Full Width</ui-button>
+    <ui-button mode="dark" size="medium" color="dusk" shape="pill" skin="shaded" loading icon="svg--chevron-right">Full
+  </div>
 
 
 </body>
