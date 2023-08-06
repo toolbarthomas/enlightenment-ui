@@ -411,27 +411,27 @@ button {
       @include visuallyHidden();
     }
 
-    .button--is-full-width & {
-      margin-right: calc(var(--space-24) + var(--space-8));
+    .button--is-full-width.button--has-icon & {
+      margin-right: var(--space-24);
     }
 
-    .button--is-small.button--is-full-width & {
-      margin-right: calc(var(--space-16) + var(--space-8));
+    .button--is-small.button--is-full-width.button--has-icon & {
+      margin-right: var(--space-16);
     }
 
-    .button--is-large.button--is-full-width & {
-      margin-right: calc(var(--space-32) + var(--space-8));
+    .button--is-large.button--is-full-width.button--has-icon & {
+      margin-right: var(--space-32);
     }
 
-    .button--is-rtl.button--is-small.button--is-full-width & {
+    .button--is-rtl.button--is-small.button--is-full-width.button--has-icon & {
       margin-left: calc(var(--space-16) + var(--space-8));
     }
 
-    .button--is-rtl.button--is-large.button--is-full-width & {
+    .button--is-rtl.button--is-large.button--is-full-width.button--has-icon & {
       margin-left: calc(var(--space-16) + var(--space-8));
     }
 
-    .button--is-rtl.button--is-full-width & {
+    .button--is-rtl.button--is-full-width.button--has-icon & {
       margin-right: 0;
       margin-left: calc(var(--space-24) + var(--space-8));
     }

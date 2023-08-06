@@ -182,6 +182,10 @@ class EnlightenmentButton extends Enlightenment {
       classes.push("button--is-loading");
     }
 
+    if (this.icon) {
+      classes.push("button--has-icon");
+    }
+
     return html`
       <button
         @click="${this.handleClick}"
