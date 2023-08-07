@@ -3,6 +3,7 @@ import {
   customElement,
   Enlightenment,
   html,
+  nothing,
   property,
   ref,
 } from "@toolbarthomas/enlightenment";
@@ -49,16 +50,16 @@ class EnlightenmentButton extends Enlightenment {
 
   renderSummary() {
     const { summary } = this.slots || {};
-    if (summary || this.label) {
-      return html`
-        <header class="content__header" ref="${ref(this.header)}">
-          ${this.renderLabel()}
-          <div class="content__summary">
-            <slot name="summary"></slot>
-          </div>
-        </header>
-      `;
-    }
+    // if (summary || this.label) {
+    return html`
+      <header class="content__header" ref="${ref(this.header)}">
+        ${this.renderLabel()}
+        <div class="content__summary">
+          <slot name="summary"></slot>
+        </div>
+      </header>
+    `;
+    // }
   }
 
   /**
@@ -81,6 +82,10 @@ class EnlightenmentButton extends Enlightenment {
   }
 
   renderLabel(tag?: string) {
+    if (!tag) {
+      return nothing;
+    }
+
     switch (tag) {
       case "h6":
         return html`<h6 class="content__label">${this.label}</h6>`;

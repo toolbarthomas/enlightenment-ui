@@ -6,7 +6,7 @@
  * Defines the response vertical margin that should be used for content
  elements.
  */
-@mixin contentMargin($margin: 1em, $multiplier: 1.0675) {
+@mixin content-margin($margin: 1em, $multiplier: 1.0675) {
   margin-top: $margin;
   margin-bottom: math.div($margin, 3) * 2;
 

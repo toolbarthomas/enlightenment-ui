@@ -1,19 +1,8 @@
+@import "../mixins/font-face";
 @import "../variables/typography";
 
 :root {
   --webfont-base: "#{$webfont-base}";
-}
-
-@mixin fontFace($path, $name: $webfont-base, $style: normal, $weight: 400) {
-  @if $path {
-    @font-face {
-      src: url("#{$path}.woff2"), url("#{$path}.woff");
-      font-family: $name;
-      font-style: $style;
-      font-weight: $weight;
-      font-display: swap;
-    }
-  }
 }
 
 @include fontFace(
