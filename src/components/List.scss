@@ -1,0 +1,25 @@
+@import "../styles/mixins/content-margin.scss";
+@import "../styles/mixins/responsive-font";
+
+ul,
+ol,
+dl,
+.list {
+  margin: 0;
+  padding: 0 0 0 2.75em;
+}
+
+.list {
+  line-height: 1.375;
+  @include responsive-font-size("base");
+}
+
+::slotted(*) {
+  @include responsive-font-size("base");
+}
+
+:host {
+  display: block;
+  @include content-margin($margin: 2em);
+  margin-bottom: 2em;
+}

@@ -149,8 +149,6 @@
       :host([mode="dark"]) & {
         color: var(--grey-800);
       }
-
-      // color: var(--grey-700);
     }
 
     &[aria-hidden="true"] {
@@ -160,5 +158,18 @@
 
   &__main {
     @include responsive-font-size("base");
+  }
+
+  &__link {
+    font-weight: 700;
+    color: var(--blue-700);
+
+    &:hover {
+      text-decoration: underline;
+    }
+
+    &:focus-visible {
+      outline: solid var(--space-2) currentColor;
+    }
   }
 }

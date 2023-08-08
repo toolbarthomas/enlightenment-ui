@@ -13,7 +13,7 @@ import sprite from "assets/svg/sprite.svg";
 import styles from "./Content.scss";
 
 @customElement("ui-content")
-class EnlightenmentButton extends Enlightenment {
+class EnlightenmentContent extends Enlightenment {
   static styles = [styles];
 
   @property({ type: String })
@@ -25,8 +25,36 @@ class EnlightenmentButton extends Enlightenment {
   @property({ type: String })
   label?: string;
 
+  anchor: Ref<Element> = createRef();
   header: Ref<Element> = createRef();
   main: Ref<Element> = createRef();
+
+  /**
+   *
+   */
+  public connectedCallback(): void {
+    super.connectedCallback();
+  }
+
+  // /**
+  //  * Styles the rendered anchor element within the slot element. This is only
+  //  * applied once since the Content component should be reattached if the slot
+  //  * content should be updated again. Actual view flow logic should be applied
+  //  * outside this component, this is just a basic wrapper to display (static)
+  //  * content.
+  //  */
+  // firstUpdated() {
+  //   super.firstUpdated();
+
+  //   // Create the handler once so it can be omitted from the listeners collection.
+  //   const callback = () =>
+  //     this.throttle(() => {
+  //       this.styleAnchor();
+  //       this.omitGlobalEvent("slotchange", callback);
+  //     });
+
+  //   this.assignGlobalEvent("slotchange", callback, this);
+  // }
 
   render() {
     const classes = [
@@ -57,6 +85,9 @@ class EnlightenmentButton extends Enlightenment {
         <div class="content__summary">
           <slot name="summary"></slot>
         </div>
+        <a ref="${ref(this.anchor)}" class="content__link" aria-hidden="true"
+          >&nbsp;</a
+        >
       </header>
     `;
     // }
@@ -106,4 +137,51 @@ class EnlightenmentButton extends Enlightenment {
         return html`<h1 class="content__label">${this.label}</h1>`;
     }
   }
+
+  // styleAnchor() {
+  //   const slot = this.useSlot();
+
+  //   if (!slot) {
+  //     return;
+  //   }
+
+  //   const nodes = slot.assignedElements();
+  //   if (!nodes.length) {
+  //     return;
+  //   }
+
+  //   const anchors = [];
+  //   for (let i = 0; i < nodes.length; i += 1) {
+  //     anchors.push(...nodes[i].querySelectorAll("a"));
+  //   }
+
+  //   if (!anchors.length) {
+  //     return;
+  //   }
+
+  //   const anchor = this.useRef(this.anchor);
+  //   if (!anchor) {
+  //     return;
+  //   }
+
+  //   const { display, ...style } = getComputedStyle(anchor);
+  //   const properties = Object.entries(style).filter(
+  //     ([property, value]) => value.length && isNaN(parseInt(property))
+  //   );
+
+  //   const cssText = properties
+  //     .map(
+  //       ([property, value]) =>
+  //         `${Enlightenment.camelCaseToSnakeCase(property)}: ${value};`
+  //     )
+  //     .join("\n");
+
+  //   for (let i = 0; i < anchors.length; i += 1) {
+  //     if (!anchors[i].style.cssText) {
+  //       anchors[i].style.cssText = cssText;
+  //     }
+  //   }
+
+  //   console.log(anchors);
+  // }
 }
