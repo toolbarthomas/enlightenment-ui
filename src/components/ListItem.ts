@@ -14,8 +14,8 @@ class EnlightenmentListItem extends Enlightenment {
   @property({ type: String })
   term?: string;
 
-  @property({ type: String })
-  type = "default";
+  @property({ attribute: "list-type", type: String })
+  listType = "default";
 
   constructor() {
     super();
@@ -24,15 +24,15 @@ class EnlightenmentListItem extends Enlightenment {
   }
 
   render() {
-    this.type = this.term ? "dl" : this.type;
-    const classes = ["list-item", `list-item--is-${this.type}`];
+    this.listType = this.term ? "dl" : this.listType;
+    const classes = ["list-item", `list-item--is-${this.listType}`];
 
-    const list = this.closest("[type]") || this.parentElement.closest("[type]");
-    if (list) {
-      this.type = list.getAttribute("type");
+    const list = this.parent("[list-type]");
+    if (!this.hasAttribute("list-type") && list) {
+      this.listType = list.getAttribute("list-type");
     }
 
-    switch (this.type) {
+    switch (this.listType) {
       case "dl":
         return html` ${this.term &&
           html`<dt class="list-item-term">${this.term}</dt>`}

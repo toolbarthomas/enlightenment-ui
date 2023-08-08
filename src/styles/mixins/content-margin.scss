@@ -7,16 +7,16 @@
  elements.
  */
 @mixin content-margin($margin: 1em, $multiplier: 1.0675) {
-  margin-top: $margin;
-  margin-bottom: math.div($margin, 3) * 2;
+  margin-top: math.div($margin, 3) * 2;
+  margin-bottom: $margin;
 
   @media (min-width: $tablet) {
-    margin-top: $margin * $multiplier;
-    margin-bottom: math.div($margin * $multiplier, 3) * 2;
+    margin-top: math.div($margin * $multiplier, 3) * 2;
+    margin-bottom: $margin * $multiplier;
   }
 
   @media (min-width: $desktop) {
-    margin-top: $margin * $multiplier * $multiplier;
-    margin-bottom: math.div($margin * $multiplier * $multiplier, 3) * 2;
+    margin-top: math.div($margin * $multiplier * $multiplier, 3) * 2;
+    margin-bottom: $margin * $multiplier * $multiplier;
   }
 }
