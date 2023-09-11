@@ -1,0 +1,10 @@
+.toolbar {
+  background-color: var(--grey-900);
+  color: var(--grey-100);
+  left: 0;
+  padding: var(--space-16) var(--space-24);
+  position: sticky;
+  top: 0;
+  width: 100%;
+  z-index: var(--depth-foreground);
+}

@@ -1,4 +1,4 @@
-@import "../variables/typography.scss";
+@import '../variables/typography.scss';
 
 :root {
   @each $heading, $size in $font-size-headings {

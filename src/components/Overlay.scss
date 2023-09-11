@@ -1,0 +1,16 @@
+.overlay {
+  position: fixed;
+  display: block;
+  top: 0;
+  left: 0;
+  bottom: 0;
+
+  &__wrapper {
+    display: flex;
+    margin: 0 auto;
+  }
+
+  &[aria-hidden='true'] {
+    transform: translateX(-100%);
+  }
+}

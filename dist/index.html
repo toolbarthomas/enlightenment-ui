@@ -8,9 +8,21 @@
 
   <script src="Button.js" type="module"></script>
   <script src="Content.js" type="module"></script>
+  <script src="Overlay.js" type="module"></script>
+  <script src="Toolbar.js" type="module"></script>
 </head>
 
 <body>
+  <ui-toolbar id="toolbar">
+    Enlightenment
+  </ui-toolbar>
+
+  <ui-overlay aria-owns="toolbar">
+    <p>Aliqua id culpa occaecat veniam consectetur ad Lorem reprehenderit. Veniam veniam velit officia sint tempor
+      cupidatat irure pariatur enim in. Nulla quis amet nisi adipisicing sunt culpa. Dolore enim aliquip in fugiat dolor
+      sunt. Exercitation incididunt enim mollit duis consequat nulla incididunt mollit velit fugiat.</p>
+  </ui-overlay>
+
   <h2>Button</h2>
   <h3>Button Size</h3>
   <ui-button size="small">Default button</ui-button>

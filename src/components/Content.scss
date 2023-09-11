@@ -1,7 +1,7 @@
-@import "../styles/mixins/content-margin";
+@import '../styles/mixins/content-margin';
 
-@import "../styles/variables/typography";
-@import "../styles/variables/breakpoints";
+@import '../styles/variables/typography';
+@import '../styles/variables/breakpoints';
 
 :host {
   --space-content: 1em;
@@ -100,7 +100,7 @@
     }
   }
 
-  :host([mode="dark"]) & {
+  :host([mode='dark']) & {
     background-color: var(--dusk-900-a95);
     color: var(--grey-700);
   }
@@ -112,7 +112,7 @@
   &--is-grey {
     background-color: var(--grey-500);
 
-    :host([mode="dark"]) & {
+    :host([mode='dark']) & {
       background-color: var(--dusk-900);
     }
   }
@@ -152,7 +152,7 @@
     @include contentMargin($margin: 1em);
     color: var(--grey-700);
 
-    :host([mode="dark"]) & {
+    :host([mode='dark']) & {
       color: var(--grey-800);
     }
 
@@ -162,7 +162,7 @@
       // color: var(--grey-700);
     }
 
-    &[aria-hidden="true"] {
+    &[aria-hidden='true'] {
       display: none;
     }
   }

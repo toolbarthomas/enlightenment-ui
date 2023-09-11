@@ -1,91 +1,85 @@
-import {
-  customElement,
-  Enlightenment,
-  html,
-  property,
-  ref,
-} from "@toolbarthomas/enlightenment";
+import { customElement, Enlightenment, html, property, ref } from '@toolbarthomas/enlightenment'
 
-import sprite from "assets/svg/sprite.svg";
+import sprite from 'assets/svg/sprite.svg'
 
-import styles from "./Button.scss";
+import styles from './Button.scss'
 
-@customElement("ui-button")
+@customElement('ui-button')
 class EnlightenmentButton extends Enlightenment {
-  static styles = [styles];
+  static styles = [styles]
 
   @property({ type: String })
-  color = "dawn";
+  color = 'dawn'
 
   @property({ type: String })
-  direction = "ltr";
+  direction = 'ltr'
 
   @property({
     converter: Enlightenment.isBoolean,
-    type: Boolean,
+    type: Boolean
   })
-  disabled: boolean;
+  disabled: boolean
 
   @property({ type: String })
-  label?: string;
+  label?: string
 
   @property({ type: String })
-  loadingMessage = "Loading";
+  loadingMessage = 'Loading'
 
   @property({ type: String })
-  shape = "soft";
+  shape = 'soft'
 
   @property({ type: String })
-  size = "medium";
+  size = 'medium'
 
   @property({ type: String })
-  skin = "default";
+  skin = 'default'
 
   @property({ type: String })
-  type = "button";
+  type = 'button'
 
   // Renders the component as anchor element with the defined href attribute
   // that is always resolved as internal URL.
   @property({
     converter: (value: any) => Enlightenment.resolveURL(value),
-    type: String,
+    type: String
   })
-  href: string;
+  href: string
 
   @property({ type: String })
-  icon: string;
+  icon: string
 
   @property({
     converter: Enlightenment.isBoolean,
-    type: Boolean,
+    type: Boolean
   })
-  hideText: boolean;
+  hideText: boolean
 
   @property({
-    type: String,
+    type: String
   })
-  layout = "inline";
+  layout = 'inline'
 
   @property({
     converter: Enlightenment.isBoolean,
-    type: Boolean,
+    type: Boolean
   })
-  loading: boolean;
+  loading: boolean
 
   @property({
     converter: Enlightenment.isTarget,
-    type: Boolean,
+    type: Boolean
   })
-  target = "_self";
+  target = '_self'
 
   @property({ type: Function })
-  onClick?: Function;
+  onClick?: Function
 
   constructor() {
-    super();
+    super()
 
-    this.svgSpriteSource = sprite;
-    this.disableGlobalEvents = true;
+    this.svgSpriteSource = sprite
+    this.disableGlobalEvents = true
   }
 
   /**
@@ -93,42 +87,35 @@ class EnlightenmentButton extends Enlightenment {
    */
   appenRipple(event: MouseEvent) {
     if (!event) {
-      return;
+      return
     }
 
-    const context = this.useRef(this.context);
+    const context = this.useRef(this.context)
 
     if (context && this.isComponentContext(event.target)) {
-      const ripple = document.createElement("span");
-      ripple.classList.add("button__ripple");
-      ripple.style.position = "absolute";
+      const ripple = document.createElement('span')
+      ripple.classList.add('button__ripple')
+      ripple.style.position = 'absolute'
 
-      const diameter = Math.max(context.clientWidth, context.clientHeight);
-      const radius = diameter / 2;
-      ripple.style.width = `${diameter}px`;
-      ripple.style.height = `${diameter}px`;
-      ripple.style.left = `${
-        event.clientX - (context.offsetLeft + radius) + window.scrollX
-      }px`;
-      ripple.style.top = `${
-        event.clientY - (context.offsetTop + radius) + window.scrollY
-      }px`;
-      console.log();
+      const diameter = Math.max(context.clientWidth, context.clientHeight)
+      const radius = diameter / 2
+      ripple.style.width = `${diameter}px`
+      ripple.style.height = `${diameter}px`
+      ripple.style.left = `${event.clientX - (context.offsetLeft + radius) + window.scrollX}px`
+      ripple.style.top = `${event.clientY - (context.offsetTop + radius) + window.scrollY}px`
+      console.log()
 
       // Center the ripple if the click was triggered from the keyboard.
-      if (
-        diameter / 2 <=
-        Math.abs(event.clientX - (context.offsetLeft + radius))
-      ) {
-        ripple.style.left = `${context.clientWidth / 2 - diameter / 2}px`;
-        ripple.style.top = `${context.clientHeight / 2 - diameter / 2}px`;
+      if (diameter / 2 <= Math.abs(event.clientX - (context.offsetLeft + radius))) {
+        ripple.style.left = `${context.clientWidth / 2 - diameter / 2}px`
+        ripple.style.top = `${context.clientHeight / 2 - diameter / 2}px`
       }
 
-      context.appendChild(ripple);
-      context.addEventListener("animationend", () => ripple.remove(), {
-        once: true,
-      });
-      this.throttle(() => ripple && ripple.remove(), 1000);
+      context.appendChild(ripple)
+      context.addEventListener('animationend', () => ripple.remove(), {
+        once: true
+      })
+      this.throttle(() => ripple && ripple.remove(), 1000)
     }
   }
 
@@ -137,108 +124,102 @@ class EnlightenmentButton extends Enlightenment {
    */
   handleClick(event: MouseEvent) {
     if (this.href) {
-      return;
+      return
     }
 
-    event && event.preventDefault();
+    event && event.preventDefault()
 
     if (this.disabled) {
-      return;
+      return
     }
 
-    this.appenRipple(event);
+    this.appenRipple(event)
 
     if (this.preventEvent) {
-      return;
+      return
     }
 
-    this.onClick && this.onClick(event);
+    this.onClick && this.onClick(event)
   }
 
   renderAfter() {
     if (this.icon || this.loading) {
       return html`
-        <span class="button__icon-wrapper">
-          ${this.renderIndicator()} ${this.renderIcon()}
-        </span>
-      `;
+        <span class="button__icon-wrapper"> ${this.renderIndicator()} ${this.renderIcon()} </span>
+      `
     }
   }
 
   renderBefore() {
     if (this.loading) {
-      return html`<span class="button__label">${this.loadingMessage}</span>`;
+      return html`<span class="button__label">${this.loadingMessage}</span>`
     }
 
     if (this.hideText) {
-      return html`
-        <span class="button__label"><slot>${this.label}</slot></span>
-      `;
+      return html` <span class="button__label"><slot>${this.label}</slot></span> `
     }
 
-    return html`<span class="button__label"><slot>${this.label}</slot></span>`;
+    return html`<span class="button__label"><slot>${this.label}</slot></span>`
   }
 
   renderIndicator() {
-    return this.loading && html`<span class="button__indicator"></span>`;
+    return this.loading && html`<span class="button__indicator"></span>`
   }
 
   renderIcon() {
-    return (
-      this.icon && this.renderImage(this.icon, { classname: "button__icon" })
-    );
+    return this.icon && this.renderImage(this.icon, { classname: 'button__icon' })
   }
 
   render() {
     const classes = [
-      "button",
+      'button',
       `button--in-${this.color}`,
       `button--is-${this.direction}`,
       `button--is-${this.layout}`,
       `button--is-${this.shape}`,
       `button--is-${this.size}`,
-      `button--is-${this.skin}`,
-    ];
+      `button--is-${this.skin}`
+    ]
 
     if (this.disabled) {
-      classes.push("button--is-disabled");
+      classes.push('button--is-disabled')
     }
 
     if (this.hideText) {
-      classes.push("button--is-visually-hidden");
+      classes.push('button--is-visually-hidden')
     }
 
     if (this.loading) {
-      classes.push("button--is-loading");
+      classes.push('button--is-loading')
     }
 
     if (this.icon) {
-      classes.push("button--has-icon");
+      classes.push('button--has-icon')
     }
 
     if (this.href) {
       return html`<a
         ?disabled=${this.disabled}
         @click="${this.handleClick}"
-        class="${classes.join(" ")}"
+        class="${classes.join(' ')}"
         href="${this.href}"
         ref="${ref(this.context)}"
         target="${this.target}"
       >
         ${this.renderBefore()} ${this.renderAfter()}
-      </a>`;
+      </a>`
     }
 
     return html`
       <button
         ?disabled=${this.disabled}
         @click="${this.handleClick}"
-        class="${classes.join(" ")}"
+        class="${classes.join(' ')}"
         ref="${ref(this.context)}"
         type="${this.type}"
       >
         ${this.renderBefore()} ${this.renderAfter()}
       </button>
-    `;
+    `
   }
 }

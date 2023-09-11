@@ -1,6 +1,6 @@
-@use "sass:math";
+@use 'sass:math';
 
-@import "../variables/colors";
+@import '../variables/colors';
 
 :root {
   @each $color, $shades in $colors {
@@ -23,11 +23,7 @@
       @each $shade in $shades {
         $index: $index + 1;
 
-        --#{$color}-#{$index * 100}: hsl(
-          #{nth($shade, 1),
-          nth($shade, 2),
-          nth($shade, 3)}
-        );
+        --#{$color}-#{$index * 100}: hsl(#{nth($shade, 1), nth($shade, 2), nth($shade, 3)});
 
         @for $i from 1 through 19 {
           --#{$color}-#{$index * 100}-a#{$i * 5}: hsla(
