@@ -1,12 +1,8 @@
 @import '../styles/mixins/content-margin';
+@import '../styles/mixins/responsive-font';
 
 @import '../styles/variables/typography';
 @import '../styles/variables/breakpoints';
-
-:host {
-  --space-content: 1em;
-  --space-title: calc(var(--space-content) * 0.67);
-}
 
 ::slotted(*:first-child) {
   margin-top: 0;
@@ -16,16 +12,20 @@
   margin-bottom: 0;
 }
 
-::slotted(:is(h1, h2, h3, h4, h5, h6, p)) {
+::slotted(:is(h1, h2, h3, h4, h5, h6)) {
   margin: 0;
 }
 
+@each $heading in $headings {
+  ::slotted(#{$heading}) {
+    @include responsive-font-size($heading);
+  }
+}
+
 ::slotted(:is(h1, h2)) {
-  margin-bottom: calc(calc(var(--space-title) / 3) * 2);
-  margin-top: var(--space-title);
   line-height: 1.2;
   font-weight: 900;
-  @include contentMargin($margin: 1.075em);
+  @include content-margin($margin: 1.075em);
 }
 
 ::slotted(:is(h3, h4, h5, h6)) {
@@ -34,36 +34,16 @@
 
 ::slotted(:is(h3, h4, h5, h6, p)) {
   line-height: normal;
-  @include contentMargin($margin: 1em);
+  @include content-margin($margin: 1em);
 }
 
 ::slotted(:is(address, bdo, blockquote, cite, dl, p, ol, ul)) {
-  line-height: 1.875em;
+  @include content-margin($margin: 1em);
+  line-height: 1.875;
 }
 
 ::slotted(:is(address, blockquote dl, p, ol, ul)) {
-  @include contentMargin($margin: 1em);
-}
-
-:host {
-  :slotte90 {
-    color: red;
-    margin-top: 0;
-  }
-}
-
-@each $heading in $headings {
-  ::slotted(#{$heading}) {
-    font-size: var(--font-size-#{$heading});
-
-    @media (min-width: $tablet) {
-      font-size: var(--font-size-#{$heading}-tablet);
-    }
-
-    @media (min-width: $desktop) {
-      font-size: var(--font-size-#{$heading}-desktop);
-    }
-  }
+  @include content-margin($margin: 1em);
 }
 
 .content {
@@ -133,11 +113,16 @@
   }
 
   &__header {
-    margin-bottom: var(--space-24);
+    margin-bottom: var(--space-32);
+
+    @media (min-width: $tablet) {
+      margin-bottom: var(--space-48);
+    }
   }
 
   &__label {
-    @include contentMargin($margin: 1em);
+    font-weight: 300;
+    @include content-margin($margin: 1em);
 
     &:first-child {
       margin-top: 0;
@@ -149,21 +134,42 @@
   }
 
   &__summary {
-    @include contentMargin($margin: 1em);
-    color: var(--grey-700);
+    @include responsive-font-size('summary');
+    @include content-margin($margin: 1em);
+    line-height: 1.125;
+    color: var(--grey-600);
 
     :host([mode='dark']) & {
-      color: var(--grey-800);
+      color: var(--grey-700);
     }
 
     #{$node}--is-grey & {
-      color: var(--grey-800);
+      color: var(--grey-700);
 
-      // color: var(--grey-700);
+      :host([mode='dark']) & {
+        color: var(--grey-800);
+      }
     }
 
     &[aria-hidden='true'] {
       display: none;
+    }
+  }
+
+  &__main {
+    @include responsive-font-size('base');
+  }
+
+  &__link {
+    font-weight: 700;
+    color: var(--blue-700);
+
+    &:hover {
+      text-decoration: underline;
+    }
+
+    &:focus-visible {
+      outline: solid var(--space-2) currentColor;
     }
   }
 }

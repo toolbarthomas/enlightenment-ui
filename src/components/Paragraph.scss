@@ -1,0 +1,17 @@
+@import "../styles/mixins/content-margin.scss";
+@import "../styles/mixins/responsive-font";
+
+.paragraph {
+  @include content-margin($margin: 1em);
+  line-height: 1.875;
+  @include responsive-font-size("base");
+}
+
+::slotted(a) {
+  color: var(--link-color);
+}
+
+:host {
+  display: block;
+  @include content-margin($margin: 1em);
+}

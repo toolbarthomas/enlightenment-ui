@@ -1,0 +1,36 @@
+@import "../variables/breakpoints";
+
+/*
+ * Defines font-size variables for multiple viewports that is based on the given
+ * $size value.
+ */
+@mixin define-font-size($name: "base", $size: 1rem) {
+  @if $size * 0.875 * 0.875 >= 1rem {
+    --font-size-#{$name}: #{$size * 0.875 * 0.875};
+  } @else {
+    --font-size-#{$name}: #{$size};
+  }
+
+  @if $size * 0.875 >= 1rem {
+    --font-size-#{$name}-tablet: #{$size * 0.875};
+  } @else {
+    --font-size-#{$name}-tablet: #{$size};
+  }
+
+  --font-size-#{$name}-desktop: #{$size};
+}
+
+/**
+ * Defines the font-size properties for multiple breakpoints.
+ */
+@mixin responsive-font-size($name: "base") {
+  font-size: var(--font-size-#{$name});
+
+  @media (min-width: $tablet) {
+    font-size: var(--font-size-#{$name}-tablet);
+  }
+
+  @media (min-width: $desktop) {
+    font-size: var(--font-size-#{$name}-desktop);
+  }
+}

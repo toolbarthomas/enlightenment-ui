@@ -1,19 +1,11 @@
 @import '../variables/typography.scss';
+@import '../mixins/responsive-font';
 
 :root {
   @each $heading, $size in $font-size-headings {
-    @if $size * 0.875 * 0.875 >= 1rem {
-      --font-size-#{$heading}: #{$size * 0.875 * 0.875};
-    } @else {
-      --font-size-#{$heading}: #{$size};
-    }
-
-    @if $size * 0.875 >= 1rem {
-      --font-size-#{$heading}-tablet: #{$size * 0.875};
-    } @else {
-      --font-size-#{$heading}-tablet: #{$size};
-    }
-
-    --font-size-#{$heading}-desktop: #{$size};
+    @include define-font-size($heading, $size);
   }
+
+  @include define-font-size('summary', 1.125rem);
+  @include define-font-size('base', 1rem);
 }
