@@ -4,6 +4,7 @@
 
 .drawer {
   display: flex;
+  flex-direction: column;
   position: fixed;
   top: 0;
   left: 0;
@@ -12,25 +13,6 @@
   width: 70%;
   max-width: var(--space-600);
   min-width: var(--space-320);
-
-  &__panel {
-    background-color: var(--dawn-100-a95);
-    display: flex;
-    align-self: stretch;
-    overflow: hidden;
-    padding: var(--space-16);
-
-    .drawer--is-floating & {
-      margin: var(--space-16);
-      border-radius: var(--space-16);
-    }
-  }
-
-  :host([mode='dark']) & {
-    background-color: var(--dusk-900-a95);
-    color: var(--dusk-400);
-  }
-
   visibility: hidden;
   opacity: 0;
   transition:
@@ -38,6 +20,59 @@
     transform var(--duration-default) var(--easing-default),
     opacity var(--duration-default) var(--easing-default),
     visibility 0ms linear var(--duration-default);
+
+  &--is-floating {
+    z-index: calc(var(--depth-foreground) + 1);
+  }
+
+  &__panel {
+    background-color: var(--dawn-100-a95);
+    display: flex;
+    flex-direction: column;
+    align-self: stretch;
+    overflow: hidden;
+
+    .drawer--is-floating & {
+      padding: 0 var(--space-16);
+    }
+
+    :host([mode='dark']) & {
+      background-color: var(--dusk-900-a95);
+      color: var(--dusk-400);
+    }
+
+    .drawer--is-floating & {
+      margin: var(--space-16);
+      border-radius: var(--space-16);
+    }
+  }
+
+  &__panel-header {
+    padding: var(--space-16) var(--space-16) 0;
+
+    .drawer--is-floating & {
+      padding: var(--space-16) 0 0;
+    }
+
+    &::after {
+      margin-right: calc(var(--space-0) - var(--space-16));
+      margin-left: calc(var(--space-0) - var(--space-16));
+      opacity: 0.1;
+      display: block;
+      content: ' ';
+      margin-top: var(--space-16);
+      height: var(--space-1);
+      background-color: currentColor;
+    }
+  }
+
+  &__label {
+    color: var(--grey-800);
+
+    :host([mode='dark']) & {
+      color: var(--grey-700);
+    }
+  }
 
   &--align-from-left {
     transform: translateX(-100%);
@@ -67,11 +102,29 @@
     transform: translateX(100%);
   }
 
+  :host([position='top']) &,
+  :host([position='bottom']) &,
+  &--align-from-top,
+  &--align-from-bottom {
+    &.drawer--is-floating {
+      max-width: var(--space-600);
+      left: 50%;
+
+      &.drawer--is-active {
+        transform: translateX(-50%);
+      }
+    }
+  }
+
   :host([position='bottom']) &,
   &--align-from-bottom {
     top: auto;
     bottom: 0;
     transform: translateY(100%);
+
+    &.drawer--is-floating {
+      transform: translate(-50%, 100%);
+    }
   }
 
   :host([position='top']) &,
@@ -79,6 +132,10 @@
     top: 0;
     bottom: auto;
     transform: translateY(-100%);
+
+    &.drawer--is-floating {
+      transform: translate(-50%, -100%);
+    }
   }
 
   &,
@@ -95,10 +152,15 @@
     }
   }
 
-  &__wrapper {
+  &__body {
     display: flex;
     margin: 0 auto;
     overflow: auto;
+    padding: var(--space-16);
+
+    .drawer--is-floating & {
+      padding: 0;
+    }
   }
 }
 

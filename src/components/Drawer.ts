@@ -16,17 +16,22 @@ class EnlightenmentDrawer extends Enlightenment {
   ready?: boolean = false
 
   @property({
+    attribute: 'active',
+    converter: Enlightenment.isBoolean,
+    type: Boolean
+  })
+  active: string | null
+
+  @property({
     converter: Enlightenment.isBoolean,
     type: Boolean
   })
   floating?: boolean
 
   @property({
-    attribute: 'active',
-    converter: Enlightenment.isBoolean,
-    type: Boolean
+    type: String
   })
-  active: string | null
+  label?: boolean
 
   @property({
     attribute: 'offset-element',
@@ -60,6 +65,18 @@ class EnlightenmentDrawer extends Enlightenment {
     } else {
       context.style.paddingTop = 0
     }
+  }
+
+  private _renderLabel() {
+    if (!this.label) {
+      return
+    }
+
+    return html`
+      <header class="drawer__panel-header">
+        <span class="drawer__label">${this.label}</span>
+      </header>
+    `
   }
 
   updated() {
@@ -155,7 +172,8 @@ class EnlightenmentDrawer extends Enlightenment {
     return html`
       <div ref="${ref(this.context)}" class="${classes.join(' ')}">
         <div class="drawer__panel">
-          <div class="drawer__wrapper">
+          ${this._renderLabel()}
+          <div class="drawer__body">
             <slot></slot>
           </div>
         </div>
