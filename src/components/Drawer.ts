@@ -10,21 +10,23 @@ import {
 import styles from './Drawer.scss'
 
 @customElement('ui-drawer')
-class Enlightenmentdrawer extends Enlightenment {
+class EnlightenmentDrawer extends Enlightenment {
   static styles = [styles]
+
+  ready?: boolean = false
 
   @property({
     converter: Enlightenment.isBoolean,
     type: Boolean
   })
-  visible?: boolean
+  floating?: boolean
 
   @property({
-    attribute: 'aria-hidden',
-    reflect: true,
-    type: String
+    attribute: 'active',
+    converter: Enlightenment.isBoolean,
+    type: Boolean
   })
-  ariaHidden: string | null
+  active: string | null
 
   @property({
     attribute: 'offset-element',
@@ -50,25 +52,43 @@ class Enlightenmentdrawer extends Enlightenment {
       return
     }
 
-    context.style.paddingTop = `${this.offsetElement.offsetHeight}px`
+    if (
+      this.offsetElement.getAttribute('aria-hidden') === 'false' ||
+      !this.offsetElement.hasAttribute('aria-hidden')
+    ) {
+      context.style.paddingTop = `${this.offsetElement.offsetHeight}px`
+    } else {
+      context.style.paddingTop = 0
+    }
   }
 
   updated() {
     super.updated()
 
     this._defineOffset()
+
+    // Will mark the defined Drawer as active and ensure the currentElement
+    // property is updated.
+    if (this.active) {
+      this.commit('currentElement', this.active)
+    }
+
+    const state = this.useState()
+
+    this.throttle(() => {
+      if (state && state.currentElements.filter((c) => c instanceof EnlightenmentDrawer).length) {
+        document.body.style.overflow = 'hidden'
+      } else {
+        document.body.style.overflow = 'initial'
+      }
+    })
   }
 
   connectedCallback() {
     super.connectedCallback()
 
     this.assignGlobalEvent('resize', this.handleResize, window)
-
-    this.throttle(() => {
-      if (this.visible) {
-        this.show()
-      }
-    })
+    this.assignGlobalEvent('scroll', this.handleScroll, window)
   }
 
   disconnectedCallback() {
@@ -79,6 +99,10 @@ class Enlightenmentdrawer extends Enlightenment {
 
   handleResize() {
     this.throttle(() => this._defineOffset())
+  }
+
+  handleScroll() {
+    this.handleResize()
   }
 
   protected handleGlobalClick(event: MouseEvent) {
@@ -102,19 +126,15 @@ class Enlightenmentdrawer extends Enlightenment {
   }
 
   hide() {
-    this.commit('ariaHidden', () => {
-      this.removeAttribute('visible')
-      this.visible = false
-      this.ariaHidden = 'true'
-    })
+    this.commit('active', false)
+
+    this.throttle(() => {
+      // this.useContext().classList.remove('drawer--is-active')
+    }, 200)
   }
 
   show() {
-    this.commit('ariaHidden', () => {
-      this.visible = undefined
-      this.removeAttribute('visible')
-      this.ariaHidden = 'false'
-    })
+    this.commit('active', true)
   }
 
   render() {
@@ -124,12 +144,23 @@ class Enlightenmentdrawer extends Enlightenment {
       classes.push(`drawer--align-from-${this.position}`)
     }
 
+    if (this.active) {
+      classes.push('drawer--is-active')
+    }
+
+    if (this.floating) {
+      classes.push('drawer--is-floating')
+    }
+
     return html`
       <div ref="${ref(this.context)}" class="${classes.join(' ')}">
-        <div class="drawer__wrapper">
-          <slot></slot>
+        <div class="drawer__panel">
+          <div class="drawer__wrapper">
+            <slot></slot>
+          </div>
         </div>
       </div>
+      <span class="drawer-backdrop"></span>
     `
   }
 }

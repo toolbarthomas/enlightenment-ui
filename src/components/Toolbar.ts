@@ -15,6 +15,12 @@ class EnlightenmentToolbar extends Enlightenment {
 
   previousScrollY?: number
 
+  @property({
+    converter: Enlightenment.isBoolean,
+    type: Boolean
+  })
+  autohide?: boolean
+
   connectedCallback() {
     super.connectedCallback()
 
@@ -22,6 +28,10 @@ class EnlightenmentToolbar extends Enlightenment {
   }
 
   handleScroll(event: Event) {
+    if (!this.autohide) {
+      return
+    }
+
     const { scrollY, innerHeight } = this.root
 
     if (scrollY >= innerHeight) {
