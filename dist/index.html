@@ -8,7 +8,7 @@
 
   <script src="Button.js" type="module"></script>
   <script src="Content.js" type="module"></script>
-  <script src="Overlay.js" type="module"></script>
+  <script src="Drawer.js" type="module"></script>
   <script src="Toolbar.js" type="module"></script>
 </head>
 
@@ -17,11 +17,30 @@
     Enlightenment
   </ui-toolbar>
 
-  <ui-overlay aria-owns="toolbar">
+
+  <ui-drawer offset-element="toolbar" visible position="left">
     <p>Aliqua id culpa occaecat veniam consectetur ad Lorem reprehenderit. Veniam veniam velit officia sint tempor
       cupidatat irure pariatur enim in. Nulla quis amet nisi adipisicing sunt culpa. Dolore enim aliquip in fugiat dolor
       sunt. Exercitation incididunt enim mollit duis consequat nulla incididunt mollit velit fugiat.</p>
-  </ui-overlay>
+  </ui-drawer>
+
+  <ui-drawer offset-element="toolbar" visible>
+    <p>Aliqua id culpa occaecat veniam consectetur ad Lorem reprehenderit. Veniam veniam velit officia sint tempor
+      cupidatat irure pariatur enim in. Nulla quis amet nisi adipisicing sunt culpa. Dolore enim aliquip in fugiat dolor
+      sunt. Exercitation incididunt enim mollit duis consequat nulla incididunt mollit velit fugiat.</p>
+  </ui-drawer>
+
+  <ui-drawer offset-element="toolbar" visible position="right">
+    <p>Aliqua id culpa occaecat veniam consectetur ad Lorem reprehenderit. Veniam veniam velit officia sint tempor
+      cupidatat irure pariatur enim in. Nulla quis amet nisi adipisicing sunt culpa. Dolore enim aliquip in fugiat dolor
+      sunt. Exercitation incididunt enim mollit duis consequat nulla incididunt mollit velit fugiat.</p>
+  </ui-drawer>
+
+  <ui-drawer visible position="bottom">
+    <p>Aliqua id culpa occaecat veniam consectetur ad Lorem reprehenderit. Veniam veniam velit officia sint tempor
+      cupidatat irure pariatur enim in. Nulla quis amet nisi adipisicing sunt culpa. Dolore enim aliquip in fugiat dolor
+      sunt. Exercitation incididunt enim mollit duis consequat nulla incididunt mollit velit fugiat.</p>
+  </ui-drawer>
 
   <h2>Button</h2>
   <h3>Button Size</h3>

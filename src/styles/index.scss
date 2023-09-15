@@ -1,10 +1,10 @@
-@import './config/animation';
-@import './config/box-model';
-@import './config/color-chart';
-@import './config/font-size';
-@import './config/webfont';
+@import './src/styles/config/animation';
+@import './src/styles/config/box-model';
+@import './src/styles/config/color-chart';
+@import './src/styles/config/font-size';
+@import './src/styles/config/webfont';
 
-@import './mixins/box-sizing';
+@import './src/styles/mixins/box-sizing';
 
 body {
   margin: 0;

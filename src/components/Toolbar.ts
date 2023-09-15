@@ -13,6 +13,30 @@ import styles from './Toolbar.scss'
 class EnlightenmentToolbar extends Enlightenment {
   static styles = [styles]
 
+  previousScrollY?: number
+
+  connectedCallback() {
+    super.connectedCallback()
+
+    this.assignGlobalEvent('scroll', this.handleScroll, window)
+  }
+
+  handleScroll(event: Event) {
+    const { scrollY, innerHeight } = this.root
+
+    if (scrollY >= innerHeight) {
+      this.ariaHidden = 'true'
+    } else {
+      this.ariaHidden = 'false'
+    }
+
+    if (this.previousScrollY > scrollY) {
+      this.ariaHidden = 'false'
+    }
+
+    this.previousScrollY = scrollY
+  }
+
   render() {
     const classes = ['toolbar']
 

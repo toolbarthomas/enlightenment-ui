@@ -1,3 +1,7 @@
+@import './src/styles/mixins/box-sizing';
+
+@include boxSizing();
+
 .toolbar {
   background-color: var(--grey-900);
   color: var(--grey-100);
@@ -7,4 +11,9 @@
   top: 0;
   width: 100%;
   z-index: var(--depth-foreground);
+  transition: transform var(--duration-default) var(--easing-default) var(--duration-fast);
+
+  :host([aria-hidden='true']) & {
+    transform: translateY(-100%);
+  }
 }

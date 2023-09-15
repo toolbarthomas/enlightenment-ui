@@ -122,7 +122,7 @@
           content: ' ';
           height: var(--space-2);
           background-color: currentColor;
-          transition: var(--velocity-default) ease-in-out;
+          transition: var(--duration-default) ease-in-out;
           transition-property: width, opacity;
         }
       }
@@ -199,7 +199,7 @@
       box-shadow: 0 var(--space-2) var(--space-4) var(--#{$color}-#{$shade}-a10);
 
       &::before {
-        transition: var(--velocity-default) var(--easing-default);
+        transition: var(--duration-default) var(--easing-default);
         transition-property: border, box-shadow;
         box-shadow:
           inset 0 var(--space-4) var(--space-8) var(--#{$color}-100-a5),
@@ -299,7 +299,7 @@ button {
     padding: var(--space-8) var(--space-16);
     position: relative;
     text-align: center;
-    transition: var(--velocity-default) var(--easing-default);
+    transition: var(--duration-default) var(--easing-default);
     transition-property: background-color, box-shadow, color, opacity;
     @include buttonColor($color: 'dawn');
 
@@ -387,7 +387,7 @@ button {
 
 .button {
   &__ripple {
-    animation: rippleAnimation var(--velocity-slow) 1;
+    animation: rippleAnimation var(--duration-slow) 1;
     animation-fill-mode: forwards;
     background-color: var(--white);
     border-radius: 50%;
@@ -518,7 +518,7 @@ button {
       border: inherit;
       border-color: transparent;
       border-top-color: currentColor;
-      animation: rotateAnimation var(--velocity-slowest) linear infinite;
+      animation: rotateAnimation var(--duration-slowest) linear infinite;
     }
   }
 }
