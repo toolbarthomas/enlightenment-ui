@@ -32,10 +32,6 @@
     align-self: stretch;
     overflow: hidden;
 
-    .drawer--is-floating & {
-      padding: 0 var(--space-16);
-    }
-
     :host([mode='dark']) & {
       background-color: var(--dusk-900-a95);
       color: var(--dusk-400);
@@ -51,7 +47,7 @@
     padding: var(--space-16) var(--space-16) 0;
 
     .drawer--is-floating & {
-      padding: var(--space-16) 0 0;
+      padding: var(--space-16) var(--space-16) 0;
     }
 
     &::after {
@@ -106,6 +102,8 @@
   :host([position='bottom']) &,
   &--align-from-top,
   &--align-from-bottom {
+    max-height: 100%;
+
     &.drawer--is-floating {
       max-width: var(--space-600);
       left: 50%;
@@ -153,13 +151,14 @@
   }
 
   &__body {
-    display: flex;
+    // display: flex;
     margin: 0 auto;
     overflow: auto;
     padding: var(--space-16);
 
     .drawer--is-floating & {
-      padding: 0;
+      padding: 0 var(--space-16);
+      margin-bottom: var(--space-24);
     }
   }
 }
@@ -171,8 +170,13 @@
   bottom: 0;
   left: 0;
   opacity: 0;
+  visibility: hidden;
   background-color: var(--dawn-900-a60);
   pointer-events: none;
+
+  .drawer--is-strict ~ & {
+    pointer-events: inherit;
+  }
 
   :host([mode='dark']) & {
     background-color: var(--dusk-900-a85);

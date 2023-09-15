@@ -29,6 +29,18 @@ class EnlightenmentDrawer extends Enlightenment {
   floating?: boolean
 
   @property({
+    converter: Enlightenment.isBoolean,
+    type: Boolean
+  })
+  strict?: boolean
+
+  @property({
+    converter: Enlightenment.convertToSelectors,
+    type: Array
+  })
+  toggles?: HTMLElement[]
+
+  @property({
     type: String
   })
   label?: boolean
@@ -94,9 +106,9 @@ class EnlightenmentDrawer extends Enlightenment {
 
     this.throttle(() => {
       if (state && state.currentElements.filter((c) => c instanceof EnlightenmentDrawer).length) {
-        document.body.style.overflow = 'hidden'
+        document.body.classList.add('body--drawer-is-active')
       } else {
-        document.body.style.overflow = 'initial'
+        document.body.classList.remove('body--drawer-is-active')
       }
     })
   }
@@ -127,8 +139,20 @@ class EnlightenmentDrawer extends Enlightenment {
 
     const state = this.useState()
 
-    if (!this.isComponentContext(event.target)) {
+    if (!this.strict && !this.isComponentContext(event.target)) {
       this.hide()
+    }
+
+    if (
+      this.toggles &&
+      (this.toggles.includes(event.target) ||
+        this.toggles.filter((e) => e.contains(event.target)).length)
+    ) {
+      if (this.active) {
+        this.hide()
+      } else {
+        this.show()
+      }
     }
   }
 
@@ -137,21 +161,22 @@ class EnlightenmentDrawer extends Enlightenment {
 
     const { keyCode } = event
 
-    if (Enlightenment.keyCodes.exit.includes(keyCode)) {
+    if (!this.strict && Enlightenment.keyCodes.exit.includes(keyCode)) {
       this.hide()
     }
   }
 
   hide() {
     this.commit('active', false)
-
-    this.throttle(() => {
-      // this.useContext().classList.remove('drawer--is-active')
-    }, 200)
+    this.releaseFocusTrap()
   }
 
   show() {
     this.commit('active', true)
+
+    if (this.strict) {
+      this.lockFocusTrap()
+    }
   }
 
   render() {
@@ -167,6 +192,10 @@ class EnlightenmentDrawer extends Enlightenment {
 
     if (this.floating) {
       classes.push('drawer--is-floating')
+    }
+
+    if (this.strict) {
+      classes.push('drawer--is-strict')
     }
 
     return html`
