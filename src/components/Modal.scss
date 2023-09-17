@@ -1,5 +1,7 @@
 @import './src/styles/mixins/box-sizing';
 
+@import '../styles/variables/breakpoints';
+
 @include boxSizing();
 
 .modal {
@@ -47,12 +49,14 @@
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     position: relative;
-    padding: 0;
     display: flex;
-    padding: var(--space-24);
     transition:
       opacity var(--duration-default) ease-in-out 0ms,
       visibility 0ms linear 0ms;
+
+    @media (min-width: $smartphone) {
+      padding: var(--space-24) var(--space-16);
+    }
 
     .modal[aria-hidden='true'] & {
       opacity: 0;
@@ -76,25 +80,97 @@
     transition: var(--duration-default) ease-in-out var(--duration-fast);
     transition-property: box-shadow, transform;
     width: 100%;
-    padding: var(--space-32);
+    background-color: var(--white);
 
-    .modal:not(.modal--is-fullscreen) & {
-      background-color: var(--white);
+    .modal--align-from-left &,
+    .modal--align-from-right & {
+      max-width: none;
+      width: 50%;
     }
+
+    .modal--align-from-left & {
+      margin-left: 0;
+    }
+
+    .modal--align-from-right & {
+      margin-right: 0;
+    }
+
+    .modal--is-fullscreen & {
+      height: 100%;
+      border-radius: spacing('l');
+      overflow: hidden;
+      max-width: none;
+    }
+
+    // .modal:not(.modal--is-fullscreen) & {
+    // }
 
     .modal[aria-hidden='true'] & {
       box-shadow: none;
       transition-delay: 0ms;
       transform: translateY(-5vh);
     }
+
+    .modal--is-fullscreen[aria-hidden='true'] & {
+      transform: scale(0.5);
+    }
+
+    .modal--is-fullscreen.modal--align-from-right[aria-hidden='true'] & {
+      transform: translateX(50%);
+    }
+
+    .modal--is-fullscreen.modal--align-from-left[aria-hidden='true'] & {
+      transform: translateX(-50%);
+    }
+  }
+
+  &__panel-header {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    background-color: var(--grey-300);
+    transition: 200ms ease-out 0ms;
+    transition-property: padding margin;
+    position: relative;
+    padding: var(--space-16) var(--space-24);
+
+    .modal:not(.modal--is-fullscreen) & {
+      position: sticky;
+      top: 0;
+
+      @media (min-width: $smartphone) {
+        top: calc(var(--space-0) - var(--space-24));
+      }
+    }
+
+    .modal.modal--is-fullscreen[aria-hidden='true'] & {
+      transform: translateY(-50%);
+    }
+
+    .modal.modal--align-from-left[aria-hidden='true'] &,
+    .modal.modal--align-from-right[aria-hidden='true'] & {
+      transform: none;
+    }
+
+    .modal--is-sticky & {
+      background-color: red;
+    }
   }
 
   &__panel-body {
     padding: var(--space-24);
+    width: 100%;
 
     .modal--is-fullscreen & {
       flex-grow: 1;
       overflow: auto;
+      padding: var(--space-24) calc(50vw - calc(var(--space-1200) / 2));
+    }
+
+    .modal--align-from-left.modal--is-fullscreen &,
+    .modal--align-from-right.modal--is-fullscreen & {
+      padding: var(--space-24);
     }
   }
 }

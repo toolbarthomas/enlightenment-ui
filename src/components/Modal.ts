@@ -20,6 +20,16 @@ class EnlightenmentModal extends Enlightenment {
   isSticky?: boolean = false
 
   @property({
+    type: String
+  })
+  label?: string
+
+  @property({
+    type: String
+  })
+  position = 'center'
+
+  @property({
     converter: Enlightenment.isBoolean,
     type: Boolean
   })
@@ -36,6 +46,8 @@ class EnlightenmentModal extends Enlightenment {
     type: Boolean
   })
   strict?: boolean = true
+
+  header?: ReturnType<typeof html>
 
   connectedCallback() {
     super.connectedCallback()
@@ -97,11 +109,11 @@ class EnlightenmentModal extends Enlightenment {
 
     switch (target) {
       case wrapper:
-        if (!panel || !wrapper) {
+        if (!wrapper) {
           return
         }
 
-        const { paddingTop } = getComputedStyle(panel) || {}
+        const { paddingTop } = getComputedStyle(wrapper) || {}
 
         if (!paddingTop) {
           return
@@ -109,7 +121,7 @@ class EnlightenmentModal extends Enlightenment {
 
         const offset = parseFloat(paddingTop.replace('px', ''))
 
-        if (isNaN(offset) || !offset) {
+        if (isNaN(offset)) {
           return
         }
 
@@ -189,12 +201,16 @@ class EnlightenmentModal extends Enlightenment {
       classes.push('modal--is-fullscreen')
     }
 
+    if (this.position) {
+      classes.push(`modal--align-from-${this.position}`)
+    }
+
     return html`
       <div
+        ${ref(this.context)}
         class="modal ${classes.join(' ')}"
         aria-hidden="${String(!this.isActive)}"
         aria-disabled="${String(!this.isActive)}"
-        ${ref(this.context)}
         @click=${this.handleClick}
       >
         <div class="modal__wrapper" ${ref(this.wrapperContext)}>
@@ -202,9 +218,7 @@ class EnlightenmentModal extends Enlightenment {
             class="modal__panel ${this.sticky ? 'modal__panel--is-sticky' : ''}"
             ${ref(this.panelContext)}
           >
-            <header class="modal__panel-header">
-              <slot name="header"></slot>
-            </header>
+            ${this.renderHeader()}
             <section class="modal__panel-body" ${ref(this.bodyContext)}>
               <slot></slot>
             </section>
@@ -215,5 +229,17 @@ class EnlightenmentModal extends Enlightenment {
         </div>
       </div>
     `
+  }
+
+  renderHeader() {
+    return html`
+      <header class="modal__panel-header">
+        <slot name="header">${this.renderLabel(this.label)}</slot>
+      </header>
+    `
+  }
+
+  renderLabel(value: string) {
+    return value ? html`<span class="modal__header-label">${value}</span>` : ''
   }
 }
