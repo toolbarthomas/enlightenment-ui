@@ -116,11 +116,11 @@
       transform: scale(0.5);
     }
 
-    .modal--is-fullscreen.modal--align-from-right[aria-hidden='true'] & {
+    .modal--align-from-right[aria-hidden='true'] & {
       transform: translateX(50%);
     }
 
-    .modal--is-fullscreen.modal--align-from-left[aria-hidden='true'] & {
+    .modal--align-from-left[aria-hidden='true'] & {
       transform: translateX(-50%);
     }
   }
