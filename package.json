@@ -6,6 +6,7 @@
   "dependencies": {
     "@fontsource/nunito-sans": "^5.0.7",
     "esbuild": "^0.18.17",
+    "focus-trap": "^7.5.2",
     "glob": "^10.3.3",
     "imagemin": "^8.0.1",
     "is-svg": "^5.0.0",
