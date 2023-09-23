@@ -13,6 +13,7 @@ import styles from './Drawer.scss'
 class EnlightenmentDrawer extends Enlightenment {
   static styles = [styles]
 
+  enableDocumentEvents = true
   ready?: boolean = false
 
   @property({
@@ -20,14 +21,17 @@ class EnlightenmentDrawer extends Enlightenment {
     converter: Enlightenment.isBoolean,
     type: Boolean
   })
-  active: string | null
+  isActive: string | null
 
   @property({
+    attribute: 'floating',
     converter: Enlightenment.isBoolean,
     type: Boolean
   })
-  floating?: boolean
+  isFloating?: boolean
 
+  // Prevent the hide command during an exit keycommand or when clicking outside
+  // the defined Drawer context.
   @property({
     converter: Enlightenment.isBoolean,
     type: Boolean
@@ -98,8 +102,8 @@ class EnlightenmentDrawer extends Enlightenment {
 
     // Will mark the defined Drawer as active and ensure the currentElement
     // property is updated.
-    if (this.active) {
-      this.commit('currentElement', this.active)
+    if (this.isActive) {
+      this.commit('currentElement', this.isActive)
     }
 
     const state = this.useState()
@@ -148,7 +152,7 @@ class EnlightenmentDrawer extends Enlightenment {
       (this.toggles.includes(event.target) ||
         this.toggles.filter((e) => e.contains(event.target)).length)
     ) {
-      if (this.active) {
+      if (this.isActive) {
         this.hide()
       } else {
         this.show()
@@ -167,12 +171,11 @@ class EnlightenmentDrawer extends Enlightenment {
   }
 
   hide() {
-    this.commit('active', false)
-    this.releaseFocusTrap()
+    this.commit('isActive', false)
   }
 
   show() {
-    this.commit('active', true)
+    this.commit('isActive', true)
 
     if (this.strict) {
       this.lockFocusTrap()
@@ -186,11 +189,11 @@ class EnlightenmentDrawer extends Enlightenment {
       classes.push(`drawer--align-from-${this.position}`)
     }
 
-    if (this.active) {
+    if (this.isActive) {
       classes.push('drawer--is-active')
     }
 
-    if (this.floating) {
+    if (this.isFloating) {
       classes.push('drawer--is-floating')
     }
 
@@ -199,15 +202,17 @@ class EnlightenmentDrawer extends Enlightenment {
     }
 
     return html`
-      <div ref="${ref(this.context)}" class="${classes.join(' ')}">
-        <div class="drawer__panel">
-          ${this._renderLabel()}
-          <div class="drawer__body">
-            <slot></slot>
+      <focus-trap ?active=${this.isActive}>
+        <div ref="${ref(this.context)}" class="${classes.join(' ')}">
+          <div class="drawer__panel">
+            ${this._renderLabel()}
+            <div class="drawer__body">
+              <slot></slot>
+            </div>
           </div>
         </div>
-      </div>
-      <span class="drawer-backdrop"></span>
+        <span class="drawer-backdrop"></span>
+      </focus-trap>
     `
   }
 }

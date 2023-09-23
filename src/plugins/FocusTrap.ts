@@ -40,6 +40,14 @@ class EnlightenmentFocusTrap extends Enlightenment {
   })
   isActive?: boolean
 
+  static getTabbableElements(context: HTMLElement) {
+    const target = context || document
+
+    return target.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    )
+  }
+
   constructor() {
     super()
   }
@@ -138,6 +146,16 @@ class EnlightenmentFocusTrap extends Enlightenment {
   protected updated(properties: any) {
     super.updated(properties)
 
+    if (!this.slots) {
+      return
+    }
+
+    const [slot] = Object.values(this.slots)
+
+    if (!slot) {
+      return
+    }
+
     if (this.focusTrap == null) {
       return
     }
@@ -161,18 +179,19 @@ class EnlightenmentFocusTrap extends Enlightenment {
     if (this.preventEvent || this.disabled || this.ariaDisabled) {
       canContinue = false
     }
-
-    console.log('Toggle', this.getAttribute('active'))
-
     // Toggle the actual Focus Trap instance.
-    if (
-      this.getAttribute('active') !== 'false' &&
-      this.getAttribute('active') != null &&
-      canContinue
-    ) {
-      this.focusTrap.activate()
-    } else if (this.focusTrap.active) {
-      this.focusTrap.deactivate()
+    try {
+      if (
+        this.getAttribute('active') !== 'false' &&
+        this.getAttribute('active') != null &&
+        canContinue
+      ) {
+        this.focusTrap.activate()
+      } else if (this.focusTrap.active) {
+        this.focusTrap.deactivate()
+      }
+    } catch (exception) {
+      exception && this.log(exception, 'error')
     }
 
     // Ensure the optional parent Component context is updated if the

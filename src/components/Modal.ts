@@ -54,10 +54,6 @@ class EnlightenmentModal extends Enlightenment {
   protected firstUpdated() {
     super.firstUpdated()
 
-    if (this.isActive) {
-      // this.lockFocusTrap()
-    }
-
     const body = this.useRef(this.bodyContext)
     body &&
       this.assignGlobalEvent(
