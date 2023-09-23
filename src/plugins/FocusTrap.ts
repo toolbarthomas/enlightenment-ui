@@ -28,6 +28,19 @@ import {
  * Enlightenment Component.
  */
 class EnlightenmentFocusTrap extends Enlightenment {
+  /**
+   * Returns the tabbable HTML elements that exist within the defined context.
+   *
+   * @param context Finds any tabbable elements within the defined context.
+   */
+  static getTabbableElements(context: HTMLElement) {
+    const target = context || document
+
+    return target.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    )
+  }
+
   // Will hold the Focus Trap instance.
   focusTrap?: FocusTrap
 
@@ -39,14 +52,6 @@ class EnlightenmentFocusTrap extends Enlightenment {
     type: Boolean
   })
   isActive?: boolean
-
-  static getTabbableElements(context: HTMLElement) {
-    const target = context || document
-
-    return target.querySelectorAll(
-      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-    )
-  }
 
   constructor() {
     super()
@@ -129,6 +134,17 @@ class EnlightenmentFocusTrap extends Enlightenment {
 
     if (host instanceof Enlightenment && host !== this) {
       this.assignGlobalEvent('updated', this.refresh, host)
+    }
+  }
+
+  /**
+   * Callback handler to update the Focus Trap context that should be used
+   * during any component update.
+   */
+  protected refresh() {
+    if (this.focusTrap && this.focusTrap.active && this.useRef(this.context) !== this) {
+      this.focusTrap.updateContainerElements &&
+        this.throttle(this.focusTrap.updateContainerElements, Enlightenment.FPS, this)
     }
   }
 
@@ -217,17 +233,6 @@ class EnlightenmentFocusTrap extends Enlightenment {
   }
 
   /**
-   * Callback handler to update the Focus Trap context that should be used
-   * during any component update.
-   */
-  refresh() {
-    if (this.focusTrap && this.focusTrap.active && this.useRef(this.context) !== this) {
-      this.focusTrap.updateContainerElements &&
-        this.throttle(this.focusTrap.updateContainerElements, Enlightenment.FPS, this)
-    }
-  }
-
-  /**
    * Ensure the running Focus Trap instance is stopped when the Component is
    * removed.
    */
@@ -239,7 +244,6 @@ class EnlightenmentFocusTrap extends Enlightenment {
 
   /**
    * Wraps the Focus Trap instance directly within the component.
-   * @returns
    */
   render() {
     this.refresh()
