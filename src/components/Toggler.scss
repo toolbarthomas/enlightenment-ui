@@ -1,0 +1,160 @@
+@import '../styles/mixins/box-sizing';
+
+@include boxSizing();
+
+.toggler {
+  appearance: none;
+  background-color: var(--grey-500);
+  border-radius: 100%;
+  color: var(--grey-900);
+  cursor: pointer;
+  display: inline-block;
+  margin: 0;
+  padding: 0;
+  position: relative;
+  text-align: center;
+  vertical-align: middle;
+
+  &::after {
+    border-radius: inherit;
+    border: solid var(--space-2) var(--blue-500);
+    bottom: 0;
+    content: ' ';
+    display: block;
+    left: 0;
+    opacity: 0;
+    pointer-events: none;
+    position: absolute;
+    right: 0;
+    top: 0;
+    transition: opacity var(--duration-default) ease-in-out;
+  }
+
+  :host([mode='dark']) & {
+    background-color: var(--grey-800);
+    color: var(--grey-300);
+  }
+
+  &,
+  &:active,
+  &:focus-visible {
+    border: none;
+    outline: none;
+  }
+
+  &:focus-visible {
+    &::after {
+      opacity: 1;
+    }
+  }
+
+  &__icon-wrapper {
+    align-items: center;
+    display: flex;
+    height: var(--space-48);
+    justify-content: center;
+    vertical-align: middle;
+    width: var(--space-48);
+  }
+
+  &__icon {
+    background-color: currentColor;
+    border-radius: var(--space-8);
+    display: block;
+    height: var(--space-5);
+    position: relative;
+    width: var(--space-5);
+    transition: var(--duration-default) ease-in-out;
+    transition-property: background-color, opacity, transform;
+
+    :host([mode='dark']) & {
+      opacity: 0.4;
+    }
+
+    .toggler:hover &,
+    .toggler:focus-visible & {
+      opacity: 0.4;
+
+      :host([mode='dark']) & {
+        opacity: 0.8;
+      }
+    }
+
+    &::before,
+    &::after {
+      display: block;
+      transition: inherit;
+      content: ' ';
+      background-color: currentColor;
+      width: inherit;
+      height: inherit;
+      border-radius: inherit;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      transition: var(--duration-default) ease-in-out;
+    }
+
+    &::before {
+      margin-bottom: var(--space-2);
+      bottom: 100%;
+      transition-property: bottom;
+    }
+
+    &::after {
+      margin-top: var(--space-2);
+      top: 100%;
+      transition-property: top;
+    }
+
+    .toggler--is-rotated & {
+      &::before,
+      &::after {
+        left: auto;
+        top: 0;
+        transform: none;
+      }
+
+      &::before {
+        right: 100%;
+        bottom: auto;
+        margin: 0 var(--space-2) 0 0;
+        transition-property: right, height, margin, transform, width, top;
+      }
+
+      &::after {
+        left: 100%;
+        bottom: auto;
+        margin: 0 0 0 var(--space-2);
+        transition-property: left, height, margin, transform, width, top;
+      }
+    }
+
+    .toggler--is-active.toggler--is-rotated & {
+      transform: rotate(315deg);
+      background-color: transparent;
+
+      &::before,
+      &::after {
+        margin: 0;
+        top: 50%;
+        bottom: auto;
+      }
+
+      &::before {
+        right: 50%;
+        width: var(--space-2);
+        height: var(--space-16);
+
+        transform: translate(50%, -50%);
+      }
+
+      &::after {
+        height: var(--space-2);
+        width: var(--space-16);
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+    }
+  }
+}
