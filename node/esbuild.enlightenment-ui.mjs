@@ -23,7 +23,7 @@ import { defaultLoader } from './utils/loader.mjs'
     platform: argv.platform || 'browser',
     plugins: [
       resolvePlugin({
-        destination: `../${argv.name || 'enlightenment'}${config.suffix}.js`,
+        destination: `../${argv.name || 'Enlightenment'}${config.suffix}.js`,
         minify: argv.m || argv.minify || false
       }),
       stylePlugin(),

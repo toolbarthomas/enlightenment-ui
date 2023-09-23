@@ -32,7 +32,12 @@ class EnlightenmentFocusTrap extends Enlightenment {
   focusTrap?: FocusTrap
 
   // Flag that will activate or deactivate the created Focus Trap instance.
-  @property({ attribute: 'active', converter: Enlightenment.isBoolean, type: Boolean })
+  @property({
+    attribute: 'active',
+    converter: Enlightenment.isBoolean,
+    reflect: true,
+    type: Boolean
+  })
   isActive?: boolean
 
   constructor() {
@@ -59,6 +64,33 @@ class EnlightenmentFocusTrap extends Enlightenment {
    */
   protected deactivate() {
     this.commit('isActive', false)
+  }
+
+  /**
+   * Ensures the running Focus Trap instance is stopped and removed from the
+   * current DOM.
+   */
+  protected destroy() {
+    if (this.preventEvent) {
+      return
+    }
+
+    if (!this.focusTrap || !this.focusTrap.deactivate) {
+      return
+    }
+
+    try {
+      // Deactivate the instance directly in this case since the Component
+      // could ignore the updated callback if does not exist within the DOM
+      // anymore.
+      this.focusTrap != undefined && this.focusTrap.deactivate()
+
+      // This is probably not required but ensure the property is reverted to
+      // the initial value.
+      this.commit('isActive', undefined)
+    } catch (exception) {
+      exception && this.log(exception, 'error')
+    }
   }
 
   /**
@@ -130,6 +162,8 @@ class EnlightenmentFocusTrap extends Enlightenment {
       canContinue = false
     }
 
+    console.log('Toggle', this.getAttribute('active'))
+
     // Toggle the actual Focus Trap instance.
     if (
       this.getAttribute('active') !== 'false' &&
@@ -137,7 +171,7 @@ class EnlightenmentFocusTrap extends Enlightenment {
       canContinue
     ) {
       this.focusTrap.activate()
-    } else {
+    } else if (this.focusTrap.active) {
       this.focusTrap.deactivate()
     }
 
@@ -175,44 +209,11 @@ class EnlightenmentFocusTrap extends Enlightenment {
   }
 
   /**
-   * Ensures the running Focus Trap instance is stopped and removed from the
-   * current DOM.
-   */
-  destroy() {
-    if (this.preventEvent) {
-      return
-    }
-
-    if (!this.focusTrap || !this.focusTrap.deactivate) {
-      return
-    }
-
-    try {
-      // Deactivate the instance directly in this case since the Component
-      // could ignore the updated callback if does not exist within the DOM
-      // anymore.
-      this.focusTrap != undefined && this.focusTrap.deactivate()
-
-      // This is probably not required but ensure the property is reverted to
-      // the initial value.
-      this.commit('isActive', undefined)
-    } catch (exception) {
-      exception && this.log(exception, 'error')
-    }
-  }
-
-  /**
    * Ensure the running Focus Trap instance is stopped when the Component is
    * removed.
    */
   disconnectedCallback() {
-    try {
-      if (this.focusTrap && this.focusTrap.active) {
-        this.destroy()
-      }
-    } catch (exception) {
-      exception && this.log(exception, 'error')
-    }
+    this.destroy()
 
     super.disconnectedCallback()
   }

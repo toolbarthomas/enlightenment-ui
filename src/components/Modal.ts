@@ -13,6 +13,7 @@ class EnlightenmentModal extends Enlightenment {
   static styles = [styles]
 
   bodyContext: Ref<HTMLElement> = createRef()
+  enableDocumentEvents = true
   wrapperContext: Ref<HTMLElement> = createRef()
   panelContext: Ref<HTMLHtmlElement> = createRef()
 
@@ -30,6 +31,7 @@ class EnlightenmentModal extends Enlightenment {
   position = 'center'
 
   @property({
+    attribute: 'active',
     converter: Enlightenment.isBoolean,
     type: Boolean
   })
@@ -49,29 +51,11 @@ class EnlightenmentModal extends Enlightenment {
 
   header?: ReturnType<typeof html>
 
-  connectedCallback() {
-    super.connectedCallback()
-
-    this.assignGlobalEvent(
-      'resize',
-      (event) => this.throttle(this.handleResize, Enlightenment.FPS, event),
-      window
-    )
-  }
-
-  disconnectedCallback() {
-    this.clearGlobalEvent('resize', window)
-    this.clearGlobalEvent('scroll', this.useRef(this.bodyContext))
-    this.clearGlobalEvent('scroll', this.useRef(this.wrapperContext))
-
-    super.disconnectedCallback()
-  }
-
-  firstUpdated() {
+  protected firstUpdated() {
     super.firstUpdated()
 
     if (this.isActive) {
-      this.lockFocusTrap()
+      // this.lockFocusTrap()
     }
 
     const body = this.useRef(this.bodyContext)
@@ -91,14 +75,14 @@ class EnlightenmentModal extends Enlightenment {
       )
   }
 
-  handleResize(event: Event) {
+  protected handleResize(event: Event) {
     this.handleScroll(event, this.useRef(this.wrapperContext))
     this.handleScroll(event, this.useRef(this.bodyContext))
 
     this.hook('resize')
   }
 
-  handleScroll(event: Event, target?: HTMLElement) {
+  protected handleScroll(event: Event, target?: HTMLElement) {
     if (!target) {
       return
     }
@@ -152,7 +136,7 @@ class EnlightenmentModal extends Enlightenment {
     this.hook('scroll')
   }
 
-  handleGlobalClick(event: MouseEvent): void {
+  protected handleGlobalClick(event: MouseEvent): void {
     super.handleGlobalClick(event)
 
     const { target } = event
@@ -171,13 +155,37 @@ class EnlightenmentModal extends Enlightenment {
     }
   }
 
-  handleClick(event: Event) {
+  protected handleClick(event: Event) {
     const { target } = event || {}
 
     const wrapper = this.useRef(this.wrapperContext)
     if (target && target === wrapper && !this.strict) {
       this.hide()
     }
+  }
+
+  protected updated() {
+    super.updated()
+
+    this.handleCurrentElement(this.isActive ? this : undefined)
+  }
+
+  connectedCallback() {
+    super.connectedCallback()
+
+    this.assignGlobalEvent(
+      'resize',
+      (event) => this.throttle(this.handleResize, Enlightenment.FPS, event),
+      window
+    )
+  }
+
+  disconnectedCallback() {
+    this.clearGlobalEvent('resize', window)
+    this.clearGlobalEvent('scroll', this.useRef(this.bodyContext))
+    this.clearGlobalEvent('scroll', this.useRef(this.wrapperContext))
+
+    super.disconnectedCallback()
   }
 
   hide() {
@@ -206,28 +214,30 @@ class EnlightenmentModal extends Enlightenment {
     }
 
     return html`
-      <div
-        ${ref(this.context)}
-        class="modal ${classes.join(' ')}"
-        aria-hidden="${String(!this.isActive)}"
-        aria-disabled="${String(!this.isActive)}"
-        @click=${this.handleClick}
-      >
-        <div class="modal__wrapper" ${ref(this.wrapperContext)}>
-          <div
-            class="modal__panel ${this.sticky ? 'modal__panel--is-sticky' : ''}"
-            ${ref(this.panelContext)}
-          >
-            ${this.renderHeader()}
-            <section class="modal__panel-body" ${ref(this.bodyContext)}>
-              <slot></slot>
-            </section>
-            <footer class="modal__panel-footer">
-              <slot name="footer"></slot>
-            </footer>
+      <focus-trap ?active=${this.isActive}>
+        <div
+          ${ref(this.context)}
+          class="modal ${classes.join(' ')}"
+          aria-hidden="${String(!this.isActive)}"
+          aria-disabled="${String(!this.isActive)}"
+          @click=${this.handleClick}
+        >
+          <div class="modal__wrapper" ${ref(this.wrapperContext)}>
+            <div
+              class="modal__panel ${this.sticky ? 'modal__panel--is-sticky' : ''}"
+              ${ref(this.panelContext)}
+            >
+              ${this.renderHeader()}
+              <section class="modal__panel-body" ${ref(this.bodyContext)}>
+                <slot></slot>
+              </section>
+              <footer class="modal__panel-footer">
+                <slot name="footer"></slot>
+              </footer>
+            </div>
           </div>
         </div>
-      </div>
+      </focus-trap>
     `
   }
 
