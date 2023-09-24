@@ -107,6 +107,27 @@
       transition-property: top;
     }
 
+    .toggler--has-stripes & {
+      height: var(--space-2);
+      width: var(--space-16);
+      border-radius: 0;
+
+      &::before,
+      &::after {
+        background-color: transparent;
+      }
+
+      &::before {
+        border-top: solid var(--space-2) currentColor;
+        margin-bottom: var(--space-3);
+      }
+
+      &::after {
+        margin-top: var(--space-3);
+        border-bottom: solid var(--space-2) currentColor;
+      }
+    }
+
     .toggler--is-rotated & {
       &::before,
       &::after {
@@ -130,8 +151,9 @@
       }
     }
 
+    .toggler--is-active &,
     .toggler--is-active.toggler--is-rotated & {
-      transform: rotate(315deg);
+      transform: rotate(-315deg);
       background-color: transparent;
 
       &::before,
@@ -155,6 +177,43 @@
         left: 50%;
         transform: translate(-50%, -50%);
       }
+    }
+
+    .toggler--is-active & {
+      &::before,
+      &::after {
+        margin: 0;
+      }
+
+      &::before {
+        top: auto;
+        bottom: 50%;
+        transform: translate(-50%, 50%);
+      }
+
+      &::after {
+        top: 50%;
+        bottom: auto;
+      }
+    }
+
+    .toggler--is-active.toggler--has-stripes & {
+      width: var(--space-5);
+      height: var(--space-5);
+
+      border-radius: var(--space-8);
+
+      &::before,
+      &::after {
+        border-width: 0;
+        background-color: currentColor;
+      }
+
+      // &::before {
+      //   top: auto;
+      //   bottom: 50%;
+      //   transform: translate(-50%, 50%);
+      // }
     }
   }
 }

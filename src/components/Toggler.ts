@@ -20,6 +20,9 @@ class EnlightenmentToggler extends Enlightenment {
   @property({ attribute: 'rotate', converter: Enlightenment.isBoolean, type: Boolean })
   isRotated?: boolean = false
 
+  @property({ attribute: 'icon-style', type: String })
+  iconStyle?: string = 'dots'
+
   protected handleClick(event: Event) {
     this.commit('isActive', !this.isActive)
   }
@@ -33,6 +36,10 @@ class EnlightenmentToggler extends Enlightenment {
 
     if (this.isRotated) {
       classes.push('toggler--is-rotated')
+    }
+
+    if (this.iconStyle) {
+      classes.push(`toggler--has-${this.iconStyle}`)
     }
 
     return html`
