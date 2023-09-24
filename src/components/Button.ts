@@ -103,7 +103,6 @@ class EnlightenmentButton extends Enlightenment {
       ripple.style.height = `${diameter}px`
       ripple.style.left = `${event.clientX - (context.offsetLeft + radius) + window.scrollX}px`
       ripple.style.top = `${event.clientY - (context.offsetTop + radius) + window.scrollY}px`
-      console.log()
 
       // Center the ripple if the click was triggered from the keyboard.
       if (diameter / 2 <= Math.abs(event.clientX - (context.offsetLeft + radius))) {

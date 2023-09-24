@@ -25,6 +25,29 @@ class EnlightenmentToggler extends Enlightenment {
 
   protected handleClick(event: Event) {
     this.commit('isActive', !this.isActive)
+
+    console.log('click', event)
+
+    this.processObserved((observed) => {
+      if (!observed) {
+        return
+      }
+
+      if (this.isActive && !observed.isActive) {
+        observed.setAttribute('active', '')
+      } else if (observed.isActive) {
+        observed.setAttribute('active', '')
+      }
+    })
+  }
+
+  protected process(target: HTMLElement) {
+    this.throttle(
+      this.commit,
+      Enlightenment.FPS,
+      'isActive',
+      target.ariaHidden === 'true' ? false : true
+    )
   }
 
   render() {
@@ -39,7 +62,7 @@ class EnlightenmentToggler extends Enlightenment {
     }
 
     if (this.iconStyle) {
-      classes.push(`toggler--has-${this.iconStyle}`)
+      classes.push(`togglers--has-${this.iconStyle}`)
     }
 
     return html`

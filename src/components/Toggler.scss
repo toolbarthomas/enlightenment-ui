@@ -3,6 +3,7 @@
 @include boxSizing();
 
 .toggler {
+  overflow: hidden;
   appearance: none;
   background-color: var(--grey-500);
   border-radius: 100%;
@@ -66,6 +67,7 @@
     width: var(--space-5);
     transition: var(--duration-default) ease-in-out;
     transition-property: background-color, opacity, transform;
+    will-change: opacity, transform;
 
     :host([mode='dark']) & {
       opacity: 0.4;
@@ -93,6 +95,7 @@
       left: 50%;
       transform: translateX(-50%);
       transition: var(--duration-default) ease-in-out;
+      will-change: top, left, bottom, right, transform;
     }
 
     &::before {
@@ -197,6 +200,36 @@
       }
     }
 
+    .toggler--has-stripes.toggler--is-rotated & {
+      width: var(--space-2);
+      height: var(--space-16);
+
+      &::before,
+      &::after {
+        margin: 0;
+        width: var(--space-2);
+        height: var(--space-16);
+        transform: none;
+        top: 0;
+        bottom: auto;
+      }
+
+      &::before {
+        border-top: none;
+        border-left: solid var(--space-2) currentColor;
+        right: 100%;
+        margin-right: var(--space-3);
+      }
+
+      &::after {
+        margin-left: var(--space-3);
+        border-bottom: none;
+        border-right: solid var(--space-2) currentColor;
+        bottom: auto;
+        left: 100%;
+      }
+    }
+
     .toggler--is-active.toggler--has-stripes & {
       width: var(--space-5);
       height: var(--space-5);
@@ -208,12 +241,29 @@
         border-width: 0;
         background-color: currentColor;
       }
+    }
 
-      // &::before {
-      //   top: auto;
-      //   bottom: 50%;
-      //   transform: translate(-50%, 50%);
-      // }
+    .toggler--is-active.toggler--is-rotated.toggler--has-stripes & {
+      &::before,
+      &::after {
+        margin: 0;
+      }
+
+      &::before {
+        top: 50%;
+        right: 50%;
+        transform: translate(50%, -50%);
+        width: var(--space-2);
+        height: var(--space-16);
+      }
+
+      &::after {
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: var(--space-16);
+        height: var(--space-2);
+      }
     }
   }
 }

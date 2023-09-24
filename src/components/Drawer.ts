@@ -106,6 +106,10 @@ class EnlightenmentDrawer extends Enlightenment {
       this.commit('currentElement', this.isActive)
     }
 
+    // Public property that can be used within the process method for other
+    // components like the Toggler.
+    this.ariaHidden = String(!this.isActive)
+
     const state = this.useState()
 
     this.throttle(() => {
