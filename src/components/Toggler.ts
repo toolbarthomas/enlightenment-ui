@@ -25,20 +25,6 @@ class EnlightenmentToggler extends Enlightenment {
 
   protected handleClick(event: Event) {
     this.commit('isActive', !this.isActive)
-
-    console.log('click', event)
-
-    this.processObserved((observed) => {
-      if (!observed) {
-        return
-      }
-
-      if (this.isActive && !observed.isActive) {
-        observed.setAttribute('active', '')
-      } else if (observed.isActive) {
-        observed.setAttribute('active', '')
-      }
-    })
   }
 
   protected process(target: HTMLElement) {
