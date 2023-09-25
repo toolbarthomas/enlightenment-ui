@@ -51,7 +51,7 @@ class EnlightenmentDrawer extends Enlightenment {
 
   @property({
     attribute: 'offset-element',
-    converter: (value: any) => document.getElementById(value) || document.querySelector(value),
+    converter: (value: any) => Enlightenment.convertToSelectors(value)[0],
     type: HTMLElement
   })
   offsetElement?: HTMLElement
@@ -206,7 +206,7 @@ class EnlightenmentDrawer extends Enlightenment {
     }
 
     return html`
-      <focus-trap ?active=${this.isActive}>
+      <focus-trap ?active=${this.isActive} containers="${this.getAttribute('toggles')}">
         <div ref="${ref(this.context)}" class="${classes.join(' ')}">
           <div class="drawer__panel">
             ${this._renderLabel()}
