@@ -44,6 +44,12 @@ class EnlightenmentFocusTrap extends Enlightenment {
   // Will hold the Focus Trap instance.
   focusTrap?: FocusTrap
 
+  @property({
+    converter: Enlightenment.convertToSelectors,
+    type: Array
+  })
+  containers?: HTMLElement[]
+
   // Flag that will activate or deactivate the created Focus Trap instance.
   @property({
     attribute: 'active',
@@ -142,9 +148,16 @@ class EnlightenmentFocusTrap extends Enlightenment {
    * during any component update.
    */
   protected refresh() {
+    if (this.getAttribute('active') === 'true' || this.getAttribute('active') === '') {
+      this.focusTrap?.activate()
+    }
+
     if (this.focusTrap && this.focusTrap.active && this.useRef(this.context) !== this) {
       this.focusTrap.updateContainerElements &&
-        this.throttle(this.focusTrap.updateContainerElements, Enlightenment.FPS, this)
+        this.throttle(this.focusTrap.updateContainerElements, Enlightenment.FPS, [
+          this,
+          ...(this.containers || [])
+        ])
     }
   }
 
@@ -195,6 +208,7 @@ class EnlightenmentFocusTrap extends Enlightenment {
     if (this.preventEvent || this.disabled || this.ariaDisabled) {
       canContinue = false
     }
+
     // Toggle the actual Focus Trap instance.
     try {
       if (
@@ -220,14 +234,14 @@ class EnlightenmentFocusTrap extends Enlightenment {
         this.getAttribute('active') !== 'false' &&
         this.getAttribute('active') != null
       ) {
-        host.commit('hasActiveFocusTrap', true)
+        host.commit('hasActiveFocusTrap', this.focusTrap?.active || true)
       } else if (
         host &&
         host.hasActiveFocusTrap &&
         !this.focusTrap?.active &&
         (this.getAttribute('active') === 'false' || this.getAttribute('active') == null)
       ) {
-        host.commit('hasActiveFocusTrap', false)
+        host.commit('hasActiveFocusTrap', this.focusTrap?.active || false)
       }
     })
   }
