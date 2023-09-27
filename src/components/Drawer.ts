@@ -147,11 +147,42 @@ class EnlightenmentDrawer extends Enlightenment {
 
     const state = this.useState()
 
-    if (!this.strict && !this.isComponentContext(event.target)) {
+    const target: HTMLElement = event.target
+
+    let ignore = false
+    // if (target) {
+    //   let observe: Enlightenment['observe'] = target.observe
+
+    //   if (!observe && !this.isComponentContext(target)) {
+    //     console.log('Try again', this.isComponentContext(target))
+
+    //     let hasParent = false
+    //     let current = target
+
+    //     while (current.parentNode && !hasParent) {
+    //       if (current.shadowRoot && current.shadowRoot.host && current.shadowRoot.host.observe) {
+    //         observe = current.shadowRoot.host.observe
+    //         hasParent = true
+    //       } else if (current.tagName === this.tagName) {
+    //         //@todo Should do explicit compare
+    //         break
+    //       }
+
+    //       current = current.parentNode
+    //     }
+    //   }
+
+    //   ignore = Object.values(observe || {}).includes(this)
+    // }
+
+    // console.log('ignore?', ignore)
+
+    if (!this.strict && !this.isComponentContext(event.target) && !ignore) {
       this.hide()
     }
 
     if (
+      !ignore &&
       this.toggles &&
       (this.toggles.includes(event.target) ||
         this.toggles.filter((e) => e.contains(event.target)).length)
