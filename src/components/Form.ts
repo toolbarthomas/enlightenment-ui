@@ -13,33 +13,25 @@ import styles from './Form.scss'
 class EnlightenmenForm extends Enlightenment {
   static styles = [styles]
 
-  raw: [[HTMLElement, any]] = []
-  inputs: HTMLInputElement[] = []
+  static inputElements = ['button', 'input', 'select', 'textarea']
+
+  initialFormData: [[HTMLElement, any]] = []
 
   enableDocumentEvents: boolean
 
+  afterChange() {
+    const slot = this.useSlot()
+
+    slot &&
+      Enlightenment.getElementsFromSlot(slot, ['input', 'select', 'textarea']).forEach(
+        (element) => {
+          console.log('After change', element)
+        }
+      )
+  }
+
   handleChange(event: InputEvent) {
-    const target: HTMLInputElement = event.target
-
-    if (!target) {
-      return
-    }
-
-    const [exists] = this.raw
-      .map(([element], index) => (element === event.target ? index : undefined))
-      .filter((index) => index !== undefined)
-
-    let value = target.value
-
-    if (['radio', 'checkbox'].includes(target.type)) {
-      value = target.checked
-    }
-
-    if (exists !== undefined) {
-      this.raw[exists] = [target, value]
-    } else {
-      this.raw.push([target, value])
-    }
+    this.throttle(this.afterChange, Enlightenment.FPS)
   }
 
   handleKeydown(event: KeyboardEvent) {
@@ -91,20 +83,17 @@ class EnlightenmenForm extends Enlightenment {
         return
       }
     }
+
+    console.log('Submit')
   }
 
   protected assignInputEvent(
     context: HTMLButtonElement | HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
   ) {
-    if (context.shadowRoot) {
-      this.assignInputEvents(context.shadowRoot)
-
-      return
-    }
-
     const host = Enlightenment.useHost(context) as HTMLInputElement
 
     if (context.type === 'submit' || (host && host.getAttribute('type') === 'submit')) {
+      console.log('Assign', context)
       this.clearGlobalEvent('click', context)
       this.assignGlobalEvent('click', this.handleSubmit, context)
 
@@ -162,72 +151,54 @@ class EnlightenmenForm extends Enlightenment {
     }
   }
 
-  getElements(context: Element, tags: string[], elements: HTMLElement[]) {
-    if (!context) {
-      return
-    }
-
-    if (context.shadowRoot) {
-      Object.values(context.shadowRoot.children).forEach((child) =>
-        this.getElements(child, tags, elements)
-      )
-    }
-
-    if (tags.includes(context.tagName.toLowerCase()) && !elements.includes(context)) {
-      console.log(
-        'TEST',
-        context,
-        this.contains(context),
-        Enlightenment.useHost(context)?.contains(context)
-      )
-
-      elements.push(context)
-    }
-
-    if (context.children) {
-      Object.values(context.children).forEach((child) => this.getElements(child, tags, elements))
-    }
-
-    // console.log('bar', this.contains(context), context)
-
-    // return [...new Set(elements)]
-  }
-
   handleSlotChangeCallback() {}
-
-  protected assignInputElements(slot: HTMLSlotElement) {
-    this.inputs = []
-
-    if (slot.assignedElements) {
-      slot
-        .assignedElements()
-        .forEach((element) => this.getElements(element, ['input', 'button'], this.inputs))
-    }
-  }
 
   protected handleSlotChange(event: Event): void {
     super.handleSlotChange()
 
-    this.assignInputElements(event.target as HTMLSlotElement)
+    const slot = this.useSlot()
 
-    // Update the found input element during a slotchange within the actual
-    // form slot.
-    Object.values(this.inputs).forEach((input) => {
-      this.clearGlobalEvent('slotchange', Enlightenment.useHost(input))
-      this.assignGlobalEvent(
-        'slotchange',
-        () => {
-          this.throttle(
-            this.assignInputElements,
-            Enlightenment.FPS,
-            event.target as HTMLSlotElement
-          )
-        },
-        Enlightenment.useHost(input)
+    slot &&
+      Enlightenment.getElementsFromSlot(slot, ['button', 'input', 'select', 'textarea']).forEach(
+        (element) => {
+          this.assignInputEvent(element)
+
+          if (!this.initialFormData.filter(([e]) => e === element).length) {
+            let initialValue: any
+
+            if (['checkbox', 'radio'].includes(element.type)) {
+              initialValue = element.checked
+            } else if (!['reset', 'submit', 'button'].includes(element.type)) {
+              initialValue = element.value
+            }
+
+            if (initialValue !== undefined) {
+              this.initialFormData.push([element, initialValue])
+            }
+          }
+        }
       )
-    })
 
-    this.assignInputEvents(event.target)
+    // this.assignInputElements(event.target as HTMLSlotElement)
+
+    // // Update the found input element during a slotchange within the actual
+    // // form slot.
+    // Object.values(this.inputs).forEach((input) => {
+    //   this.clearGlobalEvent('slotchange', Enlightenment.useHost(input))
+    //   this.assignGlobalEvent(
+    //     'slotchange',
+    //     () => {
+    //       this.throttle(
+    //         this.assignInputElements,
+    //         Enlightenment.FPS,
+    //         event.target as HTMLSlotElement
+    //       )
+    //     },
+    //     Enlightenment.useHost(input)
+    //   )
+    // })
+
+    // this.assignInputEvents(event.target)
   }
 
   render() {
