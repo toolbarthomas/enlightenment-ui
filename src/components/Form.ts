@@ -14,6 +14,7 @@ class EnlightenmenForm extends Enlightenment {
   static styles = [styles]
 
   raw: [[HTMLElement, any]] = []
+  inputs: HTMLInputElement[] = []
 
   enableDocumentEvents: boolean
 
@@ -161,8 +162,70 @@ class EnlightenmenForm extends Enlightenment {
     }
   }
 
+  getElements(context: Element, tags: string[], elements: HTMLElement[]) {
+    if (!context) {
+      return
+    }
+
+    if (context.shadowRoot) {
+      Object.values(context.shadowRoot.children).forEach((child) =>
+        this.getElements(child, tags, elements)
+      )
+    }
+
+    if (tags.includes(context.tagName.toLowerCase()) && !elements.includes(context)) {
+      console.log(
+        'TEST',
+        context,
+        this.contains(context),
+        Enlightenment.useHost(context)?.contains(context)
+      )
+
+      elements.push(context)
+    }
+
+    if (context.children) {
+      Object.values(context.children).forEach((child) => this.getElements(child, tags, elements))
+    }
+
+    // console.log('bar', this.contains(context), context)
+
+    // return [...new Set(elements)]
+  }
+
+  handleSlotChangeCallback() {}
+
+  protected assignInputElements(slot: HTMLSlotElement) {
+    this.inputs = []
+
+    if (slot.assignedElements) {
+      slot
+        .assignedElements()
+        .forEach((element) => this.getElements(element, ['input', 'button'], this.inputs))
+    }
+  }
+
   protected handleSlotChange(event: Event): void {
     super.handleSlotChange()
+
+    this.assignInputElements(event.target as HTMLSlotElement)
+
+    // Update the found input element during a slotchange within the actual
+    // form slot.
+    Object.values(this.inputs).forEach((input) => {
+      this.clearGlobalEvent('slotchange', Enlightenment.useHost(input))
+      this.assignGlobalEvent(
+        'slotchange',
+        () => {
+          this.throttle(
+            this.assignInputElements,
+            Enlightenment.FPS,
+            event.target as HTMLSlotElement
+          )
+        },
+        Enlightenment.useHost(input)
+      )
+    })
 
     this.assignInputEvents(event.target)
   }
