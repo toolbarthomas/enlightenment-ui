@@ -1,4 +1,11 @@
-import { customElement, Enlightenment, html, property, ref } from '@toolbarthomas/enlightenment'
+import {
+  customElement,
+  Enlightenment,
+  html,
+  nothing,
+  property,
+  ref
+} from '@toolbarthomas/enlightenment'
 
 import sprite from 'assets/svg/sprite.svg'
 
@@ -18,7 +25,7 @@ class EnlightenmentButton extends Enlightenment {
     converter: Enlightenment.isBoolean,
     type: Boolean
   })
-  disabled: boolean
+  disabled?: boolean
 
   @property({ type: String })
   label?: string
@@ -44,16 +51,16 @@ class EnlightenmentButton extends Enlightenment {
     converter: (value: any) => Enlightenment.resolveURL(value),
     type: String
   })
-  href: string
+  href?: string
 
   @property({ type: String })
-  icon: string
+  icon?: string
 
   @property({
     converter: Enlightenment.isBoolean,
     type: Boolean
   })
-  hideText: boolean
+  hideText?: boolean
 
   @property({
     type: String
@@ -64,7 +71,7 @@ class EnlightenmentButton extends Enlightenment {
     converter: Enlightenment.isBoolean,
     type: Boolean
   })
-  loading: boolean
+  loading?: boolean
 
   @property({
     converter: Enlightenment.isTarget,
@@ -79,7 +86,6 @@ class EnlightenmentButton extends Enlightenment {
     super()
 
     this.svgSpriteSource = sprite
-    this.disableGlobalEvents = true
   }
 
   /**
@@ -90,9 +96,10 @@ class EnlightenmentButton extends Enlightenment {
       return
     }
 
-    const context = this.useRef(this.context)
+    const context = this.useRef(this.context) as HTMLElement
+    const target = event.target as HTMLElement
 
-    if (context && this.isComponentContext(event.target)) {
+    if (context && this.isComponentContext(target)) {
       const ripple = document.createElement('span')
       ripple.classList.add('button__ripple')
       ripple.style.position = 'absolute'
@@ -147,6 +154,8 @@ class EnlightenmentButton extends Enlightenment {
         <span class="button__icon-wrapper"> ${this.renderIndicator()} ${this.renderIcon()} </span>
       `
     }
+
+    return nothing
   }
 
   renderBefore() {

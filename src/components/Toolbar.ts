@@ -40,7 +40,7 @@ class EnlightenmentToolbar extends Enlightenment {
       this.ariaHidden = 'false'
     }
 
-    if (this.previousScrollY > scrollY) {
+    if (this.previousScrollY && this.previousScrollY > scrollY) {
       this.ariaHidden = 'false'
     }
 

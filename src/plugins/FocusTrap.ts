@@ -6,9 +6,7 @@ import {
   Enlightenment,
   html,
   property,
-  PropertyValueMap,
-  ref,
-  Ref
+  ref
 } from '@toolbarthomas/enlightenment'
 
 @customElement('focus-trap')
@@ -115,10 +113,10 @@ class EnlightenmentFocusTrap extends Enlightenment {
   /**
    * Setup the actual Focus Trap instance
    */
-  protected firstUpdated() {
-    super.firstUpdated()
+  protected firstUpdated(properties: any) {
+    super.firstUpdated(properties)
 
-    const context = this.useRef(this.context) || this
+    const context = (this.useRef(this.context) as HTMLElement) || this
 
     if (context && !this.focusTrap) {
       this.focusTrap = createFocusTrap(context, {
@@ -136,9 +134,9 @@ class EnlightenmentFocusTrap extends Enlightenment {
       this.log(`Focus Trap defined from: ${context}`, 'info')
     }
 
-    const host: typeof Enlightenment = this.parentNode.host
+    const host: HTMLElement | null = (this.parentNode as any).host
 
-    if (host instanceof Enlightenment && host !== this) {
+    if (host && host !== this) {
       this.assignGlobalEvent('updated', this.refresh, host)
     }
   }
@@ -189,13 +187,13 @@ class EnlightenmentFocusTrap extends Enlightenment {
       return
     }
 
-    const component = this.parentNode
+    const component: any = this.parentNode
 
     let canContinue = true
 
     // Only activate the Focus Trap if the parent Component context is not
     // disabled.
-    let host: typeof Enlightenment
+    let host: Enlightenment
     if (component && component.host instanceof Enlightenment) {
       host = component.host
 

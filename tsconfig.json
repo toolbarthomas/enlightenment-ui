@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "baseUrl": "src",
+    "baseUrl": "./src",
     "declaration": true,
     "lib": [
       "dom",
@@ -17,6 +17,9 @@
     "noUnusedParameters": false,
     "outDir": "",
     "paths": {
+      "@/*": [
+        "./*"
+      ],
       "@toolbarthomas/enlightenment": [
         "node_modules/@toolbarthomas/enlightenment/*"
       ]
@@ -25,10 +28,15 @@
     "rootDir": "./",
     "strict": true,
     "types": [],
-    "typeRoots": [],
+    "typeRoots": [
+      "../node_modules/@types"
+    ],
   },
   "include": [
-    "*.ts"
+    "src/*.ts",
+    "src/components/*.ts",
+    "src/plugins/*.ts",
+    "src/_types"
   ],
   "exclude": []
 }

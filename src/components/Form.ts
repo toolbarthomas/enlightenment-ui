@@ -15,81 +15,11 @@ class EnlightenmenForm extends Enlightenment {
 
   static inputElements = ['button', 'input', 'select', 'textarea']
 
-  initialFormData: [[HTMLElement, any]] = []
+  initialFormData: [HTMLElement, any][] = []
 
-  enableDocumentEvents: boolean
+  enableDocumentEvents: boolean = false
 
-  afterChange() {
-    const slot = this.useSlot()
-
-    slot &&
-      Enlightenment.getElementsFromSlot(slot, ['input', 'select', 'textarea']).forEach(
-        (element) => {
-          console.log('After change', element)
-        }
-      )
-  }
-
-  handleChange(event: InputEvent) {
-    this.throttle(this.afterChange, Enlightenment.FPS)
-  }
-
-  handleKeydown(event: KeyboardEvent) {
-    const { keyCode } = event
-
-    if (!keyCode) {
-      return
-    }
-
-    if (keyCode === 13) {
-      this.handleSubmit(event)
-      return
-    }
-
-    if (Enlightenment.keyCodes.meta.includes(keyCode)) {
-      return
-    }
-
-    const input: any = event.target
-
-    if (input.disabled) {
-      return
-    }
-
-    this.throttle(() => {
-      if (input.previousValue !== input.value) {
-        input.previousValue = input.value
-
-        this.throttle(this.handleChange, Enlightenment.FPS, event)
-      }
-    })
-  }
-
-  /**
-   * Dispatch the Reset event to the actual form element
-   * @param event
-   */
-  handleReset(event: Event) {
-    this.hook('reset', { bubbles: true })
-  }
-
-  handleSubmit(event: Event) {
-    event.preventDefault()
-
-    const input: HTMLInputElement = event.target
-
-    if (input.tagName === 'INPUT' && input.type !== 'submit') {
-      if (!input.value) {
-        return
-      }
-    }
-
-    console.log('Submit')
-  }
-
-  protected assignInputEvent(
-    context: HTMLButtonElement | HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-  ) {
+  protected assignInputEvents(context: HTMLInputElement) {
     const host = Enlightenment.useHost(context) as HTMLInputElement
 
     if (context.type === 'submit' || (host && host.getAttribute('type') === 'submit')) {
@@ -124,81 +54,104 @@ class EnlightenmenForm extends Enlightenment {
     }
   }
 
-  protected assignInputEvents(ctx: HTMLSlotElement | ShadowRoot) {
-    const selectors = ['input', 'button', 'textarea', 'select', '*[type=submit]']
+  protected handleChange(event: InputEvent) {
+    this.throttle(this.processChange, Enlightenment.FPS)
+  }
 
-    const elements = ctx.assignedElements
-      ? (ctx as HTMLSlotElement).assignedElements()
-      : (ctx as ShadowRoot).querySelectorAll(selectors.join(','))
+  protected handleKeydown(event: KeyboardEvent) {
+    const { keyCode } = event
 
-    if (!elements.length) {
+    if (!keyCode) {
       return
     }
 
-    // only div
-    for (let i = elements.length; i--; ) {
-      if (selectors.includes(elements[i].tagName.toLowerCase())) {
-        this.assignInputEvent(elements[i])
-        continue
-      }
-
-      const context = elements[i].shadowRoot ? elements[i].shadowRoot : elements[i]
-      const sets = context.querySelectorAll(selectors.join(','))
-
-      if (sets.length) {
-        Object.values(sets).forEach((element) => this.assignInputEvent(element))
-      }
+    if (keyCode === 13) {
+      this.handleSubmit(event)
+      return
     }
+
+    if (Enlightenment.keyCodes.meta.includes(keyCode)) {
+      return
+    }
+
+    const input: any = event.target
+
+    if (input.disabled) {
+      return
+    }
+
+    this.throttle(() => {
+      if (input.previousValue !== input.value) {
+        input.previousValue = input.value
+
+        this.throttle(this.handleChange, Enlightenment.FPS, event)
+      }
+    })
   }
 
-  handleSlotChangeCallback() {}
+  /**
+   * Dispatch the Reset event to the actual form element
+   * @param event
+   */
+  protected handleReset(event: Event) {
+    this.hook('reset')
+  }
 
-  protected handleSlotChange(event: Event): void {
-    super.handleSlotChange()
+  protected handleSubmit(event: Event) {
+    event.preventDefault()
 
+    const input = event.target as HTMLInputElement
+
+    if (input.tagName === 'INPUT' && input.type !== 'submit') {
+      if (!input.value) {
+        return
+      }
+    }
+
+    console.log('Submit')
+  }
+
+  protected processChange() {
     const slot = this.useSlot()
 
     slot &&
-      Enlightenment.getElementsFromSlot(slot, ['button', 'input', 'select', 'textarea']).forEach(
-        (element) => {
-          this.assignInputEvent(element)
-
-          if (!this.initialFormData.filter(([e]) => e === element).length) {
-            let initialValue: any
-
-            if (['checkbox', 'radio'].includes(element.type)) {
-              initialValue = element.checked
-            } else if (!['reset', 'submit', 'button'].includes(element.type)) {
-              initialValue = element.value
-            }
-
-            if (initialValue !== undefined) {
-              this.initialFormData.push([element, initialValue])
-            }
-          }
+      Enlightenment.getElementsFromSlot(slot, EnlightenmenForm.inputElements).forEach((element) => {
+        if (element.tagName.toLowerCase() === 'button') {
+          return
         }
-      )
 
-    // this.assignInputElements(event.target as HTMLSlotElement)
+        console.log('After change', element)
+      })
+  }
 
-    // // Update the found input element during a slotchange within the actual
-    // // form slot.
-    // Object.values(this.inputs).forEach((input) => {
-    //   this.clearGlobalEvent('slotchange', Enlightenment.useHost(input))
-    //   this.assignGlobalEvent(
-    //     'slotchange',
-    //     () => {
-    //       this.throttle(
-    //         this.assignInputElements,
-    //         Enlightenment.FPS,
-    //         event.target as HTMLSlotElement
-    //       )
-    //     },
-    //     Enlightenment.useHost(input)
-    //   )
-    // })
+  protected handleSlotChange(event: Event): void {
+    super.handleSlotChange(event)
 
-    // this.assignInputEvents(event.target)
+    const slot = this.useSlot()
+
+    if (!slot) {
+      return
+    }
+
+    Enlightenment.getElementsFromSlot(slot, EnlightenmenForm.inputElements).forEach((element) => {
+      const input = element as HTMLInputElement
+
+      this.assignInputEvents(input)
+
+      if (!this.initialFormData.filter(([e]) => e === input).length) {
+        let initialValue: any
+
+        if (['checkbox', 'radio'].includes(input.type)) {
+          initialValue = input.checked
+        } else if (!['reset', 'submit', 'button'].includes(input.type)) {
+          initialValue = input.value
+        }
+
+        if (initialValue !== undefined) {
+          this.initialFormData.push([input, initialValue])
+        }
+      }
+    })
   }
 
   render() {

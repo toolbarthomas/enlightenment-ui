@@ -1,48 +1,41 @@
-import {
-  customElement,
-  Enlightenment,
-  html,
-  property,
-} from "@toolbarthomas/enlightenment";
+import { customElement, Enlightenment, html, property } from '@toolbarthomas/enlightenment'
 
-import styles from "./List.scss";
+import styles from './List.scss'
 
-@customElement("ui-list")
+@customElement('ui-list')
 class EnlightenmentList extends Enlightenment {
-  static styles = [styles];
+  static styles = [styles]
 
-  @property({ attribute: "list-type", type: String })
-  listType = "ul";
+  @property({ attribute: 'list-type', type: String })
+  listType = 'ul'
 
   constructor() {
-    super();
-
-    this.disableGlobalEvents = true;
+    super()
   }
 
   render() {
-    const classes = ["list", `list--is-${this.listType}`];
+    const classes = ['list', `list--is-${this.listType}`]
 
-    console.log("traverse", this.parents("[list-type]"));
+    console.log('traverse', this.parents('[list-type]'))
 
-    const list = this.parent("[list-type]");
-    if (!this.hasAttribute("list-type") && list) {
-      this.listType = list.getAttribute("list-type");
+    const list = this.parent('[list-type]')
+    if (!this.hasAttribute('list-type') && list) {
+      this.listType = list.getAttribute('list-type') || this.listType
     }
 
     switch (this.listType) {
-      case "dl":
-        return html`<dl class="${classes.join(" ")}"><slot></slot></dl>`;
+      case 'dl':
+        return html`<dl class="${classes.join(' ')}"><slot></slot></dl>`
 
-      case "ol":
-        return html`<ol class="${classes.join(" ")}">
+      case 'ol':
+        return html`<ol class="${classes.join(' ')}">
           <slot></slot>
-        </ol>`;
+        </ol>`
 
       default:
-        return html`<ul class="${classes.join(" ")}">
+        return html`<ul class="${classes.join(' ')}">
           <slot></slot>
-        </ul>`;
+        </ul>`
     }
   }
 }

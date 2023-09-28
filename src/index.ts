@@ -9,7 +9,7 @@
  * that the actual assets should be available within the Enlightenment component
  * context (mostly css variables).
  */
-import styles from './styles/index.scss'
+import styles from '@/styles/index.scss'
 
 // Call the definition once to ensure it is picked up by the compiler.
 ;(() => styles)()

@@ -1,30 +1,21 @@
-import {
-  customElement,
-  Enlightenment,
-  html,
-  property,
-} from "@toolbarthomas/enlightenment";
+import { customElement, Enlightenment, html, property } from '@toolbarthomas/enlightenment'
 
-import styles from "./Paragraph.scss";
+import styles from './Paragraph.scss'
 
-@customElement("ui-paragraph")
+@customElement('ui-paragraph')
 class EnlightenmentParagraph extends Enlightenment {
-  static styles = [styles];
+  static styles = [styles]
 
   @property({ type: String })
-  text: string;
+  text?: string
 
   constructor() {
-    super();
-
-    this.disableGlobalEvents = true;
+    super()
   }
 
   render() {
-    const classes = ["paragraph"];
+    const classes = ['paragraph']
 
-    return html`<p class="${classes.join(" ")}">
-      ${this.text ? this.text : html`<slot></slot>`}
-    </p>`;
+    return html`<p class="${classes.join(' ')}">${this.text ? this.text : html`<slot></slot>`}</p>`
   }
 }

@@ -14,6 +14,9 @@ import styles from './Toggler.scss'
 class EnlightenmentToggler extends Enlightenment {
   static styles = [styles]
 
+  @property({ type: String })
+  label?: string
+
   @property({ attribute: 'active', converter: Enlightenment.isBoolean, type: Boolean })
   isActive?: boolean = false
 

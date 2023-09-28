@@ -21,7 +21,7 @@ class EnlightenmentDrawer extends Enlightenment {
     converter: Enlightenment.isBoolean,
     type: Boolean
   })
-  isActive: string | null
+  isActive?: string | null
 
   @property({
     attribute: 'floating',
@@ -67,7 +67,7 @@ class EnlightenmentDrawer extends Enlightenment {
       return
     }
 
-    const context = this.useContext()
+    const context = this.useContext() as HTMLElement
 
     if (!context) {
       return
@@ -79,7 +79,7 @@ class EnlightenmentDrawer extends Enlightenment {
     ) {
       context.style.paddingTop = `${this.offsetElement.offsetHeight}px`
     } else {
-      context.style.paddingTop = 0
+      context.style.paddingTop = '0px'
     }
   }
 
@@ -95,8 +95,8 @@ class EnlightenmentDrawer extends Enlightenment {
     `
   }
 
-  updated() {
-    super.updated()
+  updated(properties: any) {
+    super.updated(properties)
 
     this._defineOffset()
 
@@ -147,7 +147,7 @@ class EnlightenmentDrawer extends Enlightenment {
 
     const state = this.useState()
 
-    const target: HTMLElement = event.target
+    const target = event.target as HTMLElement
 
     let ignore = false
     // if (target) {
@@ -177,15 +177,15 @@ class EnlightenmentDrawer extends Enlightenment {
 
     // console.log('ignore?', ignore)
 
-    if (!this.strict && !this.isComponentContext(event.target) && !ignore) {
+    if (!this.strict && !this.isComponentContext(target) && !ignore) {
       this.hide()
     }
 
     if (
       !ignore &&
       this.toggles &&
-      (this.toggles.includes(event.target) ||
-        this.toggles.filter((e) => e.contains(event.target)).length)
+      (this.toggles.includes(target) ||
+        this.toggles.filter((e) => target && e.contains(target)).length)
     ) {
       if (this.isActive) {
         this.hide()
@@ -211,10 +211,6 @@ class EnlightenmentDrawer extends Enlightenment {
 
   show() {
     this.commit('isActive', true)
-
-    if (this.strict) {
-      this.lockFocusTrap()
-    }
   }
 
   render() {

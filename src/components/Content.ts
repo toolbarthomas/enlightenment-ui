@@ -25,9 +25,9 @@ class EnlightenmentContent extends Enlightenment {
   @property({ type: String })
   label?: string
 
-  anchor: Ref<Element> = createRef()
-  header: Ref<Element> = createRef()
-  main: Ref<Element> = createRef()
+  anchor = createRef()
+  header = createRef()
+  main = createRef()
 
   /**
    *

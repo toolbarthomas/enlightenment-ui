@@ -3,19 +3,22 @@ import {
   customElement,
   Enlightenment,
   html,
+  nothing,
   property,
   ref
 } from '@toolbarthomas/enlightenment'
 import styles from './Modal.scss'
 
+import { EnligtenmentTarget } from '@toolbarthomas/enlightenment/src/_types/main'
+
 @customElement('ui-modal')
 class EnlightenmentModal extends Enlightenment {
   static styles = [styles]
 
-  bodyContext: Ref<HTMLElement> = createRef()
+  bodyContext = createRef()
   enableDocumentEvents = true
-  wrapperContext: Ref<HTMLElement> = createRef()
-  panelContext: Ref<HTMLHtmlElement> = createRef()
+  wrapperContext = createRef()
+  panelContext = createRef()
 
   hasOverflow?: boolean = false
   isSticky?: boolean = false
@@ -51,14 +54,14 @@ class EnlightenmentModal extends Enlightenment {
 
   header?: ReturnType<typeof html>
 
-  protected firstUpdated() {
-    super.firstUpdated()
+  protected firstUpdated(properties: any) {
+    super.firstUpdated(properties)
 
     const body = this.useRef(this.bodyContext)
     body &&
       this.assignGlobalEvent(
         'scroll',
-        (event) => this.throttle(this.handleScroll, Enlightenment.FPS, event, body),
+        (event: Event) => this.throttle(this.handleScroll, Enlightenment.FPS, event, body),
         body
       )
 
@@ -66,7 +69,7 @@ class EnlightenmentModal extends Enlightenment {
     wrapper &&
       this.assignGlobalEvent(
         'scroll',
-        (event) => this.throttle(this.handleScroll, Enlightenment.FPS, event, wrapper),
+        (event: Event) => this.throttle(this.handleScroll, Enlightenment.FPS, event, wrapper),
         wrapper
       )
   }
@@ -78,14 +81,14 @@ class EnlightenmentModal extends Enlightenment {
     this.hook('resize')
   }
 
-  protected handleScroll(event: Event, target?: HTMLElement) {
+  protected handleScroll(event: Event, target?: EnligtenmentTarget) {
     if (!target) {
       return
     }
 
-    const body = this.useRef(this.bodyContext)
-    const panel = this.useRef(this.panelContext)
-    const wrapper = this.useRef(this.wrapperContext)
+    const body = this.useRef(this.bodyContext) as HTMLElement
+    const panel = this.useRef(this.panelContext) as HTMLElement
+    const wrapper = this.useRef(this.wrapperContext) as HTMLElement
 
     switch (target) {
       case wrapper:
@@ -160,10 +163,10 @@ class EnlightenmentModal extends Enlightenment {
     }
   }
 
-  protected updated() {
-    super.updated()
+  protected updated(properties: any) {
+    super.updated(properties)
 
-    this.handleCurrentElement(this.isActive ? this : undefined)
+    this.handleCurrentElement(this.isActive ? this : null)
   }
 
   connectedCallback() {
@@ -171,7 +174,7 @@ class EnlightenmentModal extends Enlightenment {
 
     this.assignGlobalEvent(
       'resize',
-      (event) => this.throttle(this.handleResize, Enlightenment.FPS, event),
+      (event: UIEvent) => this.throttle(this.handleResize, Enlightenment.FPS, event),
       window
     )
   }
@@ -220,7 +223,7 @@ class EnlightenmentModal extends Enlightenment {
         >
           <div class="modal__wrapper" ${ref(this.wrapperContext)}>
             <div
-              class="modal__panel ${this.sticky ? 'modal__panel--is-sticky' : ''}"
+              class="modal__panel ${this.isSticky ? 'modal__panel--is-sticky' : ''}"
               ${ref(this.panelContext)}
             >
               ${this.renderHeader()}
@@ -245,7 +248,7 @@ class EnlightenmentModal extends Enlightenment {
     `
   }
 
-  renderLabel(value: string) {
-    return value ? html`<span class="modal__header-label">${value}</span>` : ''
+  renderLabel(value?: string) {
+    return value ? html`<span class="modal__header-label">${value}</span>` : nothing
   }
 }
