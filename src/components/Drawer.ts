@@ -14,7 +14,6 @@ class EnlightenmentDrawer extends Enlightenment {
   static styles = [styles]
 
   enableDocumentEvents = true
-  ready?: boolean = false
 
   @property({
     attribute: 'active',
@@ -95,7 +94,52 @@ class EnlightenmentDrawer extends Enlightenment {
     `
   }
 
-  updated(properties: any) {
+  protected handleGlobalClick(event: MouseEvent) {
+    super.handleGlobalClick(event)
+
+    const state = this.useState()
+
+    const target = event.target as HTMLElement
+
+    let ignore = false
+
+    if (!this.strict && !this.isComponentContext(target) && !ignore) {
+      this.close()
+    }
+
+    if (
+      !ignore &&
+      this.toggles &&
+      (this.toggles.includes(target) ||
+        this.toggles.filter((e) => target && e.contains(target)).length)
+    ) {
+      if (this.isActive) {
+        this.close()
+      } else {
+        this.open()
+      }
+    }
+  }
+
+  protected handleGlobalKeydown(event: KeyboardEvent) {
+    super.handleGlobalKeydown(event)
+
+    const { keyCode } = event
+
+    if (!this.strict && Enlightenment.keyCodes.exit.includes(keyCode)) {
+      this.close()
+    }
+  }
+
+  protected handleResize() {
+    this.throttle(() => this._defineOffset())
+  }
+
+  protected handleScroll() {
+    this.handleResize()
+  }
+
+  protected updated(properties: any) {
     super.updated(properties)
 
     this._defineOffset()
@@ -121,6 +165,10 @@ class EnlightenmentDrawer extends Enlightenment {
     })
   }
 
+  close() {
+    this.commit('isActive', false)
+  }
+
   connectedCallback() {
     super.connectedCallback()
 
@@ -134,82 +182,7 @@ class EnlightenmentDrawer extends Enlightenment {
     this.clearGlobalEvent('resize', [this, window])
   }
 
-  handleResize() {
-    this.throttle(() => this._defineOffset())
-  }
-
-  handleScroll() {
-    this.handleResize()
-  }
-
-  protected handleGlobalClick(event: MouseEvent) {
-    super.handleGlobalClick(event)
-
-    const state = this.useState()
-
-    const target = event.target as HTMLElement
-
-    let ignore = false
-    // if (target) {
-    //   let observe: Enlightenment['observe'] = target.observe
-
-    //   if (!observe && !this.isComponentContext(target)) {
-    //     console.log('Try again', this.isComponentContext(target))
-
-    //     let hasParent = false
-    //     let current = target
-
-    //     while (current.parentNode && !hasParent) {
-    //       if (current.shadowRoot && current.shadowRoot.host && current.shadowRoot.host.observe) {
-    //         observe = current.shadowRoot.host.observe
-    //         hasParent = true
-    //       } else if (current.tagName === this.tagName) {
-    //         //@todo Should do explicit compare
-    //         break
-    //       }
-
-    //       current = current.parentNode
-    //     }
-    //   }
-
-    //   ignore = Object.values(observe || {}).includes(this)
-    // }
-
-    // console.log('ignore?', ignore)
-
-    if (!this.strict && !this.isComponentContext(target) && !ignore) {
-      this.hide()
-    }
-
-    if (
-      !ignore &&
-      this.toggles &&
-      (this.toggles.includes(target) ||
-        this.toggles.filter((e) => target && e.contains(target)).length)
-    ) {
-      if (this.isActive) {
-        this.hide()
-      } else {
-        this.show()
-      }
-    }
-  }
-
-  protected handleGlobalKeydown(event: KeyboardEvent) {
-    super.handleGlobalKeydown(event)
-
-    const { keyCode } = event
-
-    if (!this.strict && Enlightenment.keyCodes.exit.includes(keyCode)) {
-      this.hide()
-    }
-  }
-
-  hide() {
-    this.commit('isActive', false)
-  }
-
-  show() {
+  open() {
     this.commit('isActive', true)
   }
 

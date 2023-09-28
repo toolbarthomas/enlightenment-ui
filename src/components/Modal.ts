@@ -74,6 +74,34 @@ class EnlightenmentModal extends Enlightenment {
       )
   }
 
+  protected handleClick(event: Event) {
+    const { target } = event || {}
+
+    const wrapper = this.useRef(this.wrapperContext)
+    if (target && target === wrapper && !this.strict) {
+      this.close()
+    }
+  }
+
+  protected handleGlobalClick(event: MouseEvent): void {
+    super.handleGlobalClick(event)
+
+    const { target } = event
+
+    if (this.currentElement) {
+    } else {
+      this.commit('isActive', !this.isActive)
+    }
+  }
+
+  protected handleGlobalKeydown(event: KeyboardEvent) {
+    const { keyCode } = event || {}
+
+    if (Enlightenment.keyCodes.exit.includes(keyCode)) {
+      this.close()
+    }
+  }
+
   protected handleResize(event: Event) {
     this.handleScroll(event, this.useRef(this.wrapperContext))
     this.handleScroll(event, this.useRef(this.bodyContext))
@@ -135,34 +163,6 @@ class EnlightenmentModal extends Enlightenment {
     this.hook('scroll')
   }
 
-  protected handleGlobalClick(event: MouseEvent): void {
-    super.handleGlobalClick(event)
-
-    const { target } = event
-
-    if (this.currentElement) {
-    } else {
-      this.commit('isActive', !this.isActive)
-    }
-  }
-
-  protected handleGlobalKeydown(event: KeyboardEvent) {
-    const { keyCode } = event || {}
-
-    if (Enlightenment.keyCodes.exit.includes(keyCode)) {
-      this.hide()
-    }
-  }
-
-  protected handleClick(event: Event) {
-    const { target } = event || {}
-
-    const wrapper = this.useRef(this.wrapperContext)
-    if (target && target === wrapper && !this.strict) {
-      this.hide()
-    }
-  }
-
   protected updated(properties: any) {
     super.updated(properties)
 
@@ -187,11 +187,11 @@ class EnlightenmentModal extends Enlightenment {
     super.disconnectedCallback()
   }
 
-  hide() {
+  close() {
     this.commit('isActive', false)
   }
 
-  show() {
+  open() {
     this.commit('isActive', true)
   }
 
