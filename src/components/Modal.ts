@@ -7,9 +7,9 @@ import {
   property,
   ref
 } from '@toolbarthomas/enlightenment'
-import styles from './Modal.scss'
-
 import { EnligtenmentTarget } from '@toolbarthomas/enlightenment/src/_types/main'
+
+import styles from './Modal.scss'
 
 @customElement('ui-modal')
 class EnlightenmentModal extends Enlightenment {
