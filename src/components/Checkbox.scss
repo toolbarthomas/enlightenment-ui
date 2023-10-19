@@ -26,7 +26,6 @@
     height: var(--space-24);
     justify-content: center;
     margin-right: var(--space-12);
-    overflow: hidden;
     position: relative;
     transition: var(--duration-default) var(--easing-default);
     transition-property: border-color, box-shadow;
@@ -43,6 +42,7 @@
       height: 100%;
       left: 50%;
       opacity: 0;
+      border-radius: inherit;
       position: absolute;
       top: 50%;
       transform: translate(-50%, -50%) scale(0.5);
@@ -70,6 +70,11 @@
 
     &:focus {
       outline: none;
+    }
+
+    &:focus-visible + .checkbox__icon::after {
+      transform: translate(-50%, -50%);
+      opacity: 1;
     }
   }
 
@@ -101,7 +106,23 @@
       transition: var(--duration-default) var(--easing-default);
       transition-property: color, box-shadow, opacity, transform;
     }
-    // background-color: var(--blue-400);
+
+    &::after {
+      transition: var(--duration-default) var(--easing-default);
+      transition-property: opacity transform;
+      display: block;
+      width: var(--space-24);
+      height: var(--space-24);
+      border-radius: var(--space-6);
+      border: solid var(--space-2) var(--blue-500);
+      content: ' ';
+      box-sizing: content-box;
+      left: 50%;
+      position: absolute;
+      top: 50%;
+      transform: translate(-50%, -50%) scale(0.1);
+      opacity: 0;
+    }
 
     .checkbox:focus-within &,
     .checkbox:hover &,
@@ -110,7 +131,6 @@
         opacity: 1;
         transform: rotate(45deg);
       }
-      // background: var(--blue-600);
     }
 
     .checkbox__input:checked + & {
