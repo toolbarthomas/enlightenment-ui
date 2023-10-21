@@ -72,6 +72,11 @@ class EnlightenmentContent extends Enlightenment {
 
   renderSummary() {
     const { summary } = this.slots || {}
+
+    if (!summary) {
+      return nothing
+    }
+
     // if (summary || this.label) {
     return html`
       <header class="content__header" ref="${ref(this.header)}">

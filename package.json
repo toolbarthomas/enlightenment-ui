@@ -24,7 +24,8 @@
     "prebuild": "npm link @toolbarthomas/enlightenment && node node/utils/_cleanup.mjs",
     "build": "node node/esbuild.enlightenment-ui.mjs && node node/esbuild.enlightenment-ui.mjs -m",
     "postbuild": "node node/esbuild.assets.mjs -s",
-    "dev": "node node/esbuild.assets.mjs -s -d & node node/esbuild.enlightenment-ui.mjs -d"
+    "dev": "node node/esbuild.assets.mjs -s -d & node node/esbuild.enlightenment-ui.mjs -d",
+    "styleguide": "node node/esbuild.styleguide.mjs"
   },
   "repository": {
     "type": "git",

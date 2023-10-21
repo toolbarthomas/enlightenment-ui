@@ -33,10 +33,10 @@
 
     &::before {
       position: absolute;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      left: 0;
+      top: calc(var(--space-0) - var(--space-1));
+      right: calc(var(--space-0) - var(--space-1));
+      bottom: calc(var(--space-0) - var(--space-1));
+      left: calc(var(--space-0) - var(--space-1));
       display: block;
       content: ' ';
       opacity: 0;
