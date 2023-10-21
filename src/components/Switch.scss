@@ -1,0 +1,94 @@
+@import '../styles/mixins/visually-hidden';
+@import '../styles/mixins/box-sizing';
+
+@include boxSizing();
+
+.switch {
+  position: relative;
+
+  &__input-wrapper {
+    position: relative;
+    display: block;
+    height: var(--space-32);
+    border-radius: var(--space-32);
+    background-color: var(--grey-600);
+    width: var(--space-64);
+    transition: var(--duration-default) var(--easing-default);
+    transition-property: background-color;
+
+    :host([mode='dark']) & {
+      background-color: var(--grey-800);
+    }
+
+    .switch--is-active &,
+    :host([mode='dark']) .switch--is-active & {
+      background-color: var(--blue-600);
+    }
+  }
+
+  &__icon {
+    position: absolute;
+    width: calc(var(--space-32) - var(--space-6));
+    height: calc(var(--space-32) - var(--space-6));
+    top: 50%;
+    left: calc(var(--space-6) / 2);
+    transform: translate(0, -50%);
+    border-radius: 50%;
+    background: var(--grey-100);
+    transition: var(--duration-default) var(--easing-default);
+    transition-property: background-color border-color left transform;
+    box-shadow: var(--space-0) var(--space-1) var(--space-1) var(--dawn-900-a20);
+    border: solid var(--space-1) var(--grey-700-a60);
+
+    &::before {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      border-radius: 50%;
+      content: ' ';
+      opacity: 0;
+      transition: inherit;
+      transition-property: opacity;
+      background: repeating-linear-gradient(0deg, transparent, white);
+    }
+
+    :host([mode='dark']) & {
+      box-shadow: none;
+      border-color: transparent;
+      background: var(--grey-900);
+
+      &::before {
+        opacity: 0.1;
+      }
+    }
+
+    .switch__input:checked + &,
+    .switch--is-active & {
+      left: calc(var(--space-6) * 1.5);
+      transform: translate(100%, -50%);
+      border-color: transparent;
+      background-color: var(--blue-100);
+      box-shadow: 0 var(--space-2) 0 0 var(--blue-700);
+
+      &::before {
+        opacity: 1;
+      }
+    }
+
+    :host([mode='dark']) .switch__input:checked + &,
+    :host([mode='dark']) .switch--is-active & {
+      background-color: var(--blue-300);
+    }
+  }
+
+  &__input {
+    @include visuallyHidden();
+
+    &:focus {
+      outline: none;
+    }
+  }
+}
