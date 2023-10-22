@@ -23,7 +23,6 @@ class EnlightenmenForm extends Enlightenment {
     const host = Enlightenment.useHost(context) as HTMLInputElement
 
     if (context.type === 'submit' || (host && host.getAttribute('type') === 'submit')) {
-      console.log('Assign', context)
       this.clearGlobalEvent('click', context)
       this.assignGlobalEvent('click', this.handleSubmit, context)
 
@@ -45,7 +44,7 @@ class EnlightenmenForm extends Enlightenment {
       // defined
       this.hook('change', { context })
 
-      if (context.type === 'radio' || context.type === 'checkbox') {
+      if (['checkbox', 'radio'].includes(context.type)) {
         return
       }
 
@@ -55,7 +54,11 @@ class EnlightenmenForm extends Enlightenment {
   }
 
   protected handleChange(event: InputEvent) {
-    this.throttle(this.processChange, Enlightenment.FPS)
+    if (!event.target) {
+      return
+    }
+
+    this.throttle(this.processChange, Enlightenment.FPS, event.target)
   }
 
   protected handleKeydown(event: KeyboardEvent) {
@@ -111,17 +114,53 @@ class EnlightenmenForm extends Enlightenment {
     console.log('Submit')
   }
 
-  protected processChange() {
+  protected processChange(context?: HTMLElement) {
+    if (!context) {
+      return
+    }
+
     const slot = this.useSlot()
 
-    slot &&
-      Enlightenment.getElementsFromSlot(slot, EnlightenmenForm.inputElements).forEach((element) => {
+    if (!slot) {
+      return
+    }
+
+    const formData = new FormData()
+
+    Enlightenment.getElementsFromSlot(slot, EnlightenmenForm.inputElements).forEach(
+      (element: HTMLInputElement) => {
+        const host = Enlightenment.useHost(element) as Enlightenment
+
+        if (!host) {
+          return
+        }
+
+        // Only allow elements that can hold an actual value.
         if (element.tagName.toLowerCase() === 'button') {
           return
         }
 
-        console.log('After change', element)
-      })
+        // Ignore the change element to ensure multiple Events are not
+        // triggered.
+        if (context === element) {
+          return
+        }
+
+        if (element.files && element.files.length) {
+          for (let i = 0; i < element.files.length; i++) {
+            const { name } = element.files.item(i) || {}
+
+            formData.append(element.name || 'blob', element.files[i], name)
+          }
+        } else {
+          formData.append(element.name || 'data', element.value)
+        }
+
+        host.requestUpdate && host.requestUpdate()
+      }
+    )
+
+    console.log('Form result', formData.has('blob'))
   }
 
   protected handleSlotChange(event: Event): void {

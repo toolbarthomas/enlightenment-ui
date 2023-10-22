@@ -14,6 +14,12 @@ import styles from '@/components/Switch.scss'
 class EnlightenmentRadioButton extends Enlightenment {
   static styles = [styles]
 
+  @property({
+    converter: (value: string) => Enlightenment.filterProperty(value, ['ltr', 'rtl']),
+    type: String
+  })
+  direction = 'ltr'
+
   @property({ attribute: 'active', converter: Enlightenment.isBoolean, type: Boolean })
   isActive?: boolean = false
 
@@ -91,7 +97,7 @@ class EnlightenmentRadioButton extends Enlightenment {
   }
 
   render() {
-    const classes = [`switch--is-${this.size}`]
+    const classes = [`switch--is-${this.direction}`, `switch--is-${this.size}`]
 
     if (this.disabled) {
       classes.push('switch--is-disabled')
