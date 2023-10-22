@@ -17,6 +17,9 @@ class EnlightenmentRadioButton extends Enlightenment {
   @property({ attribute: 'active', converter: Enlightenment.isBoolean, type: Boolean })
   isActive?: boolean = false
 
+  @property({ attribute: 'flip', converter: Enlightenment.isBoolean, type: Boolean })
+  isFlipped?: boolean = false
+
   @property({ type: String })
   label?: string = ''
 
@@ -25,6 +28,12 @@ class EnlightenmentRadioButton extends Enlightenment {
 
   @property({ type: String })
   value?: string
+
+  @property({
+    converter: (value: string) => Enlightenment.filterProperty(value, ['medium', 'small', 'large']),
+    type: String
+  })
+  size = 'medium'
 
   @property({ converter: Enlightenment.isBoolean, type: Boolean })
   disabled?: boolean
@@ -82,7 +91,7 @@ class EnlightenmentRadioButton extends Enlightenment {
   }
 
   render() {
-    const classes = []
+    const classes = [`switch--is-${this.size}`]
 
     if (this.disabled) {
       classes.push('switch--is-disabled')
@@ -90,6 +99,10 @@ class EnlightenmentRadioButton extends Enlightenment {
 
     if (this.isActive) {
       classes.push('switch--is-active')
+    }
+
+    if (this.isFlipped) {
+      classes.push('switch--is-flipped')
     }
 
     return html`

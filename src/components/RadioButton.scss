@@ -18,7 +18,7 @@
   &__input-wrapper {
     align-items: center;
     border-radius: var(--space-32);
-    border: solid var(--space-1) var(--grey-700-a60);
+    border: solid var(--space-1) var(--neutral-700-a60);
     box-shadow: var(--space-0) var(--space-1) var(--space-1) var(--dawn-900-a20);
     display: flex;
     flex-shrink: 0;
@@ -41,19 +41,19 @@
       content: ' ';
       opacity: 0;
       border-radius: inherit;
-      background-color: var(--blue-600);
+      background-color: var(--accent-600);
       transform: scale(0.1);
       transition: var(--duration-default) var(--easing-default);
       transition-property: background-color opacity transform;
     }
 
     :host([mode='dark']) & {
-      border-color: var(--grey-800);
+      border-color: var(--neutral-800);
     }
 
     .radio-button__input:checked &,
     .radio-button--is-active & {
-      // background-color: var(--blue-600);
+      // background-color: var(--accent-600);
 
       &::before {
         opacity: 1;
@@ -62,7 +62,7 @@
 
       &,
       :host([mode='dark']) & {
-        border-color: var(--blue-600);
+        border-color: var(--accent-600);
         box-shadow: none;
       }
     }
@@ -79,7 +79,7 @@
   &__icon {
     display: block;
     position: relative;
-    color: var(--blue-400);
+    color: var(--accent-400);
     height: var(--space-8);
     margin-top: calc(var(--space-0) - var(--space-4));
     margin-left: calc(var(--space-0) - var(--space-4));
@@ -99,7 +99,7 @@
     }
 
     :host([mode='dark']) & {
-      color: var(--blue-700);
+      color: var(--accent-700);
     }
 
     .radio-button:focus-within &,
@@ -111,7 +111,7 @@
 
     .radio-button__input + &::after {
       border-radius: inherit;
-      border: solid var(--space-2) var(--blue-500);
+      border: solid var(--space-2) var(--accent-500);
       content: ' ';
       display: block;
       height: var(--space-24);
@@ -131,15 +131,20 @@
     }
 
     .radio-button__input:checked + & {
-      background-color: var(--blue-100);
-      box-shadow: 0 var(--space-1) var(--space-3) var(--blue-900);
+      background-color: var(--accent-100);
+      box-shadow: 0 var(--space-1) var(--space-3) var(--accent-900);
 
       &::before {
-        color: var(--blue-100);
-        box-shadow: var(--space-1) var(--space-1) var(--space-1) var(--blue-700);
+        color: var(--accent-100);
+        box-shadow: var(--space-1) var(--space-1) var(--space-1) var(--accent-700);
+      }
 
-        :host([mode='dark']) & {
-          color: var(--blue-900);
+      :host([mode='dark']) & {
+        background-color: var(--accent-900);
+        box-shadow: none;
+
+        &::before {
+          color: var(--accent-900);
           box-shadow: none;
         }
       }
