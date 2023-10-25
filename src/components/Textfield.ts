@@ -53,7 +53,7 @@ class EnlightenmentTextfield extends Enlightenment {
     const classes = ['textfield']
 
     return html`<div class="${classes.join(' ')}">
-      ${this.renderLabel()}
+      <div class="textfield__label-wrapper">${this.renderLabel()}</div>
       <div class="textfield__input-wrapper">
         <input
           ?disabled=${this.disabled}
@@ -74,26 +74,18 @@ class EnlightenmentTextfield extends Enlightenment {
   }
 
   renderActions() {
-    return html`<div class="textfield__actions"></div>`
+    const { actions } = this.slots
+
+    return html`<div class="textfield__actions">
+      <slot name="actions"></slot>
+    </div>`
   }
 
   renderLabel() {
     const slot = this.useSlot()
 
-    console.log(this.label, 'foo')
-
-    if (!slot && !this.label) {
-      return nothing
-    }
-
-    if (this.label) {
-      return html`<div class="textfield__label-wrapper">
-        <label class="textfield__label" for="${this.id}"> ${this.label}</label>
-      </div>`
-    } else if (slot) {
-      return html`<div class="textfield_label-wrapper"><slot></slot></div>`
-    } else {
-      return nothing
-    }
+    return this.label
+      ? html`<label class="textfield__label" for="${this.id}">${this.label}</label>`
+      : html`<slot></slot>`
   }
 }
