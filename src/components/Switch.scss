@@ -158,6 +158,32 @@
     }
   }
 
+  &__focus-indicator {
+    position: absolute;
+    top: calc(var(--space-0) - var(--space-4));
+    right: calc(var(--space-0) - var(--space-4));
+    left: calc(var(--space-0) - var(--space-4));
+    bottom: calc(var(--space-0) - var(--space-4));
+
+    display: block;
+    pointer-events: none;
+    border-radius: inherit;
+    border: solid var(--space-4) var(--accent-600);
+    opacity: 0;
+    transition: var(--duration-default) var(--easing-default);
+    transition-property: opacity transform;
+    transform: scale(0.8);
+
+    .switch__input:focus-visible ~ & {
+      opacity: 0.6;
+      transform: none;
+
+      :host([mode='dark']) & {
+        opacity: 0.8;
+      }
+    }
+  }
+
   @include switchSize(--space-24, --space-4);
 
   &--is-small {

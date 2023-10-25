@@ -68,8 +68,13 @@ class EnlightenmentTextfield extends Enlightenment {
           type="text"
         />
         <span class="textfield__focus-indicator"></span>
+        ${this.renderActions()}
       </div>
     </div>`
+  }
+
+  renderActions() {
+    return html`<div class="textfield__actions"></div>`
   }
 
   renderLabel() {

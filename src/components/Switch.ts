@@ -128,6 +128,7 @@ class EnlightenmentRadioButton extends Enlightenment {
               type="checkbox"
             />
             <span class="switch__icon"></span>
+            <span aria-focusable="false" aria-hidden="true" class="switch__focus-indicator"></span>
           </span>
           <span class="switch__body">
             <slot>${this.label || nothing}</slot>
