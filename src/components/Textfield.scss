@@ -1,2 +1,93 @@
+@import '../styles/mixins/visually-hidden';
+@import '../styles/mixins/box-sizing';
+@import '../styles/mixins/responsive-font';
+
+@include boxSizing();
+
 .textfield {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-12);
+  margin-bottom: var(--space-24);
+
+  &__label-wrapper {
+    flex-shrink: 0;
+    min-width: var(--space-320);
+    padding-top: var(--space-12);
+  }
+
+  &__input-wrapper {
+    position: relative;
+    min-width: var(--space-320);
+  }
+
+  &__input {
+    width: 100%;
+    appearance: none;
+    border: none;
+    background-color: var(--dawn-100);
+    padding: var(--space-12) var(--space-16);
+    border: solid var(--space-1) var(--dawn-900-a20);
+    box-shadow: var(--space-0) var(--space-1) var(--space-3) var(--dawn-900-a10);
+    border-radius: var(--space-4);
+    transition: var(--duration-default) var(--easing-default);
+    transition-property: border, transform;
+
+    &,
+    &::placeholder {
+      @include responsive-font-size('base');
+    }
+
+    &::placeholder {
+      color: var(--grey-900);
+      opacity: 0.35;
+    }
+
+    :host([mode='dark']) & {
+      color: var(--grey-300);
+      border-color: var(--grey-900);
+      background-color: var(--grey-800);
+
+      &::placeholder {
+        color: var(--grey-600);
+        opacity: 0.45;
+      }
+    }
+
+    &:focus {
+      outline: none;
+      border-color: transparent;
+
+      & + .textfield__focus-indicator {
+        // top: calc(var(--space-0) - var(--space-6));
+        // right: calc(var(--space-0) - var(--space-6));
+        // left: calc(var(--space-0) - var(--space-6));
+        // bottom: calc(var(--space-0) - var(--space-6));
+        opacity: 0.6;
+        box-shadow: 0 0 0 var(--space-4) var(--accent-500);
+
+        :host([mode='dark']) & {
+          opacity: 0.8;
+        }
+      }
+    }
+  }
+
+  &__focus-indicator {
+    pointer-events: none;
+    position: absolute;
+    display: block;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    content: ' ';
+
+    opacity: 0;
+    border-radius: var(--space-8);
+    box-shadow: 0 0 0 0 var(--accent-500);
+    // border: solid var(--space-4) var(--accent-500);
+    transition: var(--duration-default) var(--easing-default);
+    transition-property: box-shadow, opacity;
+  }
 }

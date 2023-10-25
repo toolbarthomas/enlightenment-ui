@@ -8,11 +8,20 @@ import {
   ref
 } from '@toolbarthomas/enlightenment'
 
-import styles from './Toggler.scss'
+import styles from './Textfield.scss'
 
 @customElement('ui-textfield')
-class EnlightenmentToggler extends Enlightenment {
+class EnlightenmentTextfield extends Enlightenment {
   static styles = [styles]
+
+  @property({ type: String })
+  id? = Enlightenment.useElementID()
+
+  @property({ type: String })
+  label?: string
+
+  @property({ type: String })
+  placeholder?: string
 
   handleChange(event: Event) {
     if (!event || !event.target) {
@@ -44,16 +53,42 @@ class EnlightenmentToggler extends Enlightenment {
     const classes = ['textfield']
 
     return html`<div class="${classes.join(' ')}">
-      <input
-        ?disabled=${this.disabled}
-        ?name=${this.name}
-        ?value=${this.value}
-        @change=${this.handleChange}
-        @keydown=${this.handleKeydown}
-        class="textfield__input"
-        ref="{${ref(this.context)}}"
-        type="text"
-      />
+      ${this.renderLabel()}
+      <div class="textfield__input-wrapper">
+        <input
+          ?disabled=${this.disabled}
+          ?value=${this.value}
+          @change=${this.handleChange}
+          @keydown=${this.handleKeydown}
+          class="textfield__input"
+          id=${this.id}
+          name=${this.name}
+          placeholder=${this.placeholder}
+          ref="{${ref(this.context)}}"
+          type="text"
+        />
+        <span class="textfield__focus-indicator"></span>
+      </div>
     </div>`
+  }
+
+  renderLabel() {
+    const slot = this.useSlot()
+
+    console.log(this.label, 'foo')
+
+    if (!slot && !this.label) {
+      return nothing
+    }
+
+    if (this.label) {
+      return html`<div class="textfield__label-wrapper">
+        <label class="textfield__label" for="${this.id}"> ${this.label}</label>
+      </div>`
+    } else if (slot) {
+      return html`<div class="textfield_label-wrapper"><slot></slot></div>`
+    } else {
+      return nothing
+    }
   }
 }
