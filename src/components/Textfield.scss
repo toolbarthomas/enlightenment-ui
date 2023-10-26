@@ -89,7 +89,78 @@
   }
 
   &__actions {
+    display: flex;
+    gap: var(--space-8);
+    align-items: center;
     flex-shrink: 0;
+  }
+
+  &__action {
+    position: relative;
+    appearance: none;
+    border-radius: 50%;
+    border: none;
+    background-color: transparent;
+    width: var(--space-24);
+    height: var(--space-24);
+    cursor: pointer;
+  }
+
+  &__clear {
+    &::before,
+    &::after {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      display: block;
+      content: ' ';
+      width: var(--space-2);
+      height: var(--space-16);
+      background-color: currentColor;
+      margin-top: calc(var(--space-0) - var(--space-16) / 2);
+      margin-left: calc(0 - var(--space-2) / 2);
+    }
+
+    &::before {
+      transform: rotate(45deg);
+    }
+
+    &::after {
+      transform: rotate(-45deg);
+    }
+  }
+
+  &__search {
+    &::before,
+    &::after {
+      display: block;
+      content: ' ';
+      position: absolute;
+      top: 45%;
+      left: 50%;
+    }
+
+    &::after {
+      width: var(--space-12);
+      height: var(--space-12);
+      border-radius: 50%;
+      border: solid var(--space-2) currentColor;
+      transform: translate(-50%, -50%);
+    }
+
+    &::before {
+      width: var(--space-2);
+      height: var(--space-8);
+      margin-left: calc(var(--space-0) - var(--space-8) + var(--space-1));
+      margin-top: var(--space-2);
+      transform-origin: 0% 50%;
+      background-color: currentColor;
+      transform: rotate(45deg);
+    }
+  }
+
+  &__action-label {
+    @include visuallyHidden;
   }
 
   &__focus-indicator {

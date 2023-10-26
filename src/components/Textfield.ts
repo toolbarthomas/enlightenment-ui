@@ -14,17 +14,17 @@ import styles from './Textfield.scss'
 class EnlightenmentTextfield extends Enlightenment {
   static styles = [styles]
 
+  static a11y = {
+    clear: 'Clear',
+    copy: 'Copy',
+    search: 'Search'
+  }
+
   @property({
     converter: (value: string) => value.split(',').map((v) => v.toLowerCase()),
     type: Array
   })
   actions = []
-
-  @property({ type: String })
-  clearLabel = 'Clear'
-
-  @property({ type: String })
-  copyLabel = 'Copy'
 
   @property({ type: String })
   id? = Enlightenment.useElementID()
@@ -104,6 +104,20 @@ class EnlightenmentTextfield extends Enlightenment {
     this.hook('change', { context: this.useContext() })
   }
 
+  handleSearch() {
+    const form = this.findParentElement('form')
+
+    if (!form) {
+      this.log('Unable to search from undefined form', 'warning')
+
+      return
+    }
+
+    this.hook('submit', { context: form })
+
+    console.log('Should submit', form)
+  }
+
   render() {
     const classes = ['textfield']
 
@@ -136,7 +150,7 @@ class EnlightenmentTextfield extends Enlightenment {
     const { actions } = this.slots
 
     return html`<div class="textfield__actions">
-      ${this.renderCopy()} ${this.renderClear()}
+      ${this.renderCopy()} ${this.renderClear()} ${this.renderSearch()}
       <slot name="actions"></slot>
     </div>`
   }
@@ -146,8 +160,8 @@ class EnlightenmentTextfield extends Enlightenment {
       return nothing
     }
 
-    return html`<button @click=${this.handleClear}>
-      <span class="textfield__action-label">${this.clearLabel}</span>
+    return html`<button class="textfield__action textfield__clear" @click=${this.handleClear}>
+      <span class="textfield__action-label">${EnlightenmentTextfield.a11y.clear}</span>
     </button>`
   }
 
@@ -156,8 +170,23 @@ class EnlightenmentTextfield extends Enlightenment {
       return nothing
     }
 
-    return html`<button @click=${this.handleCopy}>
-      <span class="textfield__action-label">${this.copyLabel}</span>
+    return html`<button class="textfield__action textfield__copy" @click=${this.handleCopy}>
+      <span class="textfield__action-label">${EnlightenmentTextfield.a11y.copy}</span>
+    </button>`
+  }
+
+  renderSearch() {
+    if (!this.actions.includes('search')) {
+      return nothing
+    }
+    console.log('Render search')
+
+    return html`<button
+      class="textfield__action textfield__search"
+      type="submit"
+      @click=${this.handleSearch}
+    >
+      <span class="textfield__action-label">${EnlightenmentTextfield.a11y.search}</span>
     </button>`
   }
 
