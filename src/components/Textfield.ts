@@ -43,6 +43,36 @@ class EnlightenmentTextfield extends Enlightenment {
 
   value?: string
 
+  handleAction(event: Event) {
+    console.log('handle ')
+
+    if (!event) {
+      return
+    }
+
+    const target = event.target as HTMLElement
+
+    if (target instanceof HTMLElement) {
+      target.classList.add('textfield__action--is-selected')
+      // console.log('Is target')
+    }
+  }
+
+  handleActionSelectionCallback(event: Event) {
+    if (!event) {
+      return
+    }
+    const target = event.target as HTMLElement
+
+    if (!target instanceof HTMLElement) {
+      return
+    }
+
+    target.classList.remove('textfield__action--is-selected')
+
+    console.log('Transition ended')
+  }
+
   handleChange(event: Event) {
     if (!event || !event.target) {
       return
@@ -56,6 +86,8 @@ class EnlightenmentTextfield extends Enlightenment {
       event.preventDefault()
     }
 
+    this.handleAction(event)
+
     const context = this.useContext() as HTMLInputElement
 
     if (!context || !context.value || !context.value.length) {
@@ -66,6 +98,8 @@ class EnlightenmentTextfield extends Enlightenment {
   }
 
   handleCopy(event: Event) {
+    this.handleAction(event)
+
     if (event && event.preventDefault) {
       event.preventDefault()
     }
@@ -86,6 +120,7 @@ class EnlightenmentTextfield extends Enlightenment {
     navigator.clipboard.writeText(context.value)
 
     context.setSelectionRange(context.value.length, context.value.length)
+    console.log('foo')
   }
 
   handleKeydown(event: KeyboardEvent) {
@@ -104,7 +139,7 @@ class EnlightenmentTextfield extends Enlightenment {
     this.hook('change', { context: this.useContext() })
   }
 
-  handleSearch() {
+  handleSearch(event: Event) {
     const form = this.findParentElement('form')
 
     if (!form) {
@@ -112,6 +147,8 @@ class EnlightenmentTextfield extends Enlightenment {
 
       return
     }
+
+    this.handleAction(event)
 
     this.hook('submit', { context: form })
 
@@ -140,8 +177,8 @@ class EnlightenmentTextfield extends Enlightenment {
           ref="{${ref(this.context)}}"
           type="${this.type}"
         />
-        <span class="textfield__focus-indicator"></span>
         ${this.renderActions()}
+        <span class="textfield__focus-indicator"></span>
       </div>
     </div>`
   }
@@ -160,8 +197,13 @@ class EnlightenmentTextfield extends Enlightenment {
       return nothing
     }
 
-    return html`<button class="textfield__action textfield__clear" @click=${this.handleClear}>
+    return html`<button
+      class="textfield__action textfield__clear"
+      @click="${this.handleClear}"
+      @animationend="${this.handleActionSelectionCallback}"
+    >
       <span class="textfield__action-label">${EnlightenmentTextfield.a11y.clear}</span>
+      <span class="textfield__clear-icon" aria-focusable="false" aria-hidden="true"></span>
     </button>`
   }
 
@@ -170,8 +212,13 @@ class EnlightenmentTextfield extends Enlightenment {
       return nothing
     }
 
-    return html`<button class="textfield__action textfield__copy" @click=${this.handleCopy}>
+    return html`<button
+      class="textfield__action textfield__copy"
+      @click="${this.handleCopy}"
+      @animationend=${this.handleActionSelectionCallback}
+    >
       <span class="textfield__action-label">${EnlightenmentTextfield.a11y.copy}</span>
+      <span class="textfield__copy-icon" aria-focusable="false" aria-hidden="true"></span>
     </button>`
   }
 
@@ -184,9 +231,11 @@ class EnlightenmentTextfield extends Enlightenment {
     return html`<button
       class="textfield__action textfield__search"
       type="submit"
-      @click=${this.handleSearch}
+      @click="${this.handleSearch}"
+      @animationend="${this.handleActionSelectionCallback}"
     >
       <span class="textfield__action-label">${EnlightenmentTextfield.a11y.search}</span>
+      <span class="textfield__search-icon" aria-focusable="false" aria-hidden="true"></span>
     </button>`
   }
 
