@@ -152,17 +152,17 @@ class EnlightenmenForm extends Enlightenment {
           for (let i = 0; i < element.files.length; i++) {
             const { name } = element.files.item(i) || {}
 
-            formData.append(element.name || 'blob', element.files[i], name)
+            element.name && formData.append(element.name || 'blob', element.files[i], name)
           }
         } else {
-          formData.append(element.name || 'data', element.value)
+          element.name && formData.append(element.name || 'data', element.value)
         }
 
         host.requestUpdate && host.requestUpdate()
       }
     )
 
-    console.log('Form result', formData.has('blob'))
+    console.log('Form result')
   }
 
   protected handleSlotChange(event: Event): void {

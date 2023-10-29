@@ -22,6 +22,23 @@ class EnlightenmentSingleSelect extends Enlightenment {
   })
   isDisabled?: boolean
 
+  @property({
+    attribute: 'loading',
+    converter: Enlightenment.isBoolean,
+    reflect: true,
+    type: Boolean
+  })
+  isLoading?: boolean
+
+  @property({ type: String })
+  label?: string
+
+  @property({ type: String })
+  name?: string
+
+  @property({ type: String })
+  id? = Enlightenment.useElementID()
+
   @property({ type: String })
   value?: string
 
@@ -54,8 +71,6 @@ class EnlightenmentSingleSelect extends Enlightenment {
     if (!event) {
       return
     }
-
-    console.log('change')
 
     const target = event.target as HTMLSelectElement
 
@@ -107,6 +122,7 @@ class EnlightenmentSingleSelect extends Enlightenment {
         <div class="single-select__input-wrapper">
           <select
             class="single-select__input"
+            id="${this.id}"
             ref="${ref(this.context)}"
             @change="${this.handleChange}"
             ?disabled=${this.isDisabled}
@@ -180,6 +196,10 @@ class EnlightenmentSingleSelect extends Enlightenment {
   renderIcon() {
     const slot = this.useSlot('icon')
 
+    if (this.isLoading) {
+      return html`<span class="single-select__status-indicator"></span>`
+    }
+
     if (!slot) {
       return html`<span class="single-select__default-icon"></span
         ><span class="single-select__default-icon"></span>`
@@ -189,6 +209,16 @@ class EnlightenmentSingleSelect extends Enlightenment {
   }
 
   renderLabel() {
-    return html`<div class="single-select__label-wrapper"></div>`
+    const slot = this.useSlot('label')
+
+    if (!slot && !this.label) {
+      return nothing
+    }
+
+    const content = slot
+      ? html`<slot name="label"></slot>`
+      : html`<label class="single-select__label" for="${this.id}">${this.label}</label>`
+
+    return html`<div class="single-select__label-wrapper">${content}</div>`
   }
 }

@@ -39,9 +39,13 @@ class EnlightenmentTextfield extends Enlightenment {
   type = 'text'
 
   @property({ type: String })
-  placeholder?: string
-
   value?: string
+
+  @property({ type: String })
+  name?: string
+
+  @property({ type: String })
+  placeholder?: string
 
   handleAction(event: Event) {
     console.log('handle ')
@@ -178,6 +182,7 @@ class EnlightenmentTextfield extends Enlightenment {
           placeholder=${this.placeholder}
           ref="{${ref(this.context)}}"
           type="${this.type}"
+          value="${this.value}"
         />
         ${this.renderActions()}
         <span class="textfield__focus-indicator"></span>
@@ -254,7 +259,9 @@ class EnlightenmentTextfield extends Enlightenment {
 
     if (context && context.value !== this.value) {
       this.commit('value', context.value)
-      this.setAttribute('value', context.value)
+      if (this.type !== 'password') {
+        this.setAttribute('value', context.value)
+      }
     } else if (!context.value) {
       this.commit('value', '')
     }

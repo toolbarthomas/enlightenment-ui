@@ -15,6 +15,7 @@
   align-items: flex-start;
   flex-wrap: wrap;
   gap: var(--space-12);
+  margin-bottom: var(--space-24);
 
   &__label-wrapper {
     flex-shrink: 0;
@@ -196,9 +197,5 @@
         opacity: 0.4;
       }
     }
-
-    // :host([mode='dark']) .single-select--is-disabled & {
-    //   opacity: 0;
-    // }
   }
 }
