@@ -1,0 +1,204 @@
+@import '../styles/mixins/visually-hidden';
+@import '../styles/mixins/box-sizing';
+@import '../styles/mixins/responsive-font';
+
+@include boxSizing();
+
+:host {
+  slot:not([name='icon']) {
+    display: none;
+  }
+}
+
+.single-select {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: var(--space-12);
+
+  &__label-wrapper {
+    flex-shrink: 0;
+    min-width: var(--space-320);
+    padding-top: var(--space-12);
+  }
+
+  &__input {
+    cursor: pointer;
+    position: absolute;
+    appearance: none;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    border: none;
+    outline: none;
+    @include responsive-font-size('summary');
+    padding: var(--space-8);
+    background-color: var(--grey-100);
+    color: currentColor;
+
+    :host([mode='dark']) & {
+      background-color: var(--grey-900);
+    }
+
+    // visibility: hidden;
+  }
+
+  &__input-wrapper {
+    position: relative;
+    border: solid var(--space-1) var(--dawn-900-a20);
+    box-shadow: var(--space-0) var(--space-1) var(--space-3) var(--dawn-900-a10);
+    border-radius: var(--space-4);
+    transition: var(--duration-default) var(--easing-default);
+    transition-property: border, transform;
+    background-color: var(--dawn-100);
+    display: flex;
+    align-items: center;
+    background-color: var(--grey-500);
+    max-width: 100%;
+    // max-width: 50px;
+
+    @media (min-width: $tablet) {
+      min-width: var(--space-320);
+    }
+
+    .single-select--is-disabled & {
+      opacity: 0.8;
+
+      cursor: not-allowed;
+    }
+
+    :host([mode='dark']) & {
+      color: var(--grey-300);
+      border-color: var(--grey-900);
+      background-color: var(--grey-800);
+    }
+  }
+
+  &__value {
+    display: block;
+    flex-grow: 1;
+    position: relative;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    pointer-events: none;
+    width: 100%;
+  }
+
+  &__default-icon {
+    position: relative;
+    display: block;
+    width: var(--space-8);
+    height: var(--space-8);
+    margin-right: var(--space-4);
+    transition: var(--duration-default) var(--easing-default);
+    transition-property: background-color color margin;
+    color: currentColor;
+
+    .single-select--is-disabled & {
+      opacity: 0.5;
+    }
+
+    :host([mode='dark']) & {
+      color: var(--grey-700);
+    }
+
+    .single-select__input:focus-visible ~ * & {
+      color: var(--accent-600);
+    }
+
+    &:first-child {
+      transform: rotate(45deg);
+
+      .single-select__input:focus-visible ~ * & {
+        margin-bottom: var(--space-2);
+      }
+    }
+
+    &:only-child,
+    &:last-child {
+      transform: rotate(225deg);
+    }
+
+    &::before,
+    &::after {
+      position: absolute;
+      top: 0;
+      left: 0;
+      display: block;
+      content: ' ';
+      background-color: currentColor;
+      border-radius: var(--space-4);
+    }
+
+    &::before {
+      width: 100%;
+      height: var(--space-2);
+    }
+
+    &::after {
+      height: 100%;
+      width: var(--space-2);
+    }
+  }
+
+  &__icon-wrapper {
+    padding: var(--space-8);
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+
+    &::after {
+      display: block;
+      position: absolute;
+      top: calc(var(--space-0) - var(--space-2));
+      left: calc(var(--space-0) - var(--space-2));
+      bottom: calc(var(--space-0) - var(--space-2));
+      right: calc(var(--space-0) - var(--space-2));
+      content: ' ';
+      border-radius: var(--space-4);
+      border: solid var(--space-2) var(--accent-500);
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition:
+        opacity var(--duration-default) var(--easing-default),
+        visibility 0ms linear var(--duration-default);
+
+      :host([mode='dark']) & {
+        border-color: var(--accent-600);
+      }
+    }
+
+    .single-select__input:focus-visible ~ & {
+      &::after {
+        opacity: 1;
+        visibility: visible;
+        transition:
+          opacity var(--duration-default) var(--easing-default),
+          visibility 0ms 0ms;
+      }
+    }
+  }
+
+  &__value {
+    user-select: none;
+    padding: var(--space-12) var(--space-16);
+
+    .single-select--is-disabled & {
+      user-select: auto;
+      opacity: 0.6;
+
+      :host([mode='dark']) & {
+        opacity: 0.4;
+      }
+    }
+
+    // :host([mode='dark']) .single-select--is-disabled & {
+    //   opacity: 0;
+    // }
+  }
+}

@@ -64,7 +64,7 @@ class EnlightenmentTextfield extends Enlightenment {
     }
     const target = event.target as HTMLElement
 
-    if (!target instanceof HTMLElement) {
+    if (target instanceof HTMLElement === false) {
       return
     }
 
@@ -95,6 +95,7 @@ class EnlightenmentTextfield extends Enlightenment {
     }
 
     context.value = ''
+    this.hook('change', { context })
   }
 
   handleCopy(event: Event) {
@@ -120,7 +121,6 @@ class EnlightenmentTextfield extends Enlightenment {
     navigator.clipboard.writeText(context.value)
 
     context.setSelectionRange(context.value.length, context.value.length)
-    console.log('foo')
   }
 
   handleKeydown(event: KeyboardEvent) {
@@ -136,7 +136,9 @@ class EnlightenmentTextfield extends Enlightenment {
       return
     }
 
-    this.hook('change', { context: this.useContext() })
+    const context = this.useContext()
+
+    this.throttle(this.hook, Enlightenment.FPS, 'change', { context })
   }
 
   handleSearch(event: Event) {
@@ -252,8 +254,13 @@ class EnlightenmentTextfield extends Enlightenment {
 
     if (context && context.value !== this.value) {
       this.commit('value', context.value)
+      this.setAttribute('value', context.value)
     } else if (!context.value) {
       this.commit('value', '')
+    }
+
+    if (!this.value) {
+      this.removeAttribute('value')
     }
 
     this.hook('change')

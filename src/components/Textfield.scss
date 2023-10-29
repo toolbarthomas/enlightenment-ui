@@ -32,14 +32,14 @@
       border-color: var(--grey-900);
       background-color: var(--grey-800);
 
-      &:focus-within {
-        border-color: var(--accent-900);
-      }
+      // &:focus-within {
+      //   border-color: var(--accent-900);
+      // }
     }
 
-    &:focus-within {
-      border-color: var(--accent-800);
-    }
+    // &:focus-within {
+    //   border-color: var(--accent-800);
+    // }
   }
 
   &__input {
@@ -52,6 +52,7 @@
 
     &,
     &::placeholder {
+      font-family: var(--webfont-base);
       @include responsive-font-size('base');
     }
 
@@ -77,17 +78,11 @@
 
   &__input:focus-visible ~ .textfield__focus-indicator,
   &__actions:focus-within ~ .textfield__focus-indicator {
-    // top: calc(var(--space-0) - var(--space-6));
-    // right: calc(var(--space-0) - var(--space-6));
-    // left: calc(var(--space-0) - var(--space-6));
-    // bottom: calc(var(--space-0) - var(--space-6));
-    opacity: 0.6;
-    box-shadow: 0 0 0 var(--space-4) var(--accent-500);
-
-    :host([mode='dark']) & {
-      box-shadow: 0 0 0 var(--space-4) var(--accent-600);
-      opacity: 0.8;
-    }
+    opacity: 1;
+    visibility: visible;
+    transition:
+      opacity var(--duration-default) var(--easing-default),
+      visibility 0ms 0ms;
   }
 
   &__actions {
@@ -145,7 +140,7 @@
       // animation-fill-mode: forwards;
       background-color: var(--white);
       border-radius: 50%;
-      opacity: 1;
+      opacity: 0.7;
       pointer-events: none;
       transform: scale(0);
       user-select: none;
@@ -259,21 +254,20 @@
   }
 
   &__focus-indicator {
-    pointer-events: none;
-    position: absolute;
     display: block;
-    top: calc(var(--space-0) - var(--space-1));
-    right: calc(var(--space-0) - var(--space-1));
-    bottom: calc(var(--space-0) - var(--space-1));
-    left: calc(var(--space-0) - var(--space-1));
-    content: ' ';
-
+    position: absolute;
+    top: calc(var(--space-0) - var(--space-2));
+    left: calc(var(--space-0) - var(--space-2));
+    bottom: calc(var(--space-0) - var(--space-2));
+    right: calc(var(--space-0) - var(--space-2));
+    border-radius: var(--space-4);
+    border: solid var(--space-2) var(--accent-500);
     opacity: 0;
-    border-radius: inherit;
-    box-shadow: 0 0 0 0 var(--accent-500);
-    // border: solid var(--space-4) var(--accent-500);
-    transition: var(--duration-default) var(--easing-default);
-    transition-property: box-shadow, opacity;
+    visibility: hidden;
+    pointer-events: none;
+    transition:
+      opacity var(--duration-default) var(--easing-default),
+      visibility 0ms linear var(--duration-default);
   }
 }
 
