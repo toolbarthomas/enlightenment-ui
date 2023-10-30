@@ -38,6 +38,7 @@
 
 .switch {
   position: relative;
+  margin-bottom: var(--space-12);
 
   &__label {
     display: flex;
@@ -171,12 +172,10 @@
     border: solid var(--space-2) var(--accent-600);
     opacity: 0;
     transition: var(--duration-default) var(--easing-default);
-    transition-property: opacity transform;
-    transform: scale(0.8);
+    transition-property: opacity;
 
     .switch__input:focus-visible ~ & {
       opacity: 0.6;
-      transform: none;
 
       :host([mode='dark']) & {
         opacity: 0.8;
