@@ -22,8 +22,6 @@ class EnlightenmenForm extends Enlightenment {
   protected assignInputEvents(context: HTMLInputElement) {
     const host = Enlightenment.useHost(context) as HTMLInputElement
 
-    console.log('here?', context)
-
     if (context.type === 'submit' || (host && host.getAttribute('type') === 'submit')) {
       this.clearGlobalEvent('click', context)
       this.assignGlobalEvent('click', this.handleSubmit, context)
