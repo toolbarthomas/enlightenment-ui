@@ -114,8 +114,26 @@
     &:first-child {
       transform: rotate(45deg);
 
+      .single-select__input[edge='start'] ~ * & {
+        color: currentColor;
+
+        :host([mode='dark']) & {
+          color: var(--grey-700);
+        }
+      }
+
       .single-select__input:focus-visible ~ * & {
-        margin-bottom: var(--space-2);
+        margin-bottom: var(--space-4);
+      }
+    }
+
+    &:last-child {
+      .single-select__input[edge='end'] ~ * & {
+        color: currentColor;
+
+        :host([mode='dark']) & {
+          color: var(--grey-700);
+        }
       }
     }
 

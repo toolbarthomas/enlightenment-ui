@@ -15,20 +15,10 @@ class EnlightenmentSingleSelect extends Enlightenment {
   static styles = [styles]
 
   @property({
-    attribute: 'disabled',
     converter: Enlightenment.isBoolean,
-    reflect: true,
     type: Boolean
   })
-  isDisabled?: boolean
-
-  @property({
-    attribute: 'loading',
-    converter: Enlightenment.isBoolean,
-    reflect: true,
-    type: Boolean
-  })
-  isLoading?: boolean
+  disabled?: boolean
 
   @property({ type: String })
   label?: string
@@ -95,6 +85,14 @@ class EnlightenmentSingleSelect extends Enlightenment {
         { once: true }
       )
     }
+
+    if (target.selectedIndex === 0) {
+      target.setAttribute('edge', 'start')
+    } else if (target.selectedIndex >= target.querySelectorAll('option').length - 1) {
+      target.setAttribute('edge', 'end')
+    } else {
+      target.removeAttribute('edge')
+    }
   }
 
   protected handleSlotChange(event: Event): void {
@@ -112,7 +110,7 @@ class EnlightenmentSingleSelect extends Enlightenment {
   render() {
     const classes = ['single-select']
 
-    if (this.isDisabled) {
+    if (this.disabled) {
       classes.push('single-select--is-disabled')
     }
 
@@ -125,7 +123,7 @@ class EnlightenmentSingleSelect extends Enlightenment {
             id="${this.id}"
             ref="${ref(this.context)}"
             @change="${this.handleChange}"
-            ?disabled=${this.isDisabled}
+            ?disabled=${this.disabled}
           >
             ${this.renderChildren()}
           </select>
@@ -168,13 +166,17 @@ class EnlightenmentSingleSelect extends Enlightenment {
     }
 
     const children = Enlightenment.getElementsFromSlot(slot, ['optgroup', 'option']).map(
-      (element) => {
+      (element: HTMLOptGroupElement | HTMLOptionElement) => {
+        let options: Element[] = []
         if (element.tagName === 'OPTGROUP' && element.children.length) {
-          const options = Array.from(element.children).map((child) => this.renderChild(child))
-          const label = element.getAttribute('label')
+          options = [...element.children].map((child) => this.renderChild(child))
 
-          if (label) {
-            return html`<optgroup class="single-select__optgroup" label="${label}">
+          if (element.labell) {
+            return html`<optgroup
+              class="single-select__optgroup"
+              label="${element.label}"
+              ?disabled=${element.disabled}
+            >
               ${options}
             </optgroup>`
           } else {
@@ -182,7 +184,8 @@ class EnlightenmentSingleSelect extends Enlightenment {
           }
         }
 
-        if (element.closest('optgroup')) {
+        // Ignore any nested element.
+        if (element.closest('optgroup') || options.includes(element)) {
           return nothing
         }
 
@@ -196,7 +199,7 @@ class EnlightenmentSingleSelect extends Enlightenment {
   renderIcon() {
     const slot = this.useSlot('icon')
 
-    if (this.isLoading) {
+    if (this.pending) {
       return html`<span class="single-select__status-indicator"></span>`
     }
 

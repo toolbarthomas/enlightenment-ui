@@ -31,7 +31,7 @@ class EnlightenmentButton extends Enlightenment {
   label?: string
 
   @property({ type: String })
-  loadingMessage = 'Loading'
+  pendingMessage = 'Loading'
 
   @property({ type: String })
   shape = 'soft'
@@ -66,12 +66,6 @@ class EnlightenmentButton extends Enlightenment {
     type: String
   })
   layout = 'inline'
-
-  @property({
-    converter: Enlightenment.isBoolean,
-    type: Boolean
-  })
-  loading?: boolean
 
   @property({
     converter: Enlightenment.isTarget,
@@ -149,7 +143,7 @@ class EnlightenmentButton extends Enlightenment {
   }
 
   renderAfter() {
-    if (this.icon || this.loading) {
+    if (this.icon || this.pending) {
       return html`
         <span class="button__icon-wrapper"> ${this.renderIndicator()} ${this.renderIcon()} </span>
       `
@@ -159,8 +153,8 @@ class EnlightenmentButton extends Enlightenment {
   }
 
   renderBefore() {
-    if (this.loading) {
-      return html`<span class="button__label">${this.loadingMessage}</span>`
+    if (this.pending) {
+      return html`<span class="button__label">${this.pendingMessage}</span>`
     }
 
     if (this.hideText) {
@@ -171,7 +165,7 @@ class EnlightenmentButton extends Enlightenment {
   }
 
   renderIndicator() {
-    return this.loading && html`<span class="button__indicator"></span>`
+    return this.pending && html`<span class="button__indicator"></span>`
   }
 
   renderIcon() {
@@ -197,7 +191,7 @@ class EnlightenmentButton extends Enlightenment {
       classes.push('button--is-visually-hidden')
     }
 
-    if (this.loading) {
+    if (this.pending) {
       classes.push('button--is-loading')
     }
 
