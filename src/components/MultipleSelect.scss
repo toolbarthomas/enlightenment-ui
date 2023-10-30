@@ -18,6 +18,7 @@
   }
 
   &__placeholder {
+    position: relative;
     min-width: var(--space-320);
     border: solid var(--space-1) var(--dawn-900-a20);
     box-shadow: var(--space-0) var(--space-1) var(--space-3) var(--dawn-900-a10);
@@ -29,6 +30,13 @@
     :host([mode='dark']) & {
       border-color: var(--grey-800);
       background-color: var(--grey-800);
+    }
+
+    &:focus-within {
+      &::after {
+        color: var(--accent-600);
+        opacity: 1;
+      }
     }
   }
 
@@ -61,10 +69,37 @@
   &__input-label {
     display: block;
 
-    border-top: solid var(--space-1) currentColor;
+    border-top: solid var(--space-1) var(--grey-400);
+
+    :host([mode='dark']) & {
+      border-color: currentColor;
+    }
 
     &:first-child {
       border: none;
+    }
+  }
+
+  &__input-value,
+  &__placeholder {
+    &::after {
+      display: block;
+      content: ' ';
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      border-radius: inherit;
+      border: solid var(--space-2) currentColor;
+      opacity: 0;
+      pointer-events: none;
+      transition: var(--duration-default) var(--easing-default);
+      transition-property: opacity;
+
+      :host([mode='dark']) & {
+        border-color: var(--accent-500);
+      }
     }
   }
 
@@ -90,26 +125,6 @@
       content: ' ';
       transform: rotate(45deg);
       opacity: 0;
-    }
-
-    &::after {
-      display: block;
-      content: ' ';
-      position: absolute;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      left: 0;
-      border-radius: inherit;
-      border: solid var(--space-2) currentColor;
-      opacity: 0;
-      pointer-events: none;
-      transition: var(--duration-default) var(--easing-default);
-      transition-property: opacity;
-
-      :host([mode='dark']) & {
-        border-color: var(--accent-500);
-      }
     }
 
     .multiple-select__input:not(:disabled) ~ & {
@@ -154,9 +169,12 @@
     max-height: 40vh;
     overflow: auto;
     display: none;
-    background-color: var(--grey-400);
+    background-color: var(--grey-100);
     border-radius: var(--space-4);
     max-width: var(--space-600);
+    box-shadow:
+      0 var(--space-1) var(--space-2) var(--dawn-900-a10),
+      0 var(--space-8) var(--space-12) var(--space-4) var(--dawn-900-a10);
 
     .multiple-select--align-from-top & {
       bottom: 100%;
@@ -173,6 +191,7 @@
     }
 
     :host([mode='dark']) & {
+      box-shadow: none;
       background-color: var(--grey-800);
     }
   }
