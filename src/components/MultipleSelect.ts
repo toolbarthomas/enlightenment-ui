@@ -165,7 +165,9 @@ class EnlightenmentSingleSelect extends Enlightenment {
           })
 
           if (this.suggestions && mutated) {
-            this.suggestions.push(...commit)
+            this.suggestions = [...commit, ...this.suggestions]
+
+            // this.suggestions.push(...commit)
             this.requestUpdate()
           }
         }
@@ -303,39 +305,39 @@ class EnlightenmentSingleSelect extends Enlightenment {
         option.label = suggestion.label
         option.selected = suggestion.checked
 
-        setTimeout(() => {
-          if (!this.selected) {
-            return
-          }
+        // setTimeout(() => {
+        //   if (!this.selected) {
+        //     return
+        //   }
 
-          if (this.shadowRoot) {
-            const input = this.shadowRoot.getElementById(suggestion.id) as HTMLInputElement
+        //   if (this.shadowRoot) {
+        //     const input = this.shadowRoot.getElementById(suggestion.id) as HTMLInputElement
 
-            //@TODO SHOULD FIX CHECKED RESET
-            if (input && input.checked && !suggestion.checked) {
-              // input.checked = false
-              // console.log('foo', )
-              console.log('TEST MERGE', suggestion)
-            }
-          }
+        //     //@TODO SHOULD FIX CHECKED RESET
+        //     if (input && input.checked && !suggestion.checked) {
+        //       // input.checked = false
+        //       // console.log('foo', )
+        //       console.log('TEST MERGE', suggestion)
+        //     }
+        //   }
 
-          // const [match] = this.selected.filter(
-          //   (selected) => selected.name === suggestion.name && selected.value === suggestion.value
-          // )
+        //   // const [match] = this.selected.filter(
+        //   //   (selected) => selected.name === suggestion.name && selected.value === suggestion.value
+        //   // )
 
-          // if (match && match.checked !== suggestion.checked) {
-          //   console.log('TEST RESET', match, match.checked, suggestion)
-          // }
+        //   // if (match && match.checked !== suggestion.checked) {
+        //   //   console.log('TEST RESET', match, match.checked, suggestion)
+        //   // }
 
-          // console.log(
-          //   'test merge 2',
-          //   // option.selected,
-          //   // suggestion.name,
-          //   // suggestion.checked,
-          //   // suggestion.value,
-          //   match
-          // )
-        }, 100)
+        //   // console.log(
+        //   //   'test merge 2',
+        //   //   // option.selected,
+        //   //   // suggestion.name,
+        //   //   // suggestion.checked,
+        //   //   // suggestion.value,
+        //   //   match
+        //   // )
+        // }, 100)
 
         // console.log('TEST MERGE RENDER DROPDOWN', suggestion.name, suggestion.checked)
 
