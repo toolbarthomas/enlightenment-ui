@@ -44,6 +44,13 @@ class EnlightenmentSingleSelect extends Enlightenment {
   @property({ type: String })
   placeholder?: string
 
+  @property({
+    converter: Enlightenment.isBoolean,
+    type: Boolean
+  })
+  indicator?: boolean
+
+  // Defines the dropdown orientation when collapsed.
   orientation?: string = 'bottom'
 
   @property({ type: Array })
@@ -52,6 +59,8 @@ class EnlightenmentSingleSelect extends Enlightenment {
   // Will update during a input suggestion change. The suggested entries should
   // be included for the actual component value.
   suggested: MultipleSelectSuggestion[] = []
+
+  f: any
 
   @property({
     converter: (value) => {
@@ -96,6 +105,17 @@ class EnlightenmentSingleSelect extends Enlightenment {
   // Use the currentElement state to expand or collapse the dropdown.
   enableDocumentEvents = true
 
+  /**
+   * Merge the previously defined suggestions that are checked. This enables
+   * the usage of autosuggest since the suggestions can be updated while the
+   * component is running. See the MultipleSelectSuggestion Typing for
+   * expected Object structure. Keep in mind that unchecked options are removed
+   * after the suggestions attribute has been updated.
+   *
+   * @param name The named attribute that has changed
+   * @param _old The previous defined value of the mutated attribute.
+   * @param value The new value of the mutated attribute.
+   */
   public attributeChangedCallback(
     name: string,
     _old?: string | undefined,
@@ -175,6 +195,12 @@ class EnlightenmentSingleSelect extends Enlightenment {
     }
   }
 
+  /**
+   * Validates the initial Slotted Elements and update the current selection
+   * from their initial checked/selected state.
+   *
+   * @param event Custom Event constructed within the component context.
+   */
   protected handleSlotChange(event: Event): void {
     super.handleSlotChange(event)
 
@@ -183,13 +209,17 @@ class EnlightenmentSingleSelect extends Enlightenment {
     )
 
     if (!inputs.length) {
-      this.throttle(() => {
-        this.requestUpdate()
-        this.updatePlaceholder()
-      })
+      this.throttle(this.requestUpdate)
+    } else {
+      this.throttle(this.updateSelected)
     }
   }
 
+  /**
+   * Callback handler during a selection change within the dropdown.
+   *
+   * @param event Expected Change Event handler.
+   */
   handleChange(event: Event) {
     const input = event.target as HTMLInputElement
 
@@ -201,8 +231,8 @@ class EnlightenmentSingleSelect extends Enlightenment {
 
     const inputs: HTMLInputElement[] = Enlightenment.getElements(this, ['input'])
 
+    // Ensures related radio elements can only have one active selection.
     const relatedInputs = inputs.filter((e: HTMLInputElement) => e.name === input.name)
-
     if (relatedInputs.length) {
       relatedInputs.forEach((relatedInput) => {
         if (!relatedInput.checked) {
@@ -211,21 +241,14 @@ class EnlightenmentSingleSelect extends Enlightenment {
       })
     }
 
-    const isSuggested = this.suggested.filter(
-      (suggested) => suggested.name === input.name && suggested.value === input.value
-    ).length
-
-    // if (isSuggested && !input.checked) {
-    //   this.suggested = []
-
-    //   console.log('Test remove')
-    // }
-
-    // console.log('Test suggested', isSuggested)
-
-    this.throttle(this.updatePlaceholder, Enlightenment.FPS, {})
+    this.throttle(this.updateSelected)
   }
 
+  /**
+   * Use the currentElement attribute to expand or collapse the dropdown.
+   *
+   * @param target Check if the defined context exists within the component.
+   */
   protected handleCurrentElement(target: EventTarget | null): void {
     super.handleCurrentElement(target)
 
@@ -246,6 +269,13 @@ class EnlightenmentSingleSelect extends Enlightenment {
     this.currentElement && this.throttle(this.requestUpdate)
   }
 
+  /**
+   * Callback handler that should trigger a change Event during a DOM mutation.
+   * This also enables the deselection for Radio elements since they cannot be
+   * unchecked.
+   *
+   * @param event The expected Click or Keyboard Event handler.
+   */
   handleMutate(event: Event) {
     const { keyCode } = event as KeyboardEvent
     const target = event.target as HTMLInputElement
@@ -258,7 +288,39 @@ class EnlightenmentSingleSelect extends Enlightenment {
     }
   }
 
-  handleMutateCallback(option: HTMLOptionElement) {}
+  /**
+   * Helper function that should return the required values for an existing
+   * option.
+   *
+   * @param context Defines the required properties from the given context.
+   */
+  getOptionAttributes(context: HTMLInputElement | HTMLOptionElement) {
+    if (!context) {
+      return {}
+    }
+
+    const parent = context.closest('label') ? context.closest('label') : context.parentElement
+
+    const id = context.id || context.getAttribute('id')
+    const name = context.name || context.getAttribute('name')
+    const value = context.value || context.getAttribute('value')
+    const disabled = context.disabled || context.hasAttribute('disabled')
+
+    const checked =
+      (context as HTMLInputElement).checked ||
+      Enlightenment.isBoolean(context.getAttribute('checked')) ||
+      false
+
+    const selected =
+      (context as HTMLOptionElement).selected ||
+      Enlightenment.isBoolean(context.getAttribute('selected')) ||
+      false
+
+    const textContent = parent ? parent.textContent : name
+    const label = context.getAttribute('label') || context.textContent || textContent
+
+    return { checked, id, label, name, selected, value }
+  }
 
   render() {
     const classes = ['multiple-select']
@@ -277,6 +339,10 @@ class EnlightenmentSingleSelect extends Enlightenment {
     `
   }
 
+  /**
+   * Renders the dropdown container that should contain the initial options and
+   * optional suggestions.
+   */
   renderDropdown() {
     const slot = this.useSlot()
 
@@ -287,10 +353,12 @@ class EnlightenmentSingleSelect extends Enlightenment {
     const options = Enlightenment.getElementsFromSlot(slot, ['option']) as HTMLOptionElement[]
 
     const result = options.map((option) => {
-      const name = option.getAttribute('name')
+      const { name } = this.getOptionAttributes(option)
 
       const type =
-        options.filter((opt) => opt.getAttribute('name') === name).length > 1 ? 'radio' : 'checkbox'
+        options.filter((opt) => this.getOptionAttributes(opt).name === name).length > 1
+          ? 'radio'
+          : 'checkbox'
 
       return this.renderInput(option, type)
     })
@@ -343,7 +411,9 @@ class EnlightenmentSingleSelect extends Enlightenment {
 
         const relatedInputs =
           (this.suggestions || []).filter((s) => s.name === suggestion.name).length +
-          (options || []).filter((option) => option.getAttribute('name') === suggestion.name).length
+          (options || []).filter(
+            (option) => this.getOptionAttributes(option).name === suggestion.name
+          ).length
 
         const type = relatedInputs > 1 ? 'radio' : 'checkbox'
 
@@ -351,12 +421,18 @@ class EnlightenmentSingleSelect extends Enlightenment {
       })
     }
 
-    this.throttle(this.updatePlaceholder)
-
     return html`<div class="multiple-select__dropdown">${result || nothing}</div>`
   }
 
+  /**
+   * Renders the placeholder element that displays the selected elements without
+   * the need of collapsing the dropdown.
+   */
   renderPlaceholder() {
+    if (this.indicator) {
+      return this.renderIndicator()
+    }
+
     return html`
       <div class="multiple-select__placeholder">
         <input
@@ -369,28 +445,41 @@ class EnlightenmentSingleSelect extends Enlightenment {
     `
   }
 
+  /**
+   * Renders the visual element of a selected option when the [indicator]
+   * property is TRUE.
+   */
+  renderIndicator() {
+    const body = this.selected
+      ? this.selected.map((selected) => {
+          const { label, id, name, value } = this.getOptionAttributes(selected)
+
+          return html`<span class="multiple-select__indicator">${'foo'}</span>`
+        })
+      : nothing
+
+    return html`<div class="multiple-select__output">${body}</div>`
+  }
+
+  /**
+   * Renders a single selection input as checkbox or radiobutton.
+   *
+   * @param option Use the defined input attribute values.
+   * @param type Renders the input as checkbox or radiobutton.
+   */
   renderInput(option: HTMLOptionElement, type?: string) {
     if (!option) {
       return nothing
     }
 
-    const disabled = option.disabled || option.hasAttribute('disabled')
-    const name = option.name || option.getAttribute('name')
-    const id = option.id || option.getAttribute('id')
+    const { disabled, name, id, value, selected, label } = this.getOptionAttributes(option)
 
-    const value = option.value || option.getAttribute('value')
-    const selected = option.selected || option.hasAttribute('selected')
-    const label = option.label || option.textContent
-
+    // Mark the options defined within the element directly as initialOption.
+    // These options will always be rendered with the optional suggestions.
     const slot = this.useSlot()
     const initialOption = slot
       ? Enlightenment.getElementsFromSlot(slot, ['option']).includes(option)
       : false
-
-    // if (!initialOption) {
-    //   console.log('Test render')
-    //   this.suggested.push({ checked, label, name, value })
-    // }
 
     return html`<label class="multiple-select__input-label"
       ><input
@@ -409,34 +498,50 @@ class EnlightenmentSingleSelect extends Enlightenment {
     >`
   }
 
-  updatePlaceholder() {
+  /**
+   * Collect all checked input selections and update the readable placeholder.
+   */
+  updateSelected() {
     const context = this.useContext() as HTMLInputElement
 
-    if (context.type !== 'text') {
-      return
-    }
+    console.log('Change')
 
-    this.throttle(() => {
-      const selected = Enlightenment.getElements(this, ['input'])
-        .filter((input: HTMLInputElement) => input !== context && input.checked)
-        .filter((v) => v)
+    this.throttle(this.updateSelectedCallback, Enlightenment.FPS, context)
+  }
 
-      // console.log('TEST suggested', this.suggested)
-      const values = selected.map((input) => {
-        if (input.checked) {
-          const label = input.closest('label')
-          const fallback = label ? label.textContent : input.name
+  /**
+   * Calls the actual logic for this.updateSelected() to ensure the function
+   * is only called once.
+   *
+   * @param context Optional element reference to exclude within the handler
+   */
+  updateSelectedCallback(context?: HTMLInputElement) {
+    const selected = Enlightenment.getElements(this, ['input'])
+      .filter((input: HTMLInputElement) =>
+        context && input !== context && input.checked ? input : !context ? input : null
+      )
+      .filter((v) => v)
 
-          return input.label || fallback || input.value
-        }
-      })
+    // console.log('TEST suggested', this.suggested)
+    const values = selected.map((input) => {
+      if (input.checked) {
+        const { name, label, value } = this.getOptionAttributes(input)
 
-      this.placeholder = values.join(', ')
-
-      // Ensure the current value is used for the optional placeholder input.
-      context.value = this.placeholder
-
-      this.selected = selected
+        return label || name || value
+      }
     })
+
+    this.placeholder = values.join(', ')
+
+    // Ensure the current value is used for the optional placeholder input.
+    if (context && context.value !== undefined) {
+      context.value = this.placeholder
+      this.selected = selected
+    } else {
+      // Manual update the component since the undefined context reference
+      // cannot trigger the update.
+
+      this.commit('selected', selected, true)
+    }
   }
 }
