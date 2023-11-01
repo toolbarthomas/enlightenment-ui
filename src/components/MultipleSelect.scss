@@ -19,8 +19,6 @@
 
   &__placeholder {
     position: relative;
-    display: flex;
-    align-items: center;
     min-width: var(--space-320);
     border: solid var(--space-1) var(--dawn-900-a20);
     box-shadow: var(--space-0) var(--space-1) var(--space-3) var(--dawn-900-a10);
@@ -201,6 +199,20 @@
     :host([mode='dark']) & {
       box-shadow: none;
       background-color: var(--grey-800);
+    }
+  }
+
+  &__selected {
+    padding: 0 var(--space-16);
+    height: 0;
+    overflow: hidden;
+    transition: var(--duration-default) var(--easing-default);
+    transition-property: height opacity padding-top padding-bottom;
+    box-sizing: content-box;
+
+    &[style] {
+      opacity: 1;
+      padding: var(--space-8) var(--space-16);
     }
   }
 }

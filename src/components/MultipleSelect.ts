@@ -56,6 +56,10 @@ class EnlightenmentSingleSelect extends Enlightenment {
   @property({ type: Array })
   selected: HTMLInputElement[] = []
 
+  // Use the refered Element to defined the visible height for the selected
+  // indicators.
+  selectedContext = createRef()
+
   // Will update during a input suggestion change. The suggested entries should
   // be included for the actual component value.
   suggested: MultipleSelectSuggestion[] = []
@@ -429,10 +433,6 @@ class EnlightenmentSingleSelect extends Enlightenment {
    * the need of collapsing the dropdown.
    */
   renderPlaceholder() {
-    if (this.indicator) {
-      return this.renderIndicator()
-    }
-
     return html`
       <div class="multiple-select__placeholder">
         <input
@@ -441,6 +441,7 @@ class EnlightenmentSingleSelect extends Enlightenment {
           type="text"
           value="${this.placeholder}"
         />
+        ${this.renderSelected()}
       </div>
     `
   }
@@ -449,16 +450,22 @@ class EnlightenmentSingleSelect extends Enlightenment {
    * Renders the visual element of a selected option when the [indicator]
    * property is TRUE.
    */
-  renderIndicator() {
+  renderSelected() {
+    if (!this.indicator) {
+      return
+    }
+
     const body = this.selected
       ? this.selected.map((selected) => {
           const { label, id, name, value } = this.getOptionAttributes(selected)
 
-          return html`<span class="multiple-select__indicator">${'foo'}</span>`
+          return html`<span class="multiple-select__selected-option">${'foo'}</span>`
         })
       : nothing
 
-    return html`<div class="multiple-select__output">${body}</div>`
+    return html`<div class="multiple-select__selected" ref="${ref(this.selectedContext)}">
+      <div class="multiple-select__selected-item">${body}</div>
+    </div>`
   }
 
   /**
@@ -498,30 +505,35 @@ class EnlightenmentSingleSelect extends Enlightenment {
     >`
   }
 
+  protected updated(properties: Map<any>): void {
+    super.updated(properties)
+
+    if (properties.has('selected')) {
+      const selectedContext = this.useRef(this.selectedContext) as HTMLElement
+      console.log('SHOULD UPDATE HEIGHT', selectedContext)
+      if (selectedContext && selectedContext.firstElementChild) {
+        if (selectedContext.firstElementChild.scrollHeight) {
+          selectedContext.style.height = `${selectedContext.firstElementChild.scrollHeight}px`
+        } else {
+          selectedContext.removeAttribute('style')
+        }
+      } else {
+        selectedContext.style.height = `auto`
+      }
+    }
+  }
+
   /**
    * Collect all checked input selections and update the readable placeholder.
    */
   updateSelected() {
     const context = this.useContext() as HTMLInputElement
 
-    console.log('Change')
-
-    this.throttle(this.updateSelectedCallback, Enlightenment.FPS, context)
-  }
-
-  /**
-   * Calls the actual logic for this.updateSelected() to ensure the function
-   * is only called once.
-   *
-   * @param context Optional element reference to exclude within the handler
-   */
-  updateSelectedCallback(context?: HTMLInputElement) {
     const selected = Enlightenment.getElements(this, ['input'])
       .filter((input: HTMLInputElement) =>
         context && input !== context && input.checked ? input : !context ? input : null
       )
       .filter((v) => v)
-
     // console.log('TEST suggested', this.suggested)
     const values = selected.map((input) => {
       if (input.checked) {
@@ -536,12 +548,8 @@ class EnlightenmentSingleSelect extends Enlightenment {
     // Ensure the current value is used for the optional placeholder input.
     if (context && context.value !== undefined) {
       context.value = this.placeholder
-      this.selected = selected
-    } else {
-      // Manual update the component since the undefined context reference
-      // cannot trigger the update.
-
-      this.commit('selected', selected, true)
     }
+
+    this.commit('selected', selected)
   }
 }
