@@ -97,8 +97,6 @@ class EnlightenmentDrawer extends Enlightenment {
   protected handleGlobalClick(event: MouseEvent) {
     super.handleGlobalClick(event)
 
-    const state = this.useState()
-
     const target = event.target as HTMLElement
 
     let ignore = false
@@ -154,10 +152,10 @@ class EnlightenmentDrawer extends Enlightenment {
     // components like the Toggler.
     this.ariaHidden = String(!this.isActive)
 
-    const state = this.useState()
-
     this.throttle(() => {
-      if (state && state.currentElements.filter((c) => c instanceof EnlightenmentDrawer).length) {
+      if (
+        Enlightenment.globals.currentElements.filter((c) => c instanceof EnlightenmentDrawer).length
+      ) {
         document.body.classList.add('body--drawer-is-active')
       } else {
         document.body.classList.remove('body--drawer-is-active')
