@@ -15,11 +15,12 @@ import styles from './MultipleSelect.scss'
  * from the suggestions property.
  */
 export type MultipleSelectSuggestion = {
-  name: string
-  value: string
+  checked?: boolean
+  disabled?: boolean
   id?: string
   label?: string
-  checked?: boolean
+  name: string
+  value: string
 }
 
 @customElement('ui-multiple-select')
@@ -78,9 +79,10 @@ class EnlightenmentSingleSelect extends Enlightenment {
         json = JSON.parse(value.replaceAll(`'`, `"`))
 
         return json.map((suggestion) => {
-          const { checked, id, label, name, value } = suggestion || {}
+          const { checked, disabled, id, label, name, value } = suggestion || {}
 
           return {
+            disabled,
             checked,
             id: id || Enlightenment.useElementID(),
             label: label || value || name || suggestion,
@@ -143,6 +145,7 @@ class EnlightenmentSingleSelect extends Enlightenment {
         !selected.hasAttribute('initial')
           ? {
               checked: selected.checked,
+              disabled: selected.disabled,
               id: selected.id,
               label: selected.closest('label')?.textContent,
               name: selected.name,
@@ -178,6 +181,7 @@ class EnlightenmentSingleSelect extends Enlightenment {
               // Merge the initial suggestion.
               commit.push({
                 checked: true,
+                disabled: selected.disabled,
                 label: selected.label,
                 name: selected.name,
                 value: selected.value,
@@ -292,6 +296,20 @@ class EnlightenmentSingleSelect extends Enlightenment {
     }
   }
 
+  toggleSelected(event: Event, input: HTMLInputElement) {
+    if (!input) {
+      return
+    }
+
+    if (event && event.preventDefault) {
+      event.preventDefault()
+    }
+
+    input.checked = !input.checked
+
+    this.hook('change', { context: input })
+  }
+
   /**
    * Helper function that should return the required values for an existing
    * option.
@@ -323,7 +341,7 @@ class EnlightenmentSingleSelect extends Enlightenment {
     const textContent = parent ? parent.textContent : name
     const label = context.getAttribute('label') || context.textContent || textContent
 
-    return { checked, id, label, name, selected, value }
+    return { checked, disabled, id, label, name, selected, value }
   }
 
   render() {
@@ -376,6 +394,7 @@ class EnlightenmentSingleSelect extends Enlightenment {
         option.id = suggestion.id || Enlightenment.useElementID()
         option.label = suggestion.label
         option.selected = suggestion.checked
+        option.disabled = suggestion.disabled
 
         // setTimeout(() => {
         //   if (!this.selected) {
@@ -457,14 +476,27 @@ class EnlightenmentSingleSelect extends Enlightenment {
 
     const body = this.selected
       ? this.selected.map((selected) => {
-          const { label, id, name, value } = this.getOptionAttributes(selected)
+          const { disabled, label, id, name, value } = this.getOptionAttributes(selected)
 
-          return html`<span class="multiple-select__selected-option">${'foo'}</span>`
+          const body = html`<span class="multiple-select__selected-option-label">${label}</span>`
+
+          if (disabled) {
+            return html`<span class="multiple-select__selected-option">${body}</span>`
+          }
+
+          return html`<button
+            class="multiple-select__selected-option"
+            aria-hidden="true"
+            aria-focusable="false"
+            @click="${(event: Event) => this.toggleSelected(event, selected)}"
+          >
+            ${body}
+          </button>`
         })
       : nothing
 
     return html`<div class="multiple-select__selected" ref="${ref(this.selectedContext)}">
-      <div class="multiple-select__selected-item">${body}</div>
+      <div class="multiple-select__selected-options">${body}</div>
     </div>`
   }
 

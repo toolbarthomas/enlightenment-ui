@@ -1,5 +1,5 @@
-@import "../styles/mixins/content-margin.scss";
-@import "../styles/mixins/responsive-font";
+@import '../styles/mixins/content-margin.scss';
+@import '../styles/mixins/responsive-font';
 
 ul,
 ol,
@@ -11,11 +11,11 @@ dl,
 
 .list {
   line-height: 1.375;
-  @include responsive-font-size("base");
+  @include responsive-font-size('base');
 }
 
 ::slotted(*) {
-  @include responsive-font-size("base");
+  @include responsive-font-size('base');
 }
 
 :host {
