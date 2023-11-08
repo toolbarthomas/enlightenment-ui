@@ -19,7 +19,7 @@
 
   &__placeholder {
     position: relative;
-    min-width: var(--space-320);
+    min-width: var(--space-288);
     border: solid var(--space-1) var(--dawn-900-a20);
     box-shadow: var(--space-0) var(--space-1) var(--space-3) var(--dawn-900-a10);
     border-radius: var(--space-4);
@@ -173,8 +173,13 @@
     max-height: 40vh;
     overflow: auto;
     -webkit-overflow-scrolling: touch;
+    transition:
+      opacity var(--duration-default) var(--easing-default),
+      margin var(--duration-default) var(--easing-default),
+      visibility 0ms linear var(--duration-default);
 
-    display: none;
+    visibility: hidden;
+    opacity: 0;
     background-color: var(--grey-100);
     border-radius: var(--space-4);
     max-width: var(--space-600);
@@ -184,16 +189,28 @@
 
     .multiple-select--align-from-top & {
       bottom: 100%;
-      margin-bottom: var(--space-12);
+
+      &[aria-hidden='false'] {
+        margin-bottom: var(--space-12);
+      }
     }
 
     .multiple-select--align-from-bottom & {
       top: 100%;
-      margin-top: var(--space-12);
+
+      &[aria-hidden='false'] {
+        margin-top: var(--space-12);
+      }
     }
 
-    :host([aria-current='true']) & {
-      display: block;
+    &[aria-hidden='false'] {
+      opacity: 1;
+      visibility: visible;
+
+      transition:
+        opacity var(--duration-default) var(--easing-default),
+        margin var(--duration-default) var(--easing-default),
+        visibility 0ms linear 0ms;
     }
 
     :host([mode='dark']) & {
@@ -224,6 +241,7 @@
     display: flex;
     gap: var(--space-8);
     align-items: center;
+    flex-wrap: wrap;
   }
 
   &__selected-option {
@@ -273,6 +291,7 @@
 
       &::before,
       &::after {
+        margin-top: calc(var(--space-0) - var(--space-16) / 2);
         opacity: 1;
       }
 
@@ -300,10 +319,10 @@
       position: absolute;
       top: 50%;
       width: var(--space-2);
+      margin-top: calc(var(--space-0) - var(--space-16) / 4);
       margin-left: calc(var(--space-0) - var(--space-2) / 2);
-      margin-top: calc(var(--space-0) - var(--space-16) / 2);
       transition: var(--duration-default) var(--easing-default);
-      transition-property: opacity;
+      transition-property: margin opacity;
     }
 
     &::before {

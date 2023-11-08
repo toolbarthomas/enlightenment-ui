@@ -13,14 +13,14 @@
 
   &__label-wrapper {
     flex-shrink: 0;
-    min-width: var(--space-320);
+    min-width: var(--space-288);
     padding-top: var(--space-12);
   }
 
   &__input-wrapper {
     display: flex;
     position: relative;
-    min-width: var(--space-320);
+    min-width: var(--space-288);
     border: solid var(--space-1) var(--dawn-900-a20);
     box-shadow: var(--space-0) var(--space-1) var(--space-3) var(--dawn-900-a10);
     border-radius: var(--space-4);

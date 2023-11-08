@@ -34,7 +34,9 @@ class EnlightenmentCheckbox extends Enlightenment {
       return
     }
 
-    this.commit('isActive', event.target.checked)
+    const target = event.target as HTMLInputElement
+
+    this.commit('isActive', target.checked)
   }
 
   handleClick(event: Event) {
@@ -65,7 +67,8 @@ class EnlightenmentCheckbox extends Enlightenment {
     }
 
     if (Enlightenment.keyCodes.exit.includes(keyCode)) {
-      event.target && event.target.blur()
+      const target = event.target as HTMLInputElement
+      target.blur && target.blur()
 
       return
     }

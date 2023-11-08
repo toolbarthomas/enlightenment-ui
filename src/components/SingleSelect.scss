@@ -19,7 +19,7 @@
 
   &__label-wrapper {
     flex-shrink: 0;
-    min-width: var(--space-320);
+    min-width: var(--space-288);
     padding-top: var(--space-12);
   }
 
@@ -59,7 +59,6 @@
     align-items: center;
     background-color: var(--grey-500);
     max-width: 100%;
-    // max-width: 50px;
 
     @media (min-width: $tablet) {
       min-width: var(--space-320);

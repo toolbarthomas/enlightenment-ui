@@ -57,15 +57,15 @@ class EnlightenmentSingleSelect extends Enlightenment {
   @property({ type: Array })
   selected: HTMLInputElement[] = []
 
-  // Use the refered Element to defined the visible height for the selected
-  // indicators.
+  // Reference to the rendered dropdown containter.
+  dropdownContext = createRef()
+
+  // Reference to the rendered selected options container.
   selectedContext = createRef()
 
   // Will update during a input suggestion change. The suggested entries should
   // be included for the actual component value.
   suggested: MultipleSelectSuggestion[] = []
-
-  f: any
 
   @property({
     converter: (value) => {
@@ -273,6 +273,12 @@ class EnlightenmentSingleSelect extends Enlightenment {
       })
     }
 
+    const dropdownContext = this.useRef(this.dropdownContext) as HTMLElement
+
+    if (dropdownContext) {
+      dropdownContext.setAttribute('aria-hidden', `${this.currentElement ? 'false' : 'true'}`)
+    }
+
     // Update the additional options defined the options property.
     this.currentElement && this.throttle(this.requestUpdate)
   }
@@ -444,7 +450,9 @@ class EnlightenmentSingleSelect extends Enlightenment {
       })
     }
 
-    return html`<div class="multiple-select__dropdown">${result || nothing}</div>`
+    return html`<div class="multiple-select__dropdown" ref="${ref(this.dropdownContext)}">
+      ${result || nothing}
+    </div>`
   }
 
   /**
@@ -537,21 +545,30 @@ class EnlightenmentSingleSelect extends Enlightenment {
     >`
   }
 
+  resizeSelected() {
+    const selectedContext = this.useRef(this.selectedContext) as HTMLElement
+
+    if (!selectedContext) {
+      return
+    }
+
+    // Updates the visible height of the selected options container.
+    if (selectedContext && selectedContext.firstElementChild) {
+      if (selectedContext.firstElementChild.scrollHeight) {
+        selectedContext.style.height = `${selectedContext.firstElementChild.scrollHeight}px`
+      } else {
+        selectedContext.removeAttribute('style')
+      }
+    } else {
+      selectedContext.style.height = `auto`
+    }
+  }
+
   protected updated(properties: Map<any>): void {
     super.updated(properties)
 
     if (properties.has('selected')) {
-      const selectedContext = this.useRef(this.selectedContext) as HTMLElement
-      console.log('SHOULD UPDATE HEIGHT', selectedContext)
-      if (selectedContext && selectedContext.firstElementChild) {
-        if (selectedContext.firstElementChild.scrollHeight) {
-          selectedContext.style.height = `${selectedContext.firstElementChild.scrollHeight}px`
-        } else {
-          selectedContext.removeAttribute('style')
-        }
-      } else {
-        selectedContext.style.height = `auto`
-      }
+      this.resizeSelected()
     }
   }
 

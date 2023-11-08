@@ -24,17 +24,17 @@ class EnlightenmentTextfield extends Enlightenment {
     converter: (value: string) => value.split(',').map((v) => v.toLowerCase()),
     type: Array
   })
-  actions = []
+  actions: string[] = []
 
   @property({ type: String })
-  id? = Enlightenment.useElementID()
+  id = Enlightenment.useElementID()
 
   @property({ type: String })
   label?: string
 
   @property({
     type: String,
-    converter: (value: string) => Enlightenment.filterProperty(value, ['text', 'password'])
+    converter: (value) => Enlightenment.filterProperty(value, ['text', 'password'])
   })
   type = 'text'
 
@@ -135,7 +135,8 @@ class EnlightenmentTextfield extends Enlightenment {
     }
 
     if (Enlightenment.keyCodes.exit.includes(keyCode)) {
-      event.target && event.target.blur()
+      const target = event.target as HTMLInputElement
+      target.blur && target.blur()
 
       return
     }
