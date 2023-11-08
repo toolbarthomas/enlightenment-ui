@@ -40,65 +40,81 @@ class EnlightenmentSingleSelect extends Enlightenment {
 
   files: File[] = []
 
-  handleChange(event: Event) {
-    const input = event.target as HTMLInputElement
-
-    if (!input) {
-      return
-    }
-
-    const [file] = input.files
-
-    if (file && !this.files.length) {
-      this.commit('files', [...this.files, file])
-    } else if (file && !this.files.includes(file)) {
+  readFile(file: File, size?: number) {
+    return new Promise<string | null>((resolve) => {
       const reader = new FileReader()
 
       reader.addEventListener(
         'load',
         (event) => {
-          if (!event.target || !event.target.result) {
-            return
+          if (!event || !event.target || !event.target.result) {
+            return resolve(null)
           }
 
-          const compare = new TextDecoder().decode(event.target.result.slice(0, 1024))
+          const header = new TextDecoder().decode(event.target.result.slice(0, size || 1024))
 
-          const commit = []
-
-          this.files.forEach((f) => {
-            const nextReader = new FileReader()
-
-            nextReader.addEventListener(
-              'load',
-              (next) => {
-                if (!next.target || !next.target.result) {
-                  return
-                }
-
-                const nextCompare = new TextDecoder().decode(next.target.result.slice(0, 1024))
-
-                // Prevents duplicate files to be added to the queue. This does
-                // not apply for identical files stored at different locations.
-                if (
-                  compare !== nextCompare ||
-                  f.name !== file.name ||
-                  f.lastModified !== file.lastModified ||
-                  f.size !== file.size
-                ) {
-                  this.commit('files', [...this.files, file])
-                }
-              },
-              { once: true }
-            )
-            nextReader.readAsArrayBuffer(f)
-          })
+          resolve(header || null)
         },
         { once: true }
       )
       reader.readAsArrayBuffer(file)
+    })
+  }
+
+  canInclude() {
+    if (!this.max) {
+      return true
     }
 
-    input.value = null
+    if (typeof this.max !== 'number') {
+      return true
+    }
+
+    if (!this.files.length) {
+      return true
+    }
+
+    return this.files.length < this.max
+  }
+
+  handleChange(event: Event) {
+    const input = event.target as HTMLInputElement
+
+    if (!input || !input.files) {
+      return
+    }
+
+    for (let i = 0; i < input.files.length; i++) {
+      const file = input.files[i]
+
+      if (file && !this.files.length) {
+        this.commit('files', [...this.files, file])
+      } else if (file && !this.files.includes(file) && this.canInclude()) {
+        // Compare the initial File with the included Files by meta information.
+        // The initial file will only be included if there is no other File with
+        // identical File contents.
+        this.readFile(file).then((hash) => {
+          let included = false
+
+          const duplicates = this.files.filter(
+            (f) =>
+              f.lastModified === file.lastModified && f.name === file.name && f.size === file.size
+          )
+
+          if (duplicates.length) {
+            Promise.all(duplicates.map((duplicate) => this.readFile(duplicate))).then((result) => {
+              if (!result.includes(hash) && this.canInclude()) {
+                this.commit('files', [...this.files, file])
+              }
+            })
+          } else if (this.canInclude()) {
+            this.commit('files', [...this.files, file])
+          }
+        })
+      }
+    }
+
+    // input.value = null
   }
 
   render() {
@@ -115,6 +131,7 @@ class EnlightenmentSingleSelect extends Enlightenment {
         ?disabled=${this.disabled}
         @change="${this.handleChange}"
         name="${this.name}"
+        ?multiple=${!this.max || this.max > 1}
         type="file"
       />
     `
