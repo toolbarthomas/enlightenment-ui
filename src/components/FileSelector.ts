@@ -113,8 +113,6 @@ class EnlightenmentSingleSelect extends Enlightenment {
         })
       }
     }
-
-    // input.value = null
   }
 
   render() {
@@ -127,13 +125,20 @@ class EnlightenmentSingleSelect extends Enlightenment {
     }
 
     return html`
-      <input
-        ?disabled=${this.disabled}
-        @change="${this.handleChange}"
-        name="${this.name}"
-        ?multiple=${!this.max || this.max > 1}
-        type="file"
-      />
+      <div class="file-selector__input-wrapper">
+        <label class="file-selector__input-label" for="${this.id}">
+          <span>${this.files.length || 'Select File'}</span>
+          <input
+            ?disabled=${this.disabled}
+            @change="${this.handleChange}"
+            class="file-selector__input"
+            id="${this.id}"
+            name="${this.name}"
+            ?multiple=${!this.max || this.max > 1}
+            type="file"
+          />
+        </label>
+      </div>
     `
   }
 
@@ -142,8 +147,14 @@ class EnlightenmentSingleSelect extends Enlightenment {
       return nothing
     }
 
-    return this.files.map((file) => {
-      return html`<span>${file.name}</span>`
+    const body = this.files.map((file) => {
+      return html`<li class="file-selector__selected-item">${file.name}</li>`
     })
+
+    return html`<div class="file-selector__selected">
+      <ul clas="file-selector__selected-items">
+        ${body}
+      </ul>
+    </div>`
   }
 }

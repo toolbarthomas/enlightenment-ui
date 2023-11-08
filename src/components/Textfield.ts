@@ -27,9 +27,6 @@ class EnlightenmentTextfield extends Enlightenment {
   actions: string[] = []
 
   @property({ type: String })
-  id = Enlightenment.useElementID()
-
-  @property({ type: String })
   label?: string
 
   @property({

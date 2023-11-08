@@ -1,2 +1,25 @@
+@import '../styles/mixins/visually-hidden';
+@import '../styles/mixins/box-sizing';
+
+@include boxSizing();
+
 .file-selector {
+  &__input {
+    @include visuallyHidden();
+  }
+
+  &__selected-items {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    row-gap: var(--space-8);
+  }
+
+  &__selected-item {
+    display: block;
+    margin: 0;
+    padding: var(--space-12);
+  }
 }
