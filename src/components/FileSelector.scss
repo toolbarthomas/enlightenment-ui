@@ -8,6 +8,23 @@
     @include visuallyHidden();
   }
 
+  &__label {
+    display: block;
+    margin-bottom: var(--space-12);
+  }
+
+  &__legend {
+    display: block;
+    text-align: center;
+    margin-top: var(--space-12);
+    order: 1;
+  }
+
+  &__selected {
+    display: flex;
+    flex-direction: column;
+  }
+
   &__selected-items {
     list-style: none;
     margin: 0;
@@ -18,8 +35,23 @@
   }
 
   &__selected-item {
-    display: block;
+    display: flex;
     margin: 0;
-    padding: var(--space-12);
+    padding: var(--space-12) var(--space-16);
+    border-radius: var(--space-4);
+    box-shadow: var(--space-0) var(--space-2) var(--space-4) var(--dawn-900-a10);
+    background-color: var(--dawn-100);
+
+    align-items: center;
+    justify-content: space-between;
+    color: var(--grey-700);
+  }
+
+  &__selected-item-name {
+    font-weight: 700;
+  }
+
+  &__selected-item-size {
+    flex-shrink: 0;
   }
 }
