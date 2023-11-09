@@ -172,6 +172,8 @@ class EnlightenmenForm extends Enlightenment {
       return
     }
 
+    console.log('Slot change', event, this)
+
     Enlightenment.getElementsFromSlot(slot, EnlightenmenForm.inputElements).forEach((element) => {
       const input = element as HTMLInputElement
 

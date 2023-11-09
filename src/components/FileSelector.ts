@@ -40,6 +40,91 @@ class EnlightenmentSingleSelect extends Enlightenment {
 
   files: File[] = []
 
+  /**
+   * Validates if any new Files can be included while using the optional
+   * [max] property
+   */
+  canInclude() {
+    if (!this.max) {
+      return true
+    }
+
+    if (typeof this.max !== 'number') {
+      return true
+    }
+
+    if (!this.files.length) {
+      return true
+    }
+
+    return this.files.length < this.max
+  }
+
+  /**
+   * Asyncronous Callback handler during a File Input change Event that will
+   * include the selected File Objects within the defined Component [files]
+   * property.
+   *
+   * @param event Retreives the FileList Interface from the given Event.
+   */
+  handleChange(event: Event) {
+    const input = event.target as HTMLInputElement
+
+    if (!input || !input.files) {
+      return
+    }
+
+    Promise.all(
+      Array.from(input.files).map(
+        (file) =>
+          new Promise<File | null>((next) => {
+            if (file && !this.files.length) {
+              this.commit('files', [...this.files, file])
+              next(file)
+            } else if (file && !this.files.includes(file) && this.canInclude()) {
+              this.readFile(file).then((hash) => {
+                let included = false
+
+                const duplicates = this.files.filter(
+                  (f) =>
+                    f.lastModified === file.lastModified &&
+                    f.name === file.name &&
+                    f.size === file.size
+                )
+
+                if (duplicates.length) {
+                  Promise.all(duplicates.map(this.readFile)).then((result) => {
+                    if (!result.includes(hash) && this.canInclude()) {
+                      this.commit('files', [...this.files, file])
+                    }
+                  })
+                  next(file)
+                } else if (this.canInclude()) {
+                  this.commit('files', [...this.files, file])
+                  next(file)
+                } else {
+                  next(null)
+                }
+              })
+            } else {
+              next(null)
+            }
+          })
+      )
+    ).then((list) => {
+      if (!Object.isFrozen(this.files)) {
+        Object.freeze(this.files)
+      }
+    })
+  }
+
+  /**
+   * Read the defined File as ArrayBuffer and use the first X of Bytes that is
+   * used to compare 2 Files with matching sizes.
+   *
+   * @param file The actual File to read.
+   * @param size Use the defined amount of bytes or 1024 instead.
+   */
   readFile(file: File, size?: number) {
     return new Promise<string | null>((resolve) => {
       const reader = new FileReader()
@@ -61,64 +146,14 @@ class EnlightenmentSingleSelect extends Enlightenment {
     })
   }
 
-  canInclude() {
-    if (!this.max) {
-      return true
-    }
-
-    if (typeof this.max !== 'number') {
-      return true
-    }
-
-    if (!this.files.length) {
-      return true
-    }
-
-    return this.files.length < this.max
-  }
-
-  handleChange(event: Event) {
-    const input = event.target as HTMLInputElement
-
-    if (!input || !input.files) {
-      return
-    }
-
-    for (let i = 0; i < input.files.length; i++) {
-      const file = input.files[i]
-
-      if (file && !this.files.length) {
-        this.commit('files', [...this.files, file])
-      } else if (file && !this.files.includes(file) && this.canInclude()) {
-        // Compare the initial File with the included Files by meta information.
-        // The initial file will only be included if there is no other File with
-        // identical File contents.
-        this.readFile(file).then((hash) => {
-          let included = false
-
-          const duplicates = this.files.filter(
-            (f) =>
-              f.lastModified === file.lastModified && f.name === file.name && f.size === file.size
-          )
-
-          if (duplicates.length) {
-            Promise.all(duplicates.map((duplicate) => this.readFile(duplicate))).then((result) => {
-              if (!result.includes(hash) && this.canInclude()) {
-                this.commit('files', [...this.files, file])
-              }
-            })
-          } else if (this.canInclude()) {
-            this.commit('files', [...this.files, file])
-          }
-        })
-      }
-    }
-  }
-
   render() {
     return html`<div class="file-selector">${this.renderInput()} ${this.renderSelected()}</div>`
   }
 
+  /**
+   * Renders the functional File input Element that is used to selected actual
+   * sources from the client's FileSystem.
+   */
   renderInput() {
     if (this.files.length && this.files.length >= this.max) {
       return nothing
@@ -142,6 +177,10 @@ class EnlightenmentSingleSelect extends Enlightenment {
     `
   }
 
+  /**
+   * Renders the already selected File entries and UI for removing already
+   * selected files.
+   */
   renderSelected() {
     if (!this.files) {
       return nothing

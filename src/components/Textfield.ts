@@ -45,8 +45,6 @@ class EnlightenmentTextfield extends Enlightenment {
   placeholder?: string
 
   handleAction(event: Event) {
-    console.log('handle ')
-
     if (!event) {
       return
     }
