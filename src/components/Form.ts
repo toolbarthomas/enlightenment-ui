@@ -24,21 +24,21 @@ class EnlightenmenForm extends Enlightenment {
 
     if (context.type === 'submit' || (host && host.getAttribute('type') === 'submit')) {
       this.clearGlobalEvent('click', context)
-      this.assignGlobalEvent('click', this.handleSubmit, context)
+      this.assignGlobalEvent('click', this.handleSubmit, { context })
 
       return
     }
 
     if (context.type === 'reset') {
       this.clearGlobalEvent('click', context)
-      this.assignGlobalEvent('click', this.handleReset, context)
+      this.assignGlobalEvent('click', this.handleReset, { context })
 
       return
     }
 
     if (['INPUT', 'SELECT', 'TEXTAREA'].includes(context.tagName)) {
       this.clearGlobalEvent('change', context)
-      this.assignGlobalEvent('change', this.handleChange, context)
+      this.assignGlobalEvent('change', this.handleChange, { context })
 
       // Trigger an initial Change event to ensure the initial Raw Form data is
       // defined
@@ -49,7 +49,7 @@ class EnlightenmenForm extends Enlightenment {
       }
 
       this.clearGlobalEvent('keydown', context)
-      this.assignGlobalEvent('keydown', this.handleKeydown, context)
+      this.assignGlobalEvent('keydown', this.handleKeydown, { context })
     }
   }
 

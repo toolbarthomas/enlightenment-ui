@@ -137,7 +137,7 @@ class EnlightenmentFocusTrap extends Enlightenment {
     const host: HTMLElement | null = (this.parentNode as any).host
 
     if (host && host !== this) {
-      this.assignGlobalEvent('updated', this.refresh, host)
+      this.assignGlobalEvent('updated', this.refresh, { context: host })
     }
   }
 

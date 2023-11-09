@@ -170,8 +170,8 @@ class EnlightenmentDrawer extends Enlightenment {
   connectedCallback() {
     super.connectedCallback()
 
-    this.assignGlobalEvent('resize', this.handleResize, window)
-    this.assignGlobalEvent('scroll', this.handleScroll, window)
+    this.assignGlobalEvent('resize', this.handleResize, { context: window })
+    this.assignGlobalEvent('scroll', this.handleScroll, { context: window })
   }
 
   disconnectedCallback() {

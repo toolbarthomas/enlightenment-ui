@@ -62,7 +62,7 @@ class EnlightenmentModal extends Enlightenment {
       this.assignGlobalEvent(
         'scroll',
         (event: Event) => this.throttle(this.handleScroll, Enlightenment.FPS, event, body),
-        body
+        { context: body }
       )
 
     const wrapper = this.useRef(this.wrapperContext)
@@ -70,7 +70,7 @@ class EnlightenmentModal extends Enlightenment {
       this.assignGlobalEvent(
         'scroll',
         (event: Event) => this.throttle(this.handleScroll, Enlightenment.FPS, event, wrapper),
-        wrapper
+        { context: wrapper }
       )
   }
 
@@ -175,7 +175,7 @@ class EnlightenmentModal extends Enlightenment {
     this.assignGlobalEvent(
       'resize',
       (event: UIEvent) => this.throttle(this.handleResize, Enlightenment.FPS, event),
-      window
+      { context: window }
     )
   }
 

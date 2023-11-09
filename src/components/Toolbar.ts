@@ -24,7 +24,7 @@ class EnlightenmentToolbar extends Enlightenment {
   connectedCallback() {
     super.connectedCallback()
 
-    this.assignGlobalEvent('scroll', this.handleScroll, window)
+    this.assignGlobalEvent('scroll', this.handleScroll, { context: window })
   }
 
   handleScroll(event: Event) {

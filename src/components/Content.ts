@@ -53,7 +53,7 @@ class EnlightenmentContent extends Enlightenment {
   //       this.omitGlobalEvent("slotchange", callback);
   //     });
 
-  //   this.assignGlobalEvent("slotchange", callback, this);
+  //   this.assignGlobalEvent("slotchange", callback, { context: this });
   // }
 
   render() {
