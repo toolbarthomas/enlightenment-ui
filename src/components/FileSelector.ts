@@ -269,6 +269,18 @@ class EnlightenmentFileSelector extends Enlightenment {
       return nothing
     }
 
-    return html`<slot><span class="file-selector__placeholder">${this.placeholder}</span></slot>`
+    return html`<slot>
+      <div class="file-selector__placeholder">
+        <div class="file-selector__placeholder-icon-group">
+          ${new Array(2).fill().map(
+            () =>
+              html`<span class="file-selector__placeholder-icon">
+                <span class="file-selector__placeholder-icon-fold"></span>
+              </span>`
+          )}
+        </div>
+        ${this.placeholder}
+      </div>
+    </slot>`
   }
 }
