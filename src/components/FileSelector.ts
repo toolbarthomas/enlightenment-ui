@@ -202,9 +202,6 @@ class EnlightenmentFileSelector extends Enlightenment {
     return html`
       <div class="file-selector__input-wrapper">
         <label class="file-selector__input-label" for="${this.id}">
-          <span>
-            <slot>${this.files.length ? this.files.length : this.placeholder}</slot>
-          </span>
           <input
             ?disabled=${this.disabled}
             @change="${this.handleChange}"
@@ -214,6 +211,7 @@ class EnlightenmentFileSelector extends Enlightenment {
             ?multiple=${!this.max || this.max > 1}
             type="file"
           />
+          ${this.renderSlot()}
         </label>
       </div>
     `
@@ -228,7 +226,7 @@ class EnlightenmentFileSelector extends Enlightenment {
   }
 
   renderLegend() {
-    if (!this.useSlot() || !this.files.length) {
+    if (!this.files.length) {
       return nothing
     }
 
@@ -264,5 +262,13 @@ class EnlightenmentFileSelector extends Enlightenment {
         ${body}
       </ul>
     </div>`
+  }
+
+  renderSlot() {
+    if (!this.canInclude()) {
+      return nothing
+    }
+
+    return html`<slot><span class="file-selector__placeholder">${this.placeholder}</span></slot>`
   }
 }

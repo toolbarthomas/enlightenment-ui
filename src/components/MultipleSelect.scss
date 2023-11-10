@@ -11,6 +11,8 @@
 }
 
 .multiple-select {
+  display: flex;
+
   &__body {
     display: flex;
     align-items: center;

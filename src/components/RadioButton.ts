@@ -34,6 +34,10 @@ class EnlightenmentRadioButton extends Enlightenment {
       return
     }
 
+    if (event.target.checked) {
+      this.uncheckRelated()
+    }
+
     this.commit('isActive', event.target.checked)
   }
 
@@ -112,5 +116,17 @@ class EnlightenmentRadioButton extends Enlightenment {
         </label>
       </div>
     `
+  }
+
+  uncheckRelated() {
+    const related = Enlightenment.getRelatedComponents(this, `${this.tagName}[name="${this.name}"]`)
+
+    related.forEach((element) => {
+      if (element.context && element.context.value) {
+        const input = element.context.value as HTMLInputElement
+        input.checked = false
+        this.hook('change', { context: input })
+      }
+    })
   }
 }
