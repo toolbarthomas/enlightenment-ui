@@ -10,6 +10,8 @@ import {
 
 import styles from './FileSelector.scss'
 
+export type FileSystemResponse = File[] | undefined
+
 @customElement('ui-file-selector')
 class EnlightenmentFileSelector extends Enlightenment {
   static styles = [styles]
@@ -43,6 +45,10 @@ class EnlightenmentFileSelector extends Enlightenment {
   body: any
 
   files: File[] = []
+
+  // Stores additional meta inforation for the defined file that has been
+  // included with the HTML5 File API.
+  private paths: { [key: string]: File } = {}
 
   /**
    * Validates if any new Files can be included while using the optional
@@ -172,19 +178,14 @@ class EnlightenmentFileSelector extends Enlightenment {
     event.preventDefault()
 
     const queue = Array.from(event.dataTransfer.items || event.dataTransfer.files)
+    const files = []
 
-    const files = queue.map((entry) => {
-      if (entry instanceof File) {
-        return entry
-      }
+    Promise.all(queue.map((entry) => this.traverseEntry(entry, files))).then((r) => {
+      console.log(files.length)
 
-      return entry.getAsFile()
+      this.handleDragReset()
+      this.handleChange({ ...event, target: { ...event.target, files } } as Event)
     })
-
-    this.handleDragReset()
-    this.handleChange({ ...event, target: { ...event.target, files } } as Event)
-
-    console.log('Dropped files', files)
   }
 
   /**
@@ -208,6 +209,7 @@ class EnlightenmentFileSelector extends Enlightenment {
           if (!event || !event.target || !event.target.result) {
             return resolve(null)
           }
+          console.log('FILE', event.target)
 
           try {
             const header = new TextDecoder().decode(event.target.result.slice(0, size || 1024))
@@ -300,7 +302,7 @@ class EnlightenmentFileSelector extends Enlightenment {
    * selected files.
    */
   renderSelected() {
-    if (!this.files) {
+    if (!this.files || !this.files.length) {
       return nothing
     }
 
@@ -308,7 +310,10 @@ class EnlightenmentFileSelector extends Enlightenment {
       const [size, unit] = this.useFileSize(file.size)
 
       return html`<li class="file-selector__selected-item">
-        <span class="file-selector__selected-item-name">${file.name}</span>
+        <header class="file-selector__item-header">
+          <span class="file-selector__selected-item-name">${file.name}</span>
+          ${this.renderSelectedPath(file)}
+        </header>
         <span class="file-selector__selected-item-size">${size} ${unit}</span>
       </li>`
     })
@@ -319,6 +324,22 @@ class EnlightenmentFileSelector extends Enlightenment {
         ${body}
       </ul>
     </div>`
+  }
+
+  renderSelectedPath(file: File) {
+    let path = ''
+
+    if (Object.values(this.paths).includes(file)) {
+      path += atob(Object.keys(this.paths).filter((f) => this.paths[f] === file)[0])
+
+      if (path.startsWith('/') || path.startsWith('\\')) {
+        path = path.substring(1)
+      }
+    }
+
+    return path.length
+      ? html`<span class="file-selector__selected-item-path">${path}</span>`
+      : nothing
   }
 
   renderSlot() {
@@ -342,5 +363,96 @@ class EnlightenmentFileSelector extends Enlightenment {
           : nothing}
       </div>
     </slot>`
+  }
+
+  readEntries(entry: FileSystemDirectoryEntry, queue?: FileSystemEntry[]) {
+    return new Promise<FileSystemResponse>((resolve) => {
+      if (!entry) {
+        return resolve(queue)
+      }
+
+      const reader = entry.createReader()
+
+      try {
+        reader.readEntries((entries) => {
+          if (!entries.length) {
+            return resolve()
+          }
+
+          Promise.all(
+            entries.map((e) => {
+              return this.traverseEntry(e, queue)
+            })
+          ).then(() => resolve(queue))
+        }, resolve)
+      } catch (error) {
+        if (error) {
+          this.log(error, 'error')
+          resolve(queue)
+        }
+      }
+    })
+  }
+
+  traverseEntry(entry: DataTransferItem, queue?: FileSystemEntry[]) {
+    return new Promise<FileSystemResponse>((resolve) => {
+      const asEntry = entry.webkitGetAsEntry ? entry.webkitGetAsEntry() : entry
+      const q = queue || []
+
+      if (!asEntry) {
+        return resolve([entry])
+      }
+
+      try {
+        if (asEntry.isFile) {
+          const e = asEntry as FileSystemFileEntry
+
+          return e.file((file) => {
+            if (e.fullPath) {
+              this.paths[btoa(e.fullPath)] = file
+            }
+
+            q.push(file)
+            resolve(q)
+          }, resolve)
+        } else if (asEntry.isDirectory) {
+          return this.readEntries(asEntry, q).then(() => {
+            resolve(q)
+          })
+        } else {
+          return resolve(q)
+        }
+      } catch (exception) {
+        if (exception) {
+          this.log(exception, 'error')
+        }
+      }
+    })
+
+    //   // const files = queue.map((entry) => {
+    //   //   if (entry instanceof File) {
+    //   //     return entry
+    //   //   }
+
+    //   //   const asEntry = entry.webkitGetAsEntry()
+
+    //   //   if (asEntry && asEntry.isDirectory) {
+    //   //     return this.traverseEntry(asEntry as FileSystemDirectoryEntry)
+    //   //   }
+
+    //   //   return this.packEntry()
+    //   // })
+
+    //   const reader = entry.createReader()
+
+    //   const cwd = entry.name
+    //   const queue = []
+
+    //   if (!reader) {
+    //     return
+    //   }
+
+    //   return this.readEntries(reader, queue)
+    // }
   }
 }
