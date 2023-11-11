@@ -58,6 +58,7 @@
 
   &__selected-item-header {
     @media (min-width: $tablet) {
+      margin-right: var(--space-12);
       display: flex;
       align-items: center;
     }

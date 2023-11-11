@@ -80,7 +80,7 @@ class EnlightenmentFileSelector extends Enlightenment {
     return this.files.length < this.max
   }
 
-  clearFile(event: Event, file: File) {
+  clearFile(file: File, event?: Event) {
     if (event && event.preventDefault) {
       event.preventDefault()
     }
@@ -286,11 +286,12 @@ class EnlightenmentFileSelector extends Enlightenment {
         <label class="file-selector__input-label" for="${this.id}">
           <input
             ?disabled=${this.disabled}
+            ?multiple=${!this.max || this.max > 1}
             @change="${this.handleChange}"
             class="file-selector__input"
             id="${this.id}"
             name="${this.name}"
-            ?multiple=${!this.max || this.max > 1}
+            ref="${ref(this.context)}"
             type="file"
           />
           ${this.renderSlot()}
@@ -340,21 +341,22 @@ class EnlightenmentFileSelector extends Enlightenment {
           </div>
           <span class="file-selector__selected-item-size">${size} ${unit}</span>
         </header>
-        <button
-          class="file-selector__selected-item-clear"
-          @click="${(event) => this.clearFile(event, file)}"
-        >
-          <span
-            class="file-selector__selected-item-clear-icon"
-            aria-focusable="false"
-            aria-hidden="true"
-          ></span>
-          <span class="file-selector__selected-item-clear-label">
-            ${EnlightenmentFileSelector.a11y.clear} ${file.name}
-          </span>
-        </button>
+        <slot name="clear" @click="${(event) => this.clearFile(file, event)}">
+          <button class="file-selector__selected-item-clear">
+            <span
+              class="file-selector__selected-item-clear-icon"
+              aria-focusable="false"
+              aria-hidden="true"
+            ></span>
+            <span class="file-selector__selected-item-clear-label">
+              ${EnlightenmentFileSelector.a11y.clear} ${file.name}
+            </span>
+          </button>
+        </slot>
       </li>`
     })
+
+    this.cloneSlot('clear')
 
     return html`<div class="file-selector__selected">
       ${this.renderLegend()}
@@ -385,22 +387,32 @@ class EnlightenmentFileSelector extends Enlightenment {
       return nothing
     }
 
-    return html`<slot>
-      <div class="file-selector__placeholder">
-        <div class="file-selector__placeholder-icon-group">
-          ${new Array(2).fill().map(
-            () =>
-              html`<span class="file-selector__placeholder-icon">
-                <span class="file-selector__placeholder-icon-fold"></span>
-              </span>`
-          )}
+    const context = this.useContext() as HTMLElement
+
+    // Assign the fallback Event listener if the placeholder Slot element is
+    // assigned.
+    const slot = this.useSlot(Enlightenment.defaults.slot, true)
+
+    return html`
+      <slot @click="${() => slot && context && context.click()}">
+        <div class="file-selector__placeholder">
+          <div class="file-selector__placeholder-icon-group">
+            ${new Array(2).fill().map(
+              () =>
+                html`<span class="file-selector__placeholder-icon">
+                  <span class="file-selector__placeholder-icon-fold"></span>
+                </span>`
+            )}
+          </div>
+          ${this.placeholder}
+          ${this.max
+            ? html`<span class="file-selector__placeholder-info"
+                >(Maximum files: ${this.max})</span
+              >`
+            : nothing}
         </div>
-        ${this.placeholder}
-        ${this.max
-          ? html`<span class="file-selector__placeholder-info">(Maximum files: ${this.max})</span>`
-          : nothing}
-      </div>
-    </slot>`
+      </slot>
+    `
   }
 
   readEntries(entry: FileSystemDirectoryEntry, queue?: FileSystemEntry[]) {
