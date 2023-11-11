@@ -1,6 +1,8 @@
 @import '../styles/mixins/visually-hidden';
 @import '../styles/mixins/box-sizing';
 
+@import '../styles/variables/breakpoints';
+
 @include boxSizing();
 
 .file-selector {
@@ -37,17 +39,33 @@
 
   &__selected-item {
     align-items: center;
-    animation: var(--duration-default) var(--easing-default) 1 forwards spawn;
+    animation: var(--duration-default) var(--easing-default) 1 none spawn;
     background-color: var(--dawn-100);
     border-radius: var(--space-4);
     border: solid var(--space-1) var(--white);
     box-shadow: var(--space-0) var(--space-2) var(--space-4) var(--dawn-900-a10);
     color: var(--grey-900);
-    display: flex;
-    justify-content: space-between;
     margin: 0;
     padding: var(--space-12) var(--space-16);
     font-size: var(--font-size-small);
+    transition: transform var(--duration-default) var(--easing-default);
+    display: flex;
+
+    &:focus-visible {
+      transform: scale(1.0625);
+    }
+  }
+
+  &__selected-item-header {
+    @media (min-width: $tablet) {
+      display: flex;
+      align-items: center;
+    }
+  }
+
+  &__selected-item-header,
+  &__selected-item-header-body {
+    flex-grow: 1;
   }
 
   &__selected-item-path {
@@ -57,6 +75,67 @@
 
   &__selected-item-size {
     flex-shrink: 0;
+    display: block;
+    margin-top: var(--space-8);
+    color: var(--grey-700);
+
+    @media (min-width: $tablet) {
+      margin: 0;
+    }
+  }
+
+  &__selected-item-clear {
+    appearance: none;
+    padding: var(--space-8);
+    display: flex;
+    outline: none;
+    border: none;
+    background-color: transparent;
+    color: currentColor;
+    opacity: 0;
+
+    .file-selector__selected-item:hover &,
+    &:focus-within {
+      opacity: 1;
+      cursor: pointer;
+    }
+
+    &:focus-within {
+      color: var(--accent-600);
+    }
+  }
+
+  &__selected-item-clear-icon {
+    position: relative;
+    display: block;
+    width: var(--space-16);
+    height: var(--space-16);
+
+    &::before,
+    &::after {
+      display: block;
+      content: ' ';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: var(--space-16);
+      margin-left: calc(var(--space-0) - var(--space-16) / 2);
+      margin-top: calc(var(--space-0) - var(--space-2) / 2);
+      height: var(--space-2);
+      background-color: currentColor;
+    }
+
+    &::before {
+      transform: rotate(45deg);
+    }
+
+    &::after {
+      transform: rotate(315deg);
+    }
+  }
+
+  &__selected-item-clear-label {
+    @include visuallyHidden();
   }
 
   &__placeholder {

@@ -16,6 +16,13 @@ export type FileSystemResponse = File[] | undefined
 class EnlightenmentFileSelector extends Enlightenment {
   static styles = [styles]
 
+  static a11y = {
+    clear: 'Clear'
+  }
+
+  static sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB']
+  static unit = 1024
+
   @property({
     converter: Enlightenment.isBoolean,
     type: Boolean
@@ -33,6 +40,9 @@ class EnlightenmentFileSelector extends Enlightenment {
 
   @property({ type: String })
   placeholder?: string = 'Select drop files'
+
+  @property({ type: String })
+  clearFileLabel?: label = 'Clear file'
 
   @property({ type: Array })
   selected: HTMLInputElement[] = []
@@ -70,8 +80,21 @@ class EnlightenmentFileSelector extends Enlightenment {
     return this.files.length < this.max
   }
 
-  static sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB']
-  static unit = 1024
+  clearFile(event: Event, file: File) {
+    if (event && event.preventDefault) {
+      event.preventDefault()
+    }
+
+    const files = this.files.filter((f) => f !== file)
+    const keys = Object.keys(this.paths).filter((p) => this.paths[p] === file)
+
+    this.commit('files', () => {
+      this.files = files
+      Object.freeze(this.files)
+
+      keys.forEach((key) => delete this.paths[key])
+    })
+  }
 
   useFileSize(value: number) {
     if (!value) {
@@ -310,11 +333,26 @@ class EnlightenmentFileSelector extends Enlightenment {
       const [size, unit] = this.useFileSize(file.size)
 
       return html`<li class="file-selector__selected-item">
-        <header class="file-selector__item-header">
-          <span class="file-selector__selected-item-name">${file.name}</span>
-          ${this.renderSelectedPath(file)}
+        <header class="file-selector__selected-item-header">
+          <div class="file-selector__selected-item-header-body">
+            <span class="file-selector__selected-item-name">${file.name}</span>
+            ${this.renderSelectedPath(file)}
+          </div>
+          <span class="file-selector__selected-item-size">${size} ${unit}</span>
         </header>
-        <span class="file-selector__selected-item-size">${size} ${unit}</span>
+        <button
+          class="file-selector__selected-item-clear"
+          @click="${(event) => this.clearFile(event, file)}"
+        >
+          <span
+            class="file-selector__selected-item-clear-icon"
+            aria-focusable="false"
+            aria-hidden="true"
+          ></span>
+          <span class="file-selector__selected-item-clear-label">
+            ${EnlightenmentFileSelector.a11y.clear} ${file.name}
+          </span>
+        </button>
       </li>`
     })
 
@@ -409,7 +447,7 @@ class EnlightenmentFileSelector extends Enlightenment {
 
           return e.file((file) => {
             if (e.fullPath) {
-              this.paths[btoa(e.fullPath)] = file
+              this.paths[btoa(e.fullPath.replace(file.name, ''))] = file
             }
 
             q.push(file)
