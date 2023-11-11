@@ -30,13 +30,15 @@ class EnlightenmentFileSelector extends Enlightenment {
   id? = Enlightenment.useElementID()
 
   @property({ type: String })
-  placeholder?: string
+  placeholder?: string = 'Select drop files'
 
   @property({ type: Array })
   selected: HTMLInputElement[] = []
 
   @property({ converter: Enlightenment.isInteger, type: Number })
   max?: number
+
+  isDropzone?: boolean
 
   body: any
 
@@ -144,6 +146,47 @@ class EnlightenmentFileSelector extends Enlightenment {
     })
   }
 
+  handleDragEnter(event: DragEvent) {
+    this.handleDragOver(event)
+
+    this.throttle(this.commit, Enlightenment.FPS, 'isDropzone', true)
+  }
+
+  handleDragOver(event: DragEvent) {
+    if (!event) {
+      return
+    }
+
+    event.preventDefault()
+  }
+
+  handleDragReset(event: DragEvent) {
+    this.throttle(this.commit, Enlightenment.FPS, 'isDropzone', false)
+  }
+
+  handleDrop(event: DragEvent) {
+    if (!event || !event.dataTransfer) {
+      return
+    }
+
+    event.preventDefault()
+
+    const queue = Array.from(event.dataTransfer.items || event.dataTransfer.files)
+
+    const files = queue.map((entry) => {
+      if (entry instanceof File) {
+        return entry
+      }
+
+      return entry.getAsFile()
+    })
+
+    this.handleDragReset()
+    this.handleChange({ ...event, target: { ...event.target, files } } as Event)
+
+    console.log('Dropped files', files)
+  }
+
   /**
    * Read the defined File as ArrayBuffer and use the first X of Bytes that is
    * used to compare 2 Files with matching sizes.
@@ -185,7 +228,13 @@ class EnlightenmentFileSelector extends Enlightenment {
   }
 
   render() {
-    return html`<div class="file-selector">
+    const classes = ['file-selector']
+
+    if (this.isDropzone) {
+      classes.push('file-selector--is-dropzone')
+    }
+
+    return html`<div class="${classes.join(' ')}">
       ${this.renderLabel()} ${this.renderInput()} ${this.renderSelected()}
     </div>`
   }
@@ -200,7 +249,15 @@ class EnlightenmentFileSelector extends Enlightenment {
     }
 
     return html`
-      <div class="file-selector__input-wrapper">
+      <div
+        class="file-selector__input-wrapper"
+        @mouseenter="${this.handleDragReset}"
+        @mouseleave="${this.handleDragReset}"
+        @dragend="${this.handleDragReset}"
+        @dragenter="${this.handleDragEnter}"
+        @dragover="${this.handleDragOver}"
+        @drop="${this.handleDrop}"
+      >
         <label class="file-selector__input-label" for="${this.id}">
           <input
             ?disabled=${this.disabled}
@@ -280,6 +337,9 @@ class EnlightenmentFileSelector extends Enlightenment {
           )}
         </div>
         ${this.placeholder}
+        ${this.max
+          ? html`<span class="file-selector__placeholder-info">(Maximum files: ${this.max})</span>`
+          : nothing}
       </div>
     </slot>`
   }

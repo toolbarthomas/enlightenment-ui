@@ -8,4 +8,5 @@
 
   @include define-font-size('summary', 1.125rem);
   @include define-font-size('base', 1rem);
+  @include define-font-size('small', 0.875rem);
 }
