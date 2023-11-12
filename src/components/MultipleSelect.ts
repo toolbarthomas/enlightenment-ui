@@ -493,9 +493,10 @@ class EnlightenmentSingleSelect extends Enlightenment {
           }
 
           return html`<button
-            class="multiple-select__selected-option"
             aria-hidden="true"
             aria-focusable="false"
+            class="multiple-select__selected-option"
+            type="button"
             @click="${(event: Event) => this.toggleSelected(event, selected)}"
           >
             ${body}

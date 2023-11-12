@@ -342,7 +342,7 @@ class EnlightenmentFileSelector extends Enlightenment {
           <span class="file-selector__selected-item-size">${size} ${unit}</span>
         </header>
         <slot name="clear" @click="${(event) => this.clearFile(file, event)}">
-          <button class="file-selector__selected-item-clear">
+          <button class="file-selector__selected-item-clear" type="button">
             <span
               class="file-selector__selected-item-clear-icon"
               aria-focusable="false"

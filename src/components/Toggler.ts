@@ -55,7 +55,7 @@ class EnlightenmentToggler extends Enlightenment {
     }
 
     return html`
-      <button @click=${this.handleClick} class="toggler ${classes.join(' ')}">
+      <button type="button" @click=${this.handleClick} class="toggler ${classes.join(' ')}">
         ${this.renderLabel()} ${this.renderIcon()}
       </button>
     `

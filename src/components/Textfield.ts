@@ -202,6 +202,7 @@ class EnlightenmentTextfield extends Enlightenment {
 
     return html`<button
       class="textfield__action textfield__clear"
+      type="button"
       @click="${this.handleClear}"
       @animationend="${this.handleActionSelectionCallback}"
     >
@@ -217,6 +218,7 @@ class EnlightenmentTextfield extends Enlightenment {
 
     return html`<button
       class="textfield__action textfield__copy"
+      type="button"
       @click="${this.handleCopy}"
       @animationend=${this.handleActionSelectionCallback}
     >
