@@ -57,6 +57,9 @@ class EnlightenmentSingleSelect extends Enlightenment {
   @property({ type: Array })
   selected: HTMLInputElement[] = []
 
+  // Reference to the rendered main containter.
+  containerContext = createRef()
+
   // Reference to the rendered dropdown containter.
   dropdownContext = createRef()
 
@@ -274,9 +277,11 @@ class EnlightenmentSingleSelect extends Enlightenment {
     }
 
     const dropdownContext = this.useRef(this.dropdownContext) as HTMLElement
+    const containerContext = this.useRef(this.containerContext) as HTMLElement
 
     if (dropdownContext) {
       dropdownContext.setAttribute('aria-hidden', `${this.currentElement ? 'false' : 'true'}`)
+      containerContext.setAttribute('aria-expanded', `${this.currentElement ? 'true' : 'false'}`)
     }
 
     // Update the additional options defined the options property.
@@ -358,7 +363,7 @@ class EnlightenmentSingleSelect extends Enlightenment {
     }
 
     return html`
-      <div class="${classes.join(' ')}">
+      <div class="${classes.join(' ')}" ref="${ref(this.containerContext)}">
         <div class="multiple-select__body">
           ${this.renderPlaceholder()} ${this.renderDropdown()}
         </div>

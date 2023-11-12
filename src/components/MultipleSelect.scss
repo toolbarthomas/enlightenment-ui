@@ -22,23 +22,25 @@
   &__placeholder {
     position: relative;
     min-width: var(--space-288);
-    border: solid var(--space-1) var(--dawn-900-a20);
-    box-shadow: var(--space-0) var(--space-1) var(--space-3) var(--dawn-900-a10);
-    border-radius: var(--space-4);
-    transition: var(--duration-default) var(--easing-default);
-    transition-property: border, transform;
     background-color: var(--dawn-100);
+    border-radius: var(--space-4);
+    box-shadow:
+      var(--space-0) var(--space-0) var(--space-0) var(--space-1) var(--dawn-900-a20),
+      var(--space-0) var(--space-1) var(--space-3) var(--dawn-900-a10);
+    transition-property: box-shadow;
+    transition: var(--duration-default) var(--easing-default);
 
     :host([mode='dark']) & {
       border-color: var(--grey-800);
       background-color: var(--grey-800);
     }
 
+    multiple-select[aria-expanded='true'] &,
     &:focus-within {
-      &::after {
-        color: var(--accent-600);
-        opacity: 1;
-      }
+      box-shadow:
+        0 0 0 var(--space-2) var(--accent-600),
+        0 var(--space-8) var(--space-10) calc(var(--space-0) - var(--space-10) / 4)
+          var(--accent-600-a20);
     }
   }
 

@@ -48,11 +48,15 @@
 
   &__input-wrapper {
     position: relative;
-    border: solid var(--space-1) var(--dawn-900-a20);
-    box-shadow: var(--space-0) var(--space-1) var(--space-3) var(--dawn-900-a10);
+    box-shadow:
+      var(--space-0) var(--space-0) var(--space-0) var(--space-1) var(--dawn-900-a20),
+      var(--space-0) var(--space-1) var(--space-3) var(--dawn-900-a10);
+
+    // border: solid var(--space-1) var(--dawn-900-a20);
+    // box-shadow: var(--space-0) var(--space-1) var(--space-3) var(--dawn-900-a10);
     border-radius: var(--space-4);
     transition: var(--duration-default) var(--easing-default);
-    transition-property: border, transform;
+    transition-property: box-shadow;
     background-color: var(--dawn-100);
     display: flex;
     align-items: center;
@@ -67,6 +71,13 @@
       opacity: 0.8;
 
       cursor: not-allowed;
+    }
+
+    &:focus-within {
+      box-shadow:
+        0 0 0 var(--space-2) var(--accent-600),
+        0 var(--space-8) var(--space-10) calc(var(--space-0) - var(--space-10) / 4)
+          var(--accent-600-a20);
     }
 
     :host([mode='dark']) & {
@@ -169,27 +180,27 @@
     flex-direction: column;
     pointer-events: none;
 
-    &::after {
-      display: block;
-      position: absolute;
-      top: calc(var(--space-0) - var(--space-2));
-      left: calc(var(--space-0) - var(--space-2));
-      bottom: calc(var(--space-0) - var(--space-2));
-      right: calc(var(--space-0) - var(--space-2));
-      content: ' ';
-      border-radius: var(--space-4);
-      border: solid var(--space-2) var(--accent-500);
-      opacity: 0;
-      visibility: hidden;
-      pointer-events: none;
-      transition:
-        opacity var(--duration-default) var(--easing-default),
-        visibility 0ms linear var(--duration-default);
+    // &::after {
+    //   display: block;
+    //   position: absolute;
+    //   top: calc(var(--space-0) - var(--space-2));
+    //   left: calc(var(--space-0) - var(--space-2));
+    //   bottom: calc(var(--space-0) - var(--space-2));
+    //   right: calc(var(--space-0) - var(--space-2));
+    //   content: ' ';
+    //   border-radius: var(--space-4);
+    //   border: solid var(--space-2) var(--accent-500);
+    //   opacity: 0;
+    //   visibility: hidden;
+    //   pointer-events: none;
+    //   transition:
+    //     opacity var(--duration-default) var(--easing-default),
+    //     visibility 0ms linear var(--duration-default);
 
-      :host([mode='dark']) & {
-        border-color: var(--accent-600);
-      }
-    }
+    //   :host([mode='dark']) & {
+    //     border-color: var(--accent-600);
+    //   }
+    // }
 
     .single-select__input:focus-visible ~ & {
       &::after {
