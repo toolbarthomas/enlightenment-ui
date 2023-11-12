@@ -181,7 +181,6 @@ class EnlightenmentTextfield extends Enlightenment {
           value="${this.value}"
         />
         ${this.renderActions()}
-        <span class="textfield__focus-indicator"></span>
       </div>
     </div>`
   }
