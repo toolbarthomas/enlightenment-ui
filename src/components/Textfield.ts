@@ -81,6 +81,10 @@ class EnlightenmentTextfield extends Enlightenment {
   }
 
   handleClear(event: Event) {
+    if (this.disabled || this.preventEvent) {
+      return
+    }
+
     if (event && event.preventDefault) {
       event.preventDefault()
     }
@@ -98,6 +102,10 @@ class EnlightenmentTextfield extends Enlightenment {
   }
 
   handleCopy(event: Event) {
+    if (this.preventEvent) {
+      return
+    }
+
     this.handleAction(event)
 
     if (event && event.preventDefault) {
@@ -142,6 +150,10 @@ class EnlightenmentTextfield extends Enlightenment {
   }
 
   handleSearch(event: Event) {
+    if (this.disabled || this.preventEvent) {
+      return
+    }
+
     const form = this.findParentElement('form')
 
     if (!form) {
