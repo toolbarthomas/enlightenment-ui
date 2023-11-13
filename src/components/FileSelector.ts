@@ -139,8 +139,8 @@ class EnlightenmentFileSelector extends Enlightenment {
     const queue = leftover.splice(0, this.max || Enlightenment.MAX_THREADS)
 
     Promise.all(
-      Array.from(input.files)
-        .slice(0, this.max || EnlightenmentFileSelector.max)
+      Array.from(queue)
+        // .slice(0, this.max || EnlightenmentFileSelector.max)
         .map(
           (file) =>
             new Promise<File | null>((next) => {
@@ -182,17 +182,15 @@ class EnlightenmentFileSelector extends Enlightenment {
             })
         )
     ).then((list) => {
-      if (!Object.isFrozen(this.files)) {
-        Object.freeze(this.files)
-      }
-
       if (leftover.length) {
         this.throttle(this.handleChange, Enlightenment.FPS, {
           ...event,
           target: { ...event.target, files: leftover }
         } as Event)
       } else {
-        console.log('Done')
+        if (!Object.isFrozen(this.files)) {
+          Object.freeze(this.files)
+        }
       }
     })
   }
