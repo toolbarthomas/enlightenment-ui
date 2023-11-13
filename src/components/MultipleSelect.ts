@@ -76,28 +76,18 @@ class EnlightenmentSingleSelect extends Enlightenment {
         return
       }
 
-      let json: any
+      return Enlightenment.parseJSON(value, (suggestion) => {
+        const { checked, disabled, id, label, name, value } = suggestion || {}
 
-      try {
-        json = JSON.parse(value.replaceAll(`'`, `"`))
-
-        return json.map((suggestion) => {
-          const { checked, disabled, id, label, name, value } = suggestion || {}
-
-          return {
-            disabled,
-            checked,
-            id: id || Enlightenment.useElementID(),
-            label: label || value || name || suggestion,
-            name: name || value || suggestion,
-            value: name || value
-          }
-        })
-      } catch (error) {
-        if (error) {
-          return value.split(',').map((v) => ({ label: v, name: v, value: v }))
+        return {
+          disabled,
+          checked,
+          id: id || Enlightenment.useElementID(),
+          label: label || value || name || suggestion,
+          name: name || value || suggestion,
+          value: name || value
         }
-      }
+      })
     },
     type: Array
   })

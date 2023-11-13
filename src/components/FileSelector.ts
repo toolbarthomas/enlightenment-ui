@@ -22,6 +22,7 @@ class EnlightenmentFileSelector extends Enlightenment {
 
   static sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB']
   static unit = 1024
+  static max = 64
 
   @property({
     converter: Enlightenment.isBoolean,
@@ -47,6 +48,8 @@ class EnlightenmentFileSelector extends Enlightenment {
   @property({ type: Array })
   selected: HTMLInputElement[] = []
 
+  // Use a default maximum to prevent the Component from blocking the
+  // main thread.
   @property({ converter: Enlightenment.isInteger, type: Number })
   max?: number
 
@@ -127,53 +130,74 @@ class EnlightenmentFileSelector extends Enlightenment {
       return
     }
 
+    console.log('HandleCHANGE', input.files)
+
+    const leftover = Array.from(input.files)
+
+    // Invoke this handler again if the selected file amount exceeds maximum
+    // amount to parse.
+    const queue = leftover.splice(0, this.max || Enlightenment.MAX_THREADS)
+
     Promise.all(
-      Array.from(input.files).map(
-        (file) =>
-          new Promise<File | null>((next) => {
-            if (file instanceof File === false) {
-              return next(null)
-            }
+      Array.from(input.files)
+        .slice(0, this.max || EnlightenmentFileSelector.max)
+        .map(
+          (file) =>
+            new Promise<File | null>((next) => {
+              if (file instanceof File === false) {
+                return next(null)
+              }
 
-            if (file && !this.files.length) {
-              this.commit('files', [...this.files, file])
-              next(file)
-            } else if (file && !this.files.includes(file) && this.canInclude()) {
-              this.readFile(file).then((hash) => {
-                let included = false
+              if (file && !this.files.length) {
+                this.commit('files', [...this.files, file])
+                next(file)
+              } else if (file && !this.files.includes(file) && this.canInclude()) {
+                this.readFile(file).then((hash) => {
+                  let included = false
 
-                const duplicates = this.files.filter(
-                  (f) =>
-                    f.lastModified === file.lastModified &&
-                    f.name === file.name &&
-                    f.size === file.size
-                )
+                  const duplicates = this.files.filter(
+                    (f) =>
+                      f.lastModified === file.lastModified &&
+                      f.name === file.name &&
+                      f.size === file.size
+                  )
 
-                if (duplicates.length) {
-                  Promise.all(duplicates.map(this.readFile)).then((result) => {
-                    if (!result.includes(hash) && this.canInclude()) {
-                      this.commit('files', [...this.files, file])
-                    }
-                  })
-                  next(file)
-                } else if (this.canInclude()) {
-                  this.commit('files', [...this.files, file])
-                  next(file)
-                } else {
-                  next(null)
-                }
-              })
-            } else {
-              next(null)
-            }
-          })
-      )
+                  if (duplicates.length) {
+                    Promise.all(duplicates.map(this.readFile)).then((result) => {
+                      if (!result.includes(hash) && this.canInclude()) {
+                        this.commit('files', [...this.files, file])
+                      }
+                    })
+                    next(file)
+                  } else if (this.canInclude()) {
+                    this.commit('files', [...this.files, file])
+                    next(file)
+                  } else {
+                    next(null)
+                  }
+                })
+              } else {
+                next(null)
+              }
+            })
+        )
     ).then((list) => {
       if (!Object.isFrozen(this.files)) {
         Object.freeze(this.files)
       }
+
+      if (leftover.length) {
+        this.throttle(this.handleChange, Enlightenment.FPS, {
+          ...event,
+          target: { ...event.target, files: leftover }
+        } as Event)
+      } else {
+        console.log('Done')
+      }
     })
   }
+
+  //10.258 512
 
   handleDragEnter(event: DragEvent) {
     this.handleDragOver(event)
@@ -204,8 +228,6 @@ class EnlightenmentFileSelector extends Enlightenment {
     const files = []
 
     Promise.all(queue.map((entry) => this.traverseEntry(entry, files))).then((r) => {
-      console.log(files.length)
-
       this.handleDragReset()
       this.handleChange({ ...event, target: { ...event.target, files } } as Event)
     })
@@ -232,7 +254,6 @@ class EnlightenmentFileSelector extends Enlightenment {
           if (!event || !event.target || !event.target.result) {
             return resolve(null)
           }
-          console.log('FILE', event.target)
 
           try {
             const header = new TextDecoder().decode(event.target.result.slice(0, size || 1024))
@@ -378,7 +399,9 @@ class EnlightenmentFileSelector extends Enlightenment {
     }
 
     return path.length
-      ? html`<span class="file-selector__selected-item-path">${path}</span>`
+      ? html`<span class="file-selector__selected-item-path"
+          >${path.split('/').slice(0, -1).join('/')}</span
+        >`
       : nothing
   }
 
@@ -459,7 +482,7 @@ class EnlightenmentFileSelector extends Enlightenment {
 
           return e.file((file) => {
             if (e.fullPath) {
-              this.paths[btoa(e.fullPath.replace(file.name, ''))] = file
+              this.paths[btoa(e.fullPath)] = file
             }
 
             q.push(file)
