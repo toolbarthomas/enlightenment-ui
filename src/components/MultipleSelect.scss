@@ -51,6 +51,11 @@
     width: 100%;
     padding: var(--space-12) var(--space-16);
 
+    &::selection {
+      background-color: var(--accent-600);
+      color: var(--accent-100);
+    }
+
     :host([mode='dark']) & {
       color: var(--grey-300);
     }
@@ -264,7 +269,9 @@
     @include responsive-font-size('base');
 
     :host([mode='dark']) & {
-      background-color: var(--grey-600);
+      background-color: var(--grey-700);
+      color: var(--grey-300);
+      border: none;
     }
 
     &:not(span) {
@@ -292,6 +299,7 @@
       :host([mode='dark']) & {
         background-color: var(--accent-600);
         border-color: var(--accent-700);
+        color: var(--accent-300);
       }
 
       &::before,

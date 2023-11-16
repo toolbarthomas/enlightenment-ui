@@ -9,19 +9,7 @@ import {
 } from '@toolbarthomas/enlightenment'
 
 import styles from './MultipleSelect.scss'
-
-/**
- * Expected Object interface for additional Selection Options that are defined
- * from the suggestions property.
- */
-export type MultipleSelectSuggestion = {
-  checked?: boolean
-  disabled?: boolean
-  id?: string
-  label?: string
-  name: string
-  value: string
-}
+import { EnlightenmentDataEntry } from '@toolbarthomas/enlightenment/src/_types/main'
 
 @customElement('ui-multiple-select')
 class EnlightenmentSingleSelect extends Enlightenment {
@@ -72,15 +60,15 @@ class EnlightenmentSingleSelect extends Enlightenment {
         return
       }
 
-      return Enlightenment.parseJSON(value, (suggestion: MultipleSelectSuggestion) => {
+      return Enlightenment.parseJSON(value, (suggestion: EnlightenmentDataEntry) => {
         const { checked, disabled, id, label, name, value } = suggestion || {}
 
         return {
           disabled,
           checked,
           id: id || Enlightenment.useElementID(),
-          label: label || value || name || suggestion,
-          name: name || value || suggestion,
+          label: label || value || name || (suggestion as string),
+          name: name || value || (suggestion as string),
           value: name || value
         }
       })
@@ -90,12 +78,12 @@ class EnlightenmentSingleSelect extends Enlightenment {
 
   // Implements the usage of additional Selection Options within the rendered
   // Dropdown element. This enables the usage of Input suggestions that are
-  // fetched from an external Request. See the MultipleSelectSuggestion typing
+  // fetched from an external Request. See the EnlightenmentDataEntry typing
   // for the actual Object interface.
   // You should merge previous defined suggestions with any new suggestions to
   // prevent the issue where previously checked suggestions are lost within the
   // final component value.
-  suggestions?: MultipleSelectSuggestion[] = []
+  suggestions?: EnlightenmentDataEntry[] = []
 
   // Use the currentElement state to expand or collapse the dropdown.
   enableDocumentEvents = true
@@ -103,7 +91,7 @@ class EnlightenmentSingleSelect extends Enlightenment {
   /**
    * Merge the previously defined suggestions that are checked. This enables
    * the usage of autosuggest since the suggestions can be updated while the
-   * component is running. See the MultipleSelectSuggestion Typing for
+   * component is running. See the EnlightenmentDataEntry Typing for
    * expected Object structure. Keep in mind that unchecked options are removed
    * after the suggestions attribute has been updated.
    *
@@ -160,7 +148,9 @@ class EnlightenmentSingleSelect extends Enlightenment {
               // within the updated suggestions.
               const match = this.suggestions.filter(
                 (suggestion) =>
-                  suggestion.name === selected.name && suggestion.value === selected.value
+                  suggestion instanceof Object &&
+                  suggestion.name === selected.name &&
+                  suggestion.value === selected.value
               )
 
               if (match.length) {
@@ -385,6 +375,10 @@ class EnlightenmentSingleSelect extends Enlightenment {
     //@todo include more options
     if (this.suggestions && this.suggestions.length) {
       this.suggestions.forEach((suggestion) => {
+        if (!suggestion || typeof suggestion === 'string') {
+          return
+        }
+
         const option = document.createElement('option')
         option.name = suggestion.name
         option.value = suggestion.value

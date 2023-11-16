@@ -19,7 +19,14 @@
 
   &__body {
     min-width: var(--space-288);
+    flex-grow: 1;
+    max-width: var(--space-480);
     position: relative;
+
+    .textfield--has-size & {
+      flex-grow: 0;
+      min-width: 0;
+    }
 
     &::before {
       position: absolute;
@@ -36,9 +43,14 @@
       border: solid var(--space-1) var(--grey-600);
       border-bottom: 0;
 
-      .textfield:focus-within & {
+      .textfield--has-suggestions:focus-within & {
         display: block;
         z-index: var(--depth-foreground);
+      }
+
+      :host([mode='dark']) & {
+        background-color: var(--grey-800);
+        border: none;
       }
     }
   }
@@ -85,6 +97,15 @@
     background: transparent;
     padding: var(--space-12) var(--space-16);
     flex-grow: 1;
+
+    &[size] {
+      width: auto;
+    }
+
+    &::selection {
+      background-color: var(--accent-600);
+      color: var(--accent-100);
+    }
 
     &,
     &::placeholder {
@@ -318,6 +339,15 @@
     padding: 0;
     border: solid var(--space-1) var(--grey-600);
     border-top: 0;
+    overflow: auto;
+    max-height: var(--space-320);
+
+    :host([mode='dark']) & {
+      border: 0;
+      box-shadow: 0 var(--space-1) var(--space-2) var(--dusk-900-a80);
+      // box-shadow: 0;
+      background-color: var(--grey-800);
+    }
   }
 
   &__suggestions-item {
@@ -325,6 +355,11 @@
     margin: 0;
     padding: 0;
     border-top: solid var(--space-1) var(--grey-400);
+
+    :host([mode='dark']) & {
+      border-color: var(--grey-700);
+      color: var(--grey-600);
+    }
 
     &:first-child {
       border-top: 0;
@@ -336,6 +371,7 @@
     appearance: none;
     font-weight: inherit;
     font-family: inherit;
+    color: currentColor;
     font-size: inherit;
     display: block;
     background: transparent;
@@ -343,12 +379,21 @@
     outline: 0;
     width: 100%;
     text-align: left;
+    cursor: pointer;
 
     &:focus-visible,
     &:hover {
       background-color: var(--accent-100);
+
+      :host([mode='dark']) & {
+        background-color: var(--accent-800);
+        color: var(--accent-300);
+      }
+    }
+
+    &:focus-visible {
       outline: solid var(--space-2) var(--accent-600);
-      cursor: pointer;
+      outline-offset: calc(var(--space-0) - var(--space-2));
     }
   }
 

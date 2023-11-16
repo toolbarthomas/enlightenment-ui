@@ -31,6 +31,11 @@ class EnlightenmentTextfield extends Enlightenment {
   label?: string
 
   @property({
+    type: String
+  })
+  size?: String
+
+  @property({
     type: String,
     converter: (value) => Enlightenment.filterProperty(value, ['text', 'password'])
   })
@@ -200,6 +205,10 @@ class EnlightenmentTextfield extends Enlightenment {
     }
 
     context.value = target.textContent.trim()
+
+    this.hook('change', { context })
+
+    context.focus()
   }
 
   render() {
@@ -209,8 +218,12 @@ class EnlightenmentTextfield extends Enlightenment {
       classes.push('textfield--has-value')
     }
 
-    if (this.suggestions.length) {
+    if (this.suggestions.length && this.type !== 'password') {
       classes.push('textfield--has-suggestions')
+    }
+
+    if (this.size) {
+      classes.push('textfield--has-size')
     }
 
     return html`<div class="${classes.join(' ')}">
@@ -227,6 +240,7 @@ class EnlightenmentTextfield extends Enlightenment {
             name=${this.name}
             placeholder=${this.placeholder}
             ref="{${ref(this.context)}}"
+            size="${this.size}"
             type="${this.type}"
             value="${this.value}"
           />
@@ -296,19 +310,23 @@ class EnlightenmentTextfield extends Enlightenment {
   }
 
   renderSuggestions() {
-    if (!this.suggestions.length) {
-      return
+    if (!this.suggestions.length || this.type === 'password') {
+      return nothing
     }
 
+    const context = this.useContext() as HTMLInputElement
+
     const suggestions = this.suggestions.map((suggestion) => {
+      if (context && suggestion === context.value) {
+        return nothing
+      }
+
       return html`<li class="textfield__suggestions-item">
         <button @click="${this.handleSuggestion}" class="textfield__suggestions-item-button">
           ${suggestion}
         </button>
       </li>`
     })
-
-    const hidden = this.currentElement
 
     return html`<div class="textfield__suggestions">
       <ul class="textfield__suggestions-items">
