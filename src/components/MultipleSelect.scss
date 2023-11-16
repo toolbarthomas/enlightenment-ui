@@ -176,6 +176,7 @@
     width: 100%;
     max-height: 40vh;
     overflow: auto;
+    z-index: var(--depth-foreground);
     -webkit-overflow-scrolling: touch;
     transition:
       opacity var(--duration-default) var(--easing-default),

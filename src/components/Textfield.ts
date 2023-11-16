@@ -9,6 +9,7 @@ import {
 } from '@toolbarthomas/enlightenment'
 
 import styles from './Textfield.scss'
+import { EnlightenmentDataEntry } from '@toolbarthomas/enlightenment/src/_types/main'
 
 @customElement('ui-textfield')
 class EnlightenmentTextfield extends Enlightenment {
@@ -43,6 +44,19 @@ class EnlightenmentTextfield extends Enlightenment {
 
   @property({ type: String })
   placeholder?: string
+
+  @property({
+    converter: (value) =>
+      Enlightenment.parseJSON(value, (suggestion: EnlightenmentDataEntry) => {
+        if (typeof suggestion === 'string') {
+          return suggestion
+        }
+
+        return suggestion.title
+      }),
+    type: Array
+  })
+  suggestions: EnlightenmentDataEntry[] = []
 
   handleAction(event: Event) {
     if (!event) {
@@ -165,8 +179,27 @@ class EnlightenmentTextfield extends Enlightenment {
     this.handleAction(event)
 
     this.hook('submit', { context: form })
+  }
 
-    console.log('Should submit', form)
+  handleSuggestion(event: Event) {
+    if (!event) {
+      return
+    }
+
+    event.preventDefault()
+
+    const context = this.useContext() as HTMLInputElement
+    if (!context) {
+      return
+    }
+
+    const target = event.target as Element
+
+    if (!target || !target.textContent || !target.textContent.trim()) {
+      return
+    }
+
+    context.value = target.textContent.trim()
   }
 
   render() {
@@ -176,23 +209,30 @@ class EnlightenmentTextfield extends Enlightenment {
       classes.push('textfield--has-value')
     }
 
+    if (this.suggestions.length) {
+      classes.push('textfield--has-suggestions')
+    }
+
     return html`<div class="${classes.join(' ')}">
       <div class="textfield__label-wrapper">${this.renderLabel()}</div>
-      <div class="textfield__input-wrapper">
-        <input
-          ?disabled=${this.disabled}
-          ?value=${this.value}
-          @change=${this.handleChange}
-          @keydown=${this.handleKeydown}
-          class="textfield__input"
-          id=${this.id}
-          name=${this.name}
-          placeholder=${this.placeholder}
-          ref="{${ref(this.context)}}"
-          type="${this.type}"
-          value="${this.value}"
-        />
-        ${this.renderActions()}
+      <div class="textfield__body">
+        <div class="textfield__input-wrapper">
+          <input
+            ?disabled=${this.disabled}
+            ?value=${this.value}
+            @change=${this.handleChange}
+            @keydown=${this.handleKeydown}
+            class="textfield__input"
+            id=${this.id}
+            name=${this.name}
+            placeholder=${this.placeholder}
+            ref="{${ref(this.context)}}"
+            type="${this.type}"
+            value="${this.value}"
+          />
+          ${this.renderActions()}
+        </div>
+        ${this.renderSuggestions()}
       </div>
     </div>`
   }
@@ -253,6 +293,28 @@ class EnlightenmentTextfield extends Enlightenment {
       <span class="textfield__action-label">${EnlightenmentTextfield.a11y.search}</span>
       <span class="textfield__search-icon" aria-focusable="false" aria-hidden="true"></span>
     </button>`
+  }
+
+  renderSuggestions() {
+    if (!this.suggestions.length) {
+      return
+    }
+
+    const suggestions = this.suggestions.map((suggestion) => {
+      return html`<li class="textfield__suggestions-item">
+        <button @click="${this.handleSuggestion}" class="textfield__suggestions-item-button">
+          ${suggestion}
+        </button>
+      </li>`
+    })
+
+    const hidden = this.currentElement
+
+    return html`<div class="textfield__suggestions">
+      <ul class="textfield__suggestions-items">
+        ${suggestions}
+      </ul>
+    </div>`
   }
 
   renderLabel() {

@@ -66,17 +66,13 @@ class EnlightenmentSingleSelect extends Enlightenment {
   // Reference to the rendered selected options container.
   selectedContext = createRef()
 
-  // Will update during a input suggestion change. The suggested entries should
-  // be included for the actual component value.
-  suggested: MultipleSelectSuggestion[] = []
-
   @property({
     converter: (value) => {
       if (!value) {
         return
       }
 
-      return Enlightenment.parseJSON(value, (suggestion) => {
+      return Enlightenment.parseJSON(value, (suggestion: MultipleSelectSuggestion) => {
         const { checked, disabled, id, label, name, value } = suggestion || {}
 
         return {
@@ -579,7 +575,7 @@ class EnlightenmentSingleSelect extends Enlightenment {
         context && input !== context && input.checked ? input : !context ? input : null
       )
       .filter((v) => v)
-    // console.log('TEST suggested', this.suggested)
+
     const values = selected.map((input) => {
       if (input.checked) {
         const { name, label, value } = this.getOptionAttributes(input)
