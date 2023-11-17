@@ -21,6 +21,9 @@ class EnlightenmentCheckbox extends Enlightenment {
   label?: string = ''
 
   @property({ type: String })
+  id? = Enlightenment.useElementID()
+
+  @property({ type: String })
   name?: string
 
   @property({ type: String })

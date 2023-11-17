@@ -30,6 +30,9 @@ class EnlightenmentTextfield extends Enlightenment {
   @property({ type: String })
   label?: string
 
+  @property({ type: String })
+  id?: string = Enlightenment.useElementID()
+
   @property({
     type: String
   })

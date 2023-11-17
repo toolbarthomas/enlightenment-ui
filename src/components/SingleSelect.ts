@@ -27,7 +27,7 @@ class EnlightenmentSingleSelect extends Enlightenment {
   name?: string
 
   @property({ type: String })
-  id? = Enlightenment.useElementID()
+  id?: string = Enlightenment.useElementID()
 
   @property({ type: String })
   value?: string
