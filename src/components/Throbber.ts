@@ -14,8 +14,14 @@ import styles from './Throbber.scss'
 class EnlightenmentThrobber extends Enlightenment {
   static styles = [styles]
 
+  @property({ type: String })
+  color?: string
+
   @property({ converter: Enlightenment.isBoolean, type: Boolean })
   hidden?: boolean = false
+
+  @property({ type: String })
+  label?: string
 
   updated() {
     super.updated()
@@ -23,9 +29,28 @@ class EnlightenmentThrobber extends Enlightenment {
     if (this.hidden !== this.getAttribute('aria-hidden')) {
       this.setAttribute('aria-hidden', String(this.hidden))
     }
+
+    const context = this.useContext() as HTMLElement
+
+    if (context && this.color) {
+      context.style.color = `var(${this.color}, ${this.mode === 'dark' ? 'black' : 'white'})`
+    }
   }
 
   render() {
-    return html`<span class="throbber"></div>`
+    return html`
+      <div class="throbber" ref="${ref(this.context)}">
+        <span class="throbber__icon"></span>
+        ${this.renderLabel()}
+      </div>
+    `
+  }
+
+  renderLabel() {
+    if (!this.label) {
+      return nothing
+    }
+
+    return html`<span class="throbber__label">${this.label}</span>`
   }
 }

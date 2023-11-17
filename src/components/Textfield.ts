@@ -234,7 +234,7 @@ class EnlightenmentTextfield extends Enlightenment {
       <div class="textfield__body">
         <div class="textfield__input-wrapper">
           <input
-            ?disabled=${this.disabled || this.busy}
+            ?disabled=${this.disabled || this.pending}
             ?value=${this.value}
             @change=${this.handleChange}
             @keydown=${this.handleKeydown}
@@ -297,7 +297,10 @@ class EnlightenmentTextfield extends Enlightenment {
 
   renderIndicator() {
     return html`<div class="textfield__indicator-wrapper">
-      <ui-throbber ?hidden=${!this.busy}></ui-throbber>
+      <ui-throbber
+        ?hidden=${!this.pending}
+        color="${this.mode === 'dark' ? '--grey-800' : '--grey-100'}"
+      ></ui-throbber>
     </div>`
   }
 

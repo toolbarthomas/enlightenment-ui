@@ -199,10 +199,6 @@ class EnlightenmentSingleSelect extends Enlightenment {
   renderIcon() {
     const slot = this.useSlot('icon')
 
-    if (this.pending) {
-      return html`<span class="single-select__status-indicator"></span>`
-    }
-
     if (!slot) {
       return html`<span class="single-select__default-icon"></span
         ><span class="single-select__default-icon"></span>`

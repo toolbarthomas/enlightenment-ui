@@ -62,7 +62,7 @@ class EnlightenmenForm extends Enlightenment {
   }
 
   protected handleKeydown(event: KeyboardEvent) {
-    const { keyCode } = event
+    const { keyCode, target } = event
 
     if (!keyCode) {
       return
@@ -101,6 +101,12 @@ class EnlightenmenForm extends Enlightenment {
   }
 
   protected handleSubmit(event: Event) {
+    const target = event.target as HTMLInputElement
+
+    if (target.tagName === 'TEXTAREA') {
+      return
+    }
+
     event.preventDefault()
 
     const input = event.target as HTMLInputElement

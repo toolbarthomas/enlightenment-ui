@@ -1,38 +1,56 @@
-.throbber {
-  display: block;
-  position: relative;
-  width: var(--space-24);
-  height: var(--space-24);
-  color: var(--grey-100);
-  background: conic-gradient(currentColor 0%, var(--accent-400) 30%, var(--accent-700));
-  border-radius: 50%;
-  animation: rotateAnimation var(--duration-slowest) linear infinite;
+@import '../styles/mixins/visually-hidden';
 
+.throbber {
+  display: flex;
+  position: relative;
+  color: var(--grey-100);
   transition:
     opacity var(--duration-default) var(--easing-default),
     visibility 0ms linear 0ms;
 
-  &::before {
-    position: absolute;
-    top: var(--space-4);
-    right: var(--space-4);
-    bottom: var(--space-4);
-    left: var(--space-4);
-    border-radius: inherit;
-    background-color: currentColor;
+  &__icon {
+    animation: rotateAnimation var(--duration-slowest) linear infinite;
+    border: solid var(--space-4) transparent;
     display: block;
-    content: ' ';
+    height: var(--space-24);
+    width: var(--space-24);
+    color: currentColor;
+
+    // box-sizing: content-box;
+    background:
+      conic-gradient(currentColor, currentColor) padding-box,
+      conic-gradient(currentColor 0%, var(--accent-400) 40%, var(--accent-700)) border-box;
+    border-radius: 50%;
+
+    :host([aria-hidden='true']) & {
+      animation: none;
+    }
   }
+
+  &__label {
+    @include visuallyHidden;
+  }
+
+  // &::before {
+  //   position: absolute;
+  //   top: var(--space-4);
+  //   right: var(--space-4);
+  //   bottom: var(--space-4);
+  //   left: var(--space-4);
+  //   border-radius: inherit;
+  //   background-color: currentColor;
+  //   display: block;
+  //   content: ' ';
+  // }
 
   :host([mode='dark']) & {
     color: var(--grey-900);
-    background: conic-gradient(currentColor 0%, var(--accent-600) 30%, var(--accent-100));
+    // background: conic-gradient(currentColor 0%, var(--accent-600) 30%, var(--accent-100));
   }
 
   :host([aria-hidden='true']) & {
     opacity: 0;
     visibility: hidden;
-    animation: none;
     transition:
       opacity var(--duration-default) var(--easing-default),
       visibility 0ms linear var(--duration-default);
