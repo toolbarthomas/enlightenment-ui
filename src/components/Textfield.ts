@@ -234,7 +234,7 @@ class EnlightenmentTextfield extends Enlightenment {
       <div class="textfield__body">
         <div class="textfield__input-wrapper">
           <input
-            ?disabled=${this.disabled}
+            ?disabled=${this.disabled || this.busy}
             ?value=${this.value}
             @change=${this.handleChange}
             @keydown=${this.handleKeydown}
@@ -247,7 +247,7 @@ class EnlightenmentTextfield extends Enlightenment {
             type="${this.type}"
             value="${this.value}"
           />
-          ${this.renderActions()}
+          ${this.renderActions()} ${this.renderIndicator()}
         </div>
         ${this.renderSuggestions()}
       </div>
@@ -293,6 +293,10 @@ class EnlightenmentTextfield extends Enlightenment {
       <span class="textfield__action-label">${EnlightenmentTextfield.a11y.copy}</span>
       <span class="textfield__copy-icon" aria-focusable="false" aria-hidden="true"></span>
     </button>`
+  }
+
+  renderIndicator() {
+    return html`<span class="textfield__indicator"></span>`
   }
 
   renderSearch() {
