@@ -412,78 +412,17 @@
     }
   }
 
-  &__indicator {
-    display: block;
+  &__indicator-wrapper {
     position: absolute;
     top: 50%;
-    margin-top: calc(var(--space-0) - var(--space-24) / 2);
     right: var(--space-12);
-    width: var(--space-24);
-    height: var(--space-24);
-    color: var(--grey-100);
-    background: conic-gradient(currentColor 0%, var(--accent-400) 30%, var(--accent-700));
-
-    border-radius: 50%;
-    opacity: 0;
-    visibility: hidden;
-    transition:
-      opacity var(--duration-default) var(--easing-default),
-      visibility 0ms linear var(--duration-default);
-
-    &::before {
-      position: absolute;
-      top: var(--space-4);
-      right: var(--space-4);
-      bottom: var(--space-4);
-      left: var(--space-4);
-      border-radius: inherit;
-      background-color: currentColor;
-      display: block;
-      content: ' ';
-    }
-
-    :host([mode='dark']) & {
-      color: var(--grey-800);
-      background: conic-gradient(currentColor 0%, var(--accent-600) 30%, var(--accent-100));
-    }
-
-    :host([aria-busy='true']) & {
-      opacity: 1;
-      visibility: visible;
-      animation: rotateAnimation var(--duration-slowest) linear infinite;
-      transition:
-        opacity var(--duration-default) var(--easing-default),
-        visibility 0ms linear 0ms;
-    }
+    transform: translateY(-50%);
   }
-
-  // &__focus-indicator {
-  //   display: block;
-  //   position: absolute;
-  //   top: calc(var(--space-0) - var(--space-2));
-  //   left: calc(var(--space-0) - var(--space-2));
-  //   bottom: calc(var(--space-0) - var(--space-2));
-  //   right: calc(var(--space-0) - var(--space-2));
-  //   border-radius: var(--space-4);
-  //   border: solid var(--space-2) var(--accent-600);
-  //   opacity: 0;
-  //   visibility: hidden;
-  //   pointer-events: none;
-  //   transition:
-  //     opacity var(--duration-default) var(--easing-default),
-  //     visibility 0ms linear var(--duration-default);
-  // }
 }
 
 @keyframes rippleAnimation {
   to {
     transform: scale(1.6);
     opacity: 0;
-  }
-}
-
-@keyframes rotateAnimation {
-  to {
-    transform: rotate(1turn);
   }
 }

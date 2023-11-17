@@ -296,7 +296,9 @@ class EnlightenmentTextfield extends Enlightenment {
   }
 
   renderIndicator() {
-    return html`<span class="textfield__indicator"></span>`
+    return html`<div class="textfield__indicator-wrapper">
+      <ui-throbber ?hidden=${!this.busy}></ui-throbber>
+    </div>`
   }
 
   renderSearch() {
