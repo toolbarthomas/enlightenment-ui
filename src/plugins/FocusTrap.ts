@@ -124,10 +124,7 @@ class EnlightenmentFocusTrap extends Enlightenment {
         allowOutsideClick: false,
         initialFocus: false,
         tabbableOptions: {
-          getShadowRoot: this.minimalShadowRoot
-            ? true
-            : (node: HTMLElement | SVGElement) =>
-                this.isComponentContext(node) ? node.shadowRoot || undefined : false
+          getShadowRoot: this.useShadowRoot()
         }
       })
 
