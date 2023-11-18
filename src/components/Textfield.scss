@@ -197,7 +197,7 @@
 
     &--is-selected {
       &::after {
-        animation: rippleAnimation var(--duration-slow) 1;
+        animation: rippleAnimationSmall var(--duration-slow) 1;
       }
     }
 
@@ -417,12 +417,5 @@
     top: 50%;
     right: var(--space-12);
     transform: translateY(-50%);
-  }
-}
-
-@keyframes rippleAnimation {
-  to {
-    transform: scale(1.6);
-    opacity: 0;
   }
 }

@@ -387,7 +387,7 @@ button {
 
 .button {
   &__ripple {
-    animation: rippleAnimation var(--duration-slow) 1;
+    animation: rippleMedium var(--duration-slow) 1;
     animation-fill-mode: forwards;
     background-color: var(--white);
     border-radius: 50%;
@@ -518,20 +518,7 @@ button {
       border: inherit;
       border-color: transparent;
       border-top-color: currentColor;
-      animation: rotateAnimation var(--duration-slowest) linear infinite;
+      animation: rotateFromCenter var(--duration-slowest) linear infinite;
     }
-  }
-}
-
-@keyframes rippleAnimation {
-  to {
-    transform: scale(4);
-    opacity: 0;
-  }
-}
-
-@keyframes rotateAnimation {
-  to {
-    transform: translate(-50%, -50%) rotate(1turn);
   }
 }

@@ -9,7 +9,7 @@
     visibility 0ms linear 0ms;
 
   &__icon {
-    animation: rotateAnimation var(--duration-slowest) linear infinite;
+    animation: rotate var(--duration-slowest) linear infinite;
     border: solid var(--space-4) transparent;
     display: block;
     height: var(--space-24);
@@ -54,11 +54,5 @@
     transition:
       opacity var(--duration-default) var(--easing-default),
       visibility 0ms linear var(--duration-default);
-  }
-}
-
-@keyframes rotateAnimation {
-  to {
-    transform: rotate(1turn);
   }
 }
