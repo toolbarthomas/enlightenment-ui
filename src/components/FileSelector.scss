@@ -10,16 +10,52 @@
     @include visuallyHidden();
   }
 
+  &__input-label {
+    position: relative;
+  }
+
   &__label {
     display: block;
     margin-bottom: var(--space-12);
   }
 
   &__legend {
-    display: block;
+    display: flex;
+    gap: var(--space-12);
     text-align: center;
     margin-top: var(--space-12);
     order: 1;
+    appearance: none;
+    border: none;
+    text-align: center;
+    font-size: inherit;
+    font-family: inherit;
+    text-align: center;
+    align-items: center;
+    font-weight: inherit;
+    width: 100%;
+    justify-content: center;
+
+    &--toggle {
+      cursor: pointer;
+
+      &::before {
+        width: var(--space-8);
+        height: var(--space-8);
+        border-top: solid var(--space-2);
+        border-left: solid var(--space-2);
+        border-color: currentColor;
+        display: block;
+        content: ' ';
+        flex-shrink: 0;
+        transform: rotate(45deg);
+        transition: transform var(--duration-default) var(--easing-default);
+
+        :host([aria-expanded='true']) & {
+          transform: rotate(225deg);
+        }
+      }
+    }
   }
 
   &__selected {
@@ -39,7 +75,6 @@
 
   &__selected-item {
     align-items: center;
-    animation: var(--duration-default) var(--easing-default) 1 none spawn;
     background-color: var(--dawn-100);
     border-radius: var(--space-4);
     border: solid var(--space-1) var(--white);
@@ -51,8 +86,20 @@
     transition: transform var(--duration-default) var(--easing-default);
     display: flex;
 
+    &:nth-child(-n + 64) {
+      animation: var(--duration-default) var(--easing-default) 1 none fadeInFromTop;
+    }
+
     &:focus-visible {
       transform: scale(1.0625);
+    }
+
+    &--can-hide {
+      display: none;
+
+      :host([aria-expanded='true']) & {
+        display: flex;
+      }
     }
   }
 
@@ -213,6 +260,10 @@
       }
     }
 
+    :host([aria-busy='true']) & {
+      opacity: 0;
+    }
+
     &::before,
     &::after {
       display: block;
@@ -278,6 +329,20 @@
 
     :host([mode='dark']) & {
       color: var(--grey-700);
+    }
+  }
+
+  &__indicator-wrapper {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--duration-default) var(--easing-default);
+
+    :host([aria-busy='true']) & {
+      opacity: 1;
     }
   }
 }

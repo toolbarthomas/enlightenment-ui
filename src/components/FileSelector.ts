@@ -40,7 +40,10 @@ class EnlightenmentFileSelector extends Enlightenment {
   id?: string = Enlightenment.useElementID()
 
   @property({ type: String })
-  placeholder?: string = 'Select drop files'
+  loadingLabel?: string = 'Loading...'
+
+  @property({ type: String })
+  placeholder?: string = 'Select or drop files'
 
   @property({ type: String })
   clearFileLabel?: label = 'Clear file'
@@ -54,6 +57,8 @@ class EnlightenmentFileSelector extends Enlightenment {
   max?: number
 
   isDropzone?: boolean
+
+  isExpanded?: boolean
 
   body: any
 
@@ -130,13 +135,15 @@ class EnlightenmentFileSelector extends Enlightenment {
       return
     }
 
-    console.log('HandleCHANGE', input.files)
-
     const leftover = Array.from(input.files)
 
     // Invoke this handler again if the selected file amount exceeds maximum
     // amount to parse.
     const queue = leftover.splice(0, this.max || Enlightenment.MAX_THREADS)
+
+    const commit: File[] = []
+
+    this.commit('pending', true)
 
     Promise.all(
       Array.from(queue)
@@ -149,7 +156,7 @@ class EnlightenmentFileSelector extends Enlightenment {
               }
 
               if (file && !this.files.length) {
-                this.commit('files', [...this.files, file])
+                commit.push(file)
                 next(file)
               } else if (file && !this.files.includes(file) && this.canInclude()) {
                 this.readFile(file).then((hash) => {
@@ -165,12 +172,12 @@ class EnlightenmentFileSelector extends Enlightenment {
                   if (duplicates.length) {
                     Promise.all(duplicates.map(this.readFile)).then((result) => {
                       if (!result.includes(hash) && this.canInclude()) {
-                        this.commit('files', [...this.files, file])
+                        commit.push(file)
                       }
                     })
                     next(file)
                   } else if (this.canInclude()) {
-                    this.commit('files', [...this.files, file])
+                    commit.push(file)
                     next(file)
                   } else {
                     next(null)
@@ -187,10 +194,17 @@ class EnlightenmentFileSelector extends Enlightenment {
           ...event,
           target: { ...event.target, files: leftover }
         } as Event)
+
+        this.files = [...this.files, ...commit]
       } else {
-        if (!Object.isFrozen(this.files)) {
-          Object.freeze(this.files)
-        }
+        this.commit('files', () => {
+          this.files = [...this.files, ...commit]
+          this.pending = false
+
+          if (!Object.isFrozen(this.files)) {
+            Object.freeze(this.files)
+          }
+        })
       }
     })
   }
@@ -201,6 +215,14 @@ class EnlightenmentFileSelector extends Enlightenment {
     this.handleDragOver(event)
 
     this.throttle(this.commit, Enlightenment.FPS, 'isDropzone', true)
+  }
+
+  handleExpanded(event: Event) {
+    if (event) {
+      event.preventDefault()
+    }
+
+    this.commit('isExpanded', !this.isExpanded)
   }
 
   handleDragOver(event: DragEvent) {
@@ -283,6 +305,12 @@ class EnlightenmentFileSelector extends Enlightenment {
     </div>`
   }
 
+  renderIndicator() {
+    return html` <div class="file-selector__indicator-wrapper">
+      <ui-throbber ?hidden="${!this.pending}"></ui-throbber>
+    </div>`
+  }
+
   /**
    * Renders the functional File input Element that is used to selected actual
    * sources from the client's FileSystem.
@@ -313,7 +341,7 @@ class EnlightenmentFileSelector extends Enlightenment {
             ref="${ref(this.context)}"
             type="file"
           />
-          ${this.renderSlot()}
+          ${this.renderSlot()} ${this.renderIndicator()}
         </label>
       </div>
     `
@@ -332,12 +360,25 @@ class EnlightenmentFileSelector extends Enlightenment {
       return nothing
     }
 
-    let label = `${this.files.length}`
+    const label: string[] = []
+
+    label.push(`${this.files.length}`)
     if (this.max) {
-      label += `/ ${this.max}`
+      label.push(`/ ${this.max}`)
     }
 
-    return html`<span class="file-selector__legend">${label} files</span>`
+    label.push(this.files.length === 1 ? 'file' : 'files')
+
+    if (this.files.length > Enlightenment.MAX_THREADS) {
+      return html`<button
+        class="file-selector__legend file-selector__legend--toggle"
+        @click="${this.handleExpanded}"
+      >
+        ${label.join(' ')}
+      </button>`
+    }
+
+    return html`<span class="file-selector__legend">${label.join(' ')}</span>`
   }
 
   /**
@@ -349,10 +390,15 @@ class EnlightenmentFileSelector extends Enlightenment {
       return nothing
     }
 
-    const body = this.files.map((file) => {
+    const body = this.files.map((file, index) => {
       const [size, unit] = this.useFileSize(file.size)
+      const classes = ['file-selector__selected-item']
 
-      return html`<li class="file-selector__selected-item">
+      if (index > Enlightenment.MAX_THREADS) {
+        classes.push('file-selector__selected-item--can-hide')
+      }
+
+      return html`<li class="${classes.join(' ')}">
         <header class="file-selector__selected-item-header">
           <div class="file-selector__selected-item-header-body">
             <span class="file-selector__selected-item-name">${file.name}</span>
@@ -414,8 +460,10 @@ class EnlightenmentFileSelector extends Enlightenment {
     // assigned.
     const slot = this.useSlot(Enlightenment.defaults.slot, true)
 
+    console.log('render')
+
     return html`
-      <slot @click="${() => slot && context && context.click()}">
+      <slot @click="${() => (slot && context ? context.click() : nothing)}">
         <div class="file-selector__placeholder">
           <div class="file-selector__placeholder-icon-group">
             ${new Array(2).fill().map(
@@ -425,7 +473,7 @@ class EnlightenmentFileSelector extends Enlightenment {
                 </span>`
             )}
           </div>
-          ${this.placeholder}
+          ${!this.pending ? this.placeholder : this.loadingLabel}
           ${this.max
             ? html`<span class="file-selector__placeholder-info"
                 >(Maximum files: ${this.max})</span
@@ -463,6 +511,12 @@ class EnlightenmentFileSelector extends Enlightenment {
         }
       }
     })
+  }
+
+  updated() {
+    super.updated()
+
+    this.setAttribute('aria-expanded', String(this.isExpanded))
   }
 
   traverseEntry(entry: DataTransferItem, queue?: FileSystemEntry[]) {

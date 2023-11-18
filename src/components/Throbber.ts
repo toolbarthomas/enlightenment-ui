@@ -17,7 +17,7 @@ class EnlightenmentThrobber extends Enlightenment {
   @property({ type: String })
   color?: string
 
-  @property({ converter: Enlightenment.isBoolean, type: Boolean })
+  @property({ converter: Enlightenment.isBoolean, reflect: true, type: Boolean })
   hidden?: boolean = false
 
   @property({ type: String })
@@ -26,7 +26,9 @@ class EnlightenmentThrobber extends Enlightenment {
   updated() {
     super.updated()
 
-    if (this.hidden !== this.getAttribute('aria-hidden')) {
+    this.hidden = this.hasAttribute('hidden')
+
+    if (this.hidden != null) {
       this.setAttribute('aria-hidden', String(this.hidden))
     }
 
