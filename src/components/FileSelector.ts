@@ -56,13 +56,13 @@ class EnlightenmentFileSelector extends Enlightenment {
   @property({ converter: Enlightenment.isInteger, type: Number })
   max?: number
 
-  isDropzone?: boolean
-
-  isExpanded?: boolean
-
   body: any
 
+  enableFragments = true
+
   files: File[] = []
+
+  isDropzone?: boolean
 
   // Stores additional meta inforation for the defined file that has been
   // included with the HTML5 File API.
@@ -102,6 +102,10 @@ class EnlightenmentFileSelector extends Enlightenment {
 
       keys.forEach((key) => delete this.paths[key])
     })
+  }
+
+  public connectedCallback(): void {
+    super.connectedCallback()
   }
 
   useFileSize(value: number) {
@@ -200,6 +204,8 @@ class EnlightenmentFileSelector extends Enlightenment {
         this.commit('files', () => {
           this.files = [...this.files, ...commit]
           this.pending = false
+
+          this.throttle(this.assignFragments, Enlightenment.FPS, 'clear')
 
           if (!Object.isFrozen(this.files)) {
             Object.freeze(this.files)
@@ -302,6 +308,7 @@ class EnlightenmentFileSelector extends Enlightenment {
 
     return html`<div class="${classes.join(' ')}">
       ${this.renderLabel()} ${this.renderInput()} ${this.renderSelected()}
+      <slot hidden name="clear"></slot>
     </div>`
   }
 
@@ -406,7 +413,7 @@ class EnlightenmentFileSelector extends Enlightenment {
           </div>
           <span class="file-selector__selected-item-size">${size} ${unit}</span>
         </header>
-        <slot name="clear" @click="${(event) => this.clearFile(file, event)}">
+        <div fragment="clear" @click="${(event) => this.clearFile(file, event)}">
           <button class="file-selector__selected-item-clear" type="button">
             <span
               class="file-selector__selected-item-clear-icon"
@@ -417,11 +424,11 @@ class EnlightenmentFileSelector extends Enlightenment {
               ${EnlightenmentFileSelector.a11y.clear} ${file.name}
             </span>
           </button>
-        </slot>
+        </div>
       </li>`
     })
 
-    this.cloneSlot('clear')
+    // this.cloneSlot('clear')
 
     return html`<div class="file-selector__selected">
       ${this.renderLegend()}
@@ -515,8 +522,6 @@ class EnlightenmentFileSelector extends Enlightenment {
 
   updated() {
     super.updated()
-
-    this.setAttribute('aria-expanded', String(this.isExpanded))
   }
 
   traverseEntry(entry: DataTransferItem, queue?: FileSystemEntry[]) {
