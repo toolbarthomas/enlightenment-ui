@@ -3,17 +3,40 @@
 @include boxSizing();
 
 .toolbar {
-  background-color: var(--grey-900);
-  color: var(--grey-100);
+  background-color: var(--dawn-100-a80);
+  backdrop-filter: blur(var(--space-8));
+  box-shadow:
+    var(--edge-surface) var(--dawn-700-a20),
+    var(--shadow-surface) var(--dawn-700-a10);
+  // border-bottom: solid var(--space-1) var(--dawn-900);
+  color: var(--dawn-900);
+  // border-bottom: solid var(--space-1) var(--dawn-800);
   left: 0;
   padding: var(--space-16) var(--space-24);
-  position: sticky;
+  position: fixed;
   top: 0;
   width: 100%;
   z-index: var(--depth-foreground);
-  transition: transform var(--duration-default) var(--easing-default) var(--duration-fast);
+  transition: var(--duration-default) var(--easing-default) var(--duration-fast);
+  transition-property: box-shadow transform;
+  max-height: 100vh;
+  overflow: auto;
+
+  :host([mode='dark']) & {
+    background-color: var(--dusk-900);
+    // border-color:
+    box-shadow:
+      var(--edge-surface) var(--dusk-800-a40),
+      var(--shadow-surface) var(--dusk-800-a20);
+  }
 
   :host([aria-hidden='true']) & {
+    box-shadow: none;
     transform: translateY(-100%);
+  }
+
+  &__push {
+    transition: var(--duration-default) var(--easing-default);
+    transition-property: height;
   }
 }
