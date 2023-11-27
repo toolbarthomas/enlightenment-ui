@@ -21,6 +21,8 @@
     border: solid var(--space-1) var(--dawn-900-a20);
     z-index: var(--depth-foreground);
     flex-shrink: 0;
+    backdrop-filter: blur(var(--space-32));
+
     // border-bottom: none;
     // border-bottom-color: var(--dawn-900-a10);
     border-top-left-radius: var(--space-6);
@@ -71,10 +73,9 @@
     :host([mode='dark']) & {
       color: var(--dusk-300);
       border-color: var(--dusk-900);
-      backdrop-filter: blur(var(--space-32));
       box-shadow: var(--edge-surface) var(--dusk-900-a20);
 
-      background: linear-gradient(0, var(--dusk-800), var(--dusk-900));
+      background: var(--dusk-800-a95);
       // border-bottom-color: var(--dusk-500-a60);
 
       &::before {
