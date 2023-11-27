@@ -13,10 +13,18 @@ import styles from './Toolbar.scss'
 class EnlightenmentToolbar extends Enlightenment {
   static styles = [styles]
 
+  // Cache the previous scroll in order to define the current scroll direction.
   previousScrollY?: number
+
+  // Only update if the current width does not match the current value of this.
   previousWidth?: number
 
+  // Element that will match the actual Component height without any fixed
+  // position.
   pushContext = createRef()
+
+  @property({ converter: Enlightenment.isInteger, type: Number })
+  treshhold: number = 50
 
   @property({
     converter: Enlightenment.isBoolean,
@@ -62,6 +70,8 @@ class EnlightenmentToolbar extends Enlightenment {
       return
     }
 
+    toolbar.style.minHeight = ''
+
     push.style.height = `${toolbar.scrollHeight}px`
     toolbar.style.minHeight = `${toolbar.scrollHeight}px`
 
@@ -78,14 +88,15 @@ class EnlightenmentToolbar extends Enlightenment {
 
   handleScrollCallback() {
     const { scrollY, innerHeight } = this.root
+    const delta = Math.abs(this.previousScrollY - scrollY)
 
-    if (scrollY >= innerHeight) {
+    if (scrollY >= innerHeight && delta >= this.treshhold) {
       this.ariaHidden = 'true'
-    } else {
+    } else if (delta >= this.treshhold) {
       this.ariaHidden = 'false'
     }
 
-    if (this.previousScrollY && this.previousScrollY > scrollY) {
+    if (this.previousScrollY && this.previousScrollY > scrollY && delta > this.treshhold) {
       this.ariaHidden = 'false'
     }
 

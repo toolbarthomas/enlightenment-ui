@@ -5,34 +5,72 @@
 .toolbar {
   background-color: var(--dawn-100-a80);
   backdrop-filter: blur(var(--space-8));
-  box-shadow:
-    var(--edge-surface) var(--dawn-700-a20),
-    var(--shadow-surface) var(--dawn-700-a10);
-  // border-bottom: solid var(--space-1) var(--dawn-900);
   color: var(--dawn-900);
-  // border-bottom: solid var(--space-1) var(--dawn-800);
   left: 0;
-  padding: var(--space-16) var(--space-24);
   position: fixed;
   top: 0;
+  transition-property: box-shadow transform;
+  transition: var(--duration-default) var(--easing-default) var(--duration-fast);
   width: 100%;
   z-index: var(--depth-foreground);
-  transition: var(--duration-default) var(--easing-default) var(--duration-fast);
-  transition-property: box-shadow transform;
-  max-height: 100vh;
-  overflow: auto;
+
+  &::before {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: -10%;
+    right: -10%;
+    content: ' ';
+    display: block;
+    transition: inherit;
+    box-shadow:
+      var(--edge-surface) var(--dawn-700-a20),
+      var(--shadow-surface) var(--dawn-700-a10);
+  }
 
   :host([mode='dark']) & {
     background-color: var(--dusk-900);
-    // border-color:
-    box-shadow:
-      var(--edge-surface) var(--dusk-800-a40),
-      var(--shadow-surface) var(--dusk-800-a20);
+
+    &::before {
+      box-shadow:
+        var(--edge-surface) var(--dusk-800-a40),
+        var(--shadow-surface) var(--dusk-800-a20);
+    }
   }
 
-  :host([aria-hidden='true']) & {
-    box-shadow: none;
+  :host([accent]) & {
+    background-color: var(--accent-500-a95);
+
+    &::before {
+      box-shadow:
+        var(--edge-surface) var(--accent-800-a40),
+        var(--shadow-surface) var(--accent-800-a20);
+    }
+  }
+
+  :host([accent][mode='dark']) & {
+    background-color: var(--accent-800-a90);
+
+    &::before {
+      box-shadow:
+        var(--edge-surface) var(--accent-900-a40),
+        var(--shadow-surface) var(--accent-900-a20);
+    }
+  }
+
+  :host([aria-hidden='true']) &,
+  :host([aria-hidden='true'][accent][mode]) & {
     transform: translateY(-100%);
+
+    &::before {
+      box-shadow: none;
+    }
+  }
+
+  &__wrapper {
+    position: relative;
+    padding: var(--space-16) var(--space-24);
+    max-height: 100vh;
   }
 
   &__push {
