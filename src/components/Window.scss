@@ -84,7 +84,7 @@
     background-color: var(--dawn-200-a95);
     padding: var(--space-12) var(--space-16);
     border-bottom: solid var(--space-1) var(--dawn-900-a20);
-    z-index: var(--depth-foreground);
+    // z-index: var(--depth-foreground);
     flex-shrink: 0;
     gap: var(--space-12);
     backdrop-filter: blur(var(--space-32));
@@ -207,6 +207,7 @@
     display: flex;
     gap: var(--space-6);
     position: relative;
+    z-index: var(--depth-foreground);
 
     .window--has-controls-right & {
       order: 0;
@@ -456,7 +457,6 @@
     flex-grow: 1;
 
     &:not(:only-child) {
-      border-top: solid var(--space-1) var(--dawn-600);
       border-left: solid var(--space-1) var(--dawn-600);
       // background-color: var(--dawn-500-a20);
 
@@ -489,6 +489,7 @@
     bottom: 0;
     display: block;
     background-color: red;
-    opacity: 0.1;
+    opacity: 0;
+    order: -2;
   }
 }

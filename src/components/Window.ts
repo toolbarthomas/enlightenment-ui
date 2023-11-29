@@ -10,6 +10,13 @@ import {
 
 import styles from './Window.scss'
 
+export type WindowZoomOptions = {
+  left?: number
+  top?: number
+  width?: number
+  height?: number
+}
+
 @customElement('ui-window')
 class EnlightenmentWindow extends Enlightenment {
   static styles = [styles]
@@ -32,6 +39,12 @@ class EnlightenmentWindow extends Enlightenment {
   // Keep track of the last edge that was interacted with.
   edgeX?: string
   edgeY?: string
+
+  // Previous width value of the defined context Element.
+  previousWidth?: number
+
+  // Previous height value of the defined context Element.
+  previousHeight?: number
 
   // Previous left position of the defined context Element.
   previousX?: number
@@ -65,23 +78,44 @@ class EnlightenmentWindow extends Enlightenment {
   type?: string = 'primary'
 
   @property({ converter: Enlightenment.isInteger, type: Number })
-  views?: number = 1
+  views: number = 1
+
+  @property({ converter: Enlightenment.isInteger, type: Number })
+  edgeTop: number = 0
+
+  @property({ converter: Enlightenment.isInteger, type: Number })
+  edgeRight: number = 0
+
+  @property({ converter: Enlightenment.isInteger, type: Number })
+  edgeBottom: number = 0
+
+  @property({ converter: Enlightenment.isInteger, type: Number })
+  edgeLeft: number = 0
 
   @property({ converter: Enlightenment.isBoolean, type: Boolean })
   fullscreen?: boolean = false
 
   public connectedCallback(): void {
     super.connectedCallback()
+
+    this.assignGlobalEvent('resize', this.handleResize, { context: window })
   }
 
-  handleDragEnd(event?: MouseEvent) {
+  public disconnectedCallback(): void {
+    super.disconnectedCallback()
+
+    this.omitGlobalEvent('resize', this.handleResize)
+  }
+
+  handleDragEnd(event?: MouseEvent | TouchEvent) {
     this.dragRequest && cancelAnimationFrame(this.dragRequest)
 
     if (this.dragActive) {
       const context = this.useContext() as HTMLElement
 
       if (this.fullscreen) {
-        this.commit('fullscreen', false)
+        // this.commit('fullscreen', false)
+        this.handleZoom()
 
         return this.handleDragEnd()
       }
@@ -92,23 +126,57 @@ class EnlightenmentWindow extends Enlightenment {
         const [x, y] = Enlightenment.parseMatrix(context.style.transform)
 
         context.style.transform = ''
-        context.style.top = `${Math.round(this.currentY + y)}px`
         context.style.left = `${Math.round(this.currentX + x)}px`
+        context.style.top = `${Math.round(this.currentY + y)}px`
 
-        this.currentX += x
         this.currentY += y
+        this.currentX += x
 
-        if (this.currentX >= window.innerWidth) {
-          console.log('RESET RIGHT')
-        } else if (this.currentX + context.offsetWidth < 0) {
-          console.log('RESET LEFT')
+        // if (this.edgeX) {
+        //   this.handleZoom(event, { top: 0, left: 0, width: 50 })
+        // }
+
+        let top = 0
+        let left = 0
+        let width = window.innerWidth
+        let height = window.innerHeight
+
+        const [edgeTop, edgeRight, edgeBottom, edgeLeft] = this.useEdge()
+
+        if (this.edgeX === 'right' || this.currentX >= edgeRight) {
+          left = window.innerWidth / 2
+          width = window.innerWidth / 2 - this.edgeRight
+        } else if (this.edgeX === 'left' || this.currentX + context.offsetWidth < edgeLeft) {
+          if (this.edgeLeft) {
+            left = this.edgeLeft
+          }
+
+          width = window.innerWidth / 2 - this.edgeLeft
         }
 
-        if (this.currentY + context.offsetHeight < 0) {
+        if (this.edgeY === 'top' || this.currentY + context.offsetHeight < edgeTop) {
+          height = window.innerHeight / 2 - this.edgeTop
+
+          if (this.edgeTop) {
+            top = this.edgeTop
+          }
+
+          // if (edgeTop) {
+          //   height = window.innerHeight / 2 - 0
+          // }
           console.log('REST TOP')
-        } else if (this.currentY > window.innerHeight) {
+        } else if (this.edgeY === 'bottom' || this.currentY > edgeBottom) {
+          top = window.innerHeight / 2
+          height = window.innerHeight / 2 - this.edgeBottom
+
           console.log('REST BOTTOM')
         }
+
+        if (this.edgeX || this.edgeY) {
+          this.handleZoom(event, { top, left, width, height })
+        }
+
+        console.log('STOP', this.fullscreen, top, left, width, height)
 
         this.treshhold = 0
       }
@@ -119,9 +187,10 @@ class EnlightenmentWindow extends Enlightenment {
     this.omitGlobalEvent('mousemove', this.handleDragUpdate)
     this.omitGlobalEvent('mouseup', this.handleDragEnd)
     this.omitGlobalEvent('touchend', this.handleDragEnd)
+    this.omitGlobalEvent('touchmove', this.handleDragUpdate)
   }
 
-  handleDragUpdate(event?: MouseEvent) {
+  handleDragUpdate(event?: MouseEvent | TouchEvent) {
     const context = this.useContext() as HTMLElement
 
     if (!event || !this.dragActive || !context) {
@@ -135,11 +204,15 @@ class EnlightenmentWindow extends Enlightenment {
     this.treshhold += 1
 
     // Delay the drag action while fullscreen is active.
-    if (this.fullscreen && this.treshhold < Enlightenment.FPS) {
+    if (this.fullscreen && this.treshhold < Enlightenment.FPS / devicePixelRatio) {
       return
     }
 
-    if (this.handleDragValidate(event)) {
+    const [clientX, clientY] = this.usePointerPosition(event)
+
+    console.log('POINTER', clientX, clientY, window.innerWidth)
+
+    if (clientX === undefined || clientY === undefined) {
       return
     }
 
@@ -156,48 +229,86 @@ class EnlightenmentWindow extends Enlightenment {
     // }
 
     this.dragRequest = requestAnimationFrame(() => {
-      const x = this.pointerX - event.clientX
-      const y = this.pointerY - event.clientY
+      const x = this.pointerX - clientX
+      const y = this.pointerY - clientY
 
       context.style.transform = `translate(${-x}px, ${-y}px)`
       // context.style.top = `${context.offsetLeft - x}px`
     })
   }
 
-  handleDragValidate(event?: MouseEvent) {
-    if (!event || !this.dragActive) {
-      return false
-    }
-
-    const { clientX, clientY } = event
-
-    if (clientY <= 0) {
-      this.edgeY = 'top'
-    } else if (clientY >= window.innerHeight) {
-      this.edgeY = 'bottom'
-    }
-
-    if (clientX <= 0) {
-      this.edgeX = 'left'
-    } else if (clientX >= window.innerWidth) {
-      this.edgeX = 'right'
-    }
-
-    if (clientY < 0 || clientY > window.innerHeight || clientX < 0 || clientX > window.innerWidth) {
-      this.handleDragEnd(event)
-
-      return true
-    }
-
-    return false
+  handleResize(event: UIEvent) {
+    this.throttle(this.handleResizeCallback, 1000)
   }
 
-  handleDragStart(event?: MouseEvent) {
+  handleResizeCallback() {
+    console.log('resize')
+  }
+
+  useEdge() {
+    const top = 0 + this.edgeTop
+    const left = 0 + this.edgeLeft
+    const right = window.innerWidth - this.edgeRight
+    const bottom = window.innerHeight - this.edgeBottom
+
+    return [top, right, bottom, left]
+  }
+
+  usePointerPosition(event?: MouseEvent | TouchEvent) {
+    if (!event || !this.dragActive) {
+      return []
+    }
+
+    const [edgeTop, edgeRight, edgeBottom, edgeLeft] = this.useEdge()
+
+    const treshhold = devicePixelRatio * 2
+    let clientX = 0
+    let clientY = 0
+    if (event instanceof MouseEvent) {
+      clientX = event.clientX
+      clientY = event.clientY
+    } else if (event instanceof TouchEvent) {
+      clientX = event.touches[0].clientX
+      clientY = event.touches[0].clientY
+    }
+
+    if (clientY <= edgeTop + treshhold) {
+      this.edgeY = 'top'
+    } else if (clientY >= edgeBottom - treshhold) {
+      this.edgeY = 'bottom'
+    } else {
+      this.edgeY = undefined
+    }
+
+    if (clientX <= edgeLeft + treshhold) {
+      this.edgeX = 'left'
+    } else if (clientX >= edgeRight - treshhold) {
+      this.edgeX = 'right'
+    } else {
+      this.edgeX = undefined
+    }
+
+    if (clientY < edgeTop || clientY > edgeBottom || clientX < edgeLeft || clientX > edgeRight) {
+      this.handleDragEnd(event)
+
+      return []
+    }
+
+    return [clientX, clientY]
+  }
+
+  handleDragStart(event?: MouseEvent | TouchEvent) {
     if (!event || this.dragActive) {
       return
     }
 
     event.preventDefault()
+
+    if (event instanceof MouseEvent) {
+      if (event.button !== 0) {
+        return
+      }
+    }
 
     const context = this.useContext() as HTMLElement
 
@@ -206,6 +317,8 @@ class EnlightenmentWindow extends Enlightenment {
     }
 
     this.dragActive = true
+
+    this.handleCurrentElement(this)
 
     // let x = 0
     // let y = 0
@@ -223,10 +336,22 @@ class EnlightenmentWindow extends Enlightenment {
 
     this.currentX = context.offsetLeft
     this.currentY = context.offsetTop
-    this.pointerX = event.clientX
-    this.pointerY = event.clientY
+
+    if (event instanceof MouseEvent) {
+      this.pointerX = Math.round(event.clientX)
+      this.pointerY = Math.round(event.clientY)
+    } else if (event instanceof TouchEvent) {
+      this.pointerX = Math.round(event.touches[0].clientX)
+      this.pointerY = Math.round(event.touches[0].clientY)
+    }
+
+    console.log('Validate', this.pointerX, this.pointerY)
 
     this.assignGlobalEvent('mousemove', this.handleDragUpdate, {
+      context: document.documentElement
+    })
+
+    this.assignGlobalEvent('touchmove', this.handleDragUpdate, {
       context: document.documentElement
     })
 
@@ -259,7 +384,7 @@ class EnlightenmentWindow extends Enlightenment {
     }
   }
 
-  handleZoom(event?: Event) {
+  handleZoom(event?: Event, options?: WindowZoomOptions) {
     if (event && event.preventDefault) {
       event.preventDefault()
     }
@@ -270,10 +395,80 @@ class EnlightenmentWindow extends Enlightenment {
       if (!this.fullscreen) {
         this.previousX = context.offsetLeft
         this.previousY = context.offsetTop
-        context.removeAttribute('style')
+
+        this.previousWidth = context.offsetWidth
+        this.previousHeight = context.offsetHeight
+
+        if (!options) {
+          context.removeAttribute('style')
+        }
+
+        const { height, left, top, width } = options || {}
+
+        if (width !== undefined) {
+          context.style.width = `${width}px`
+        }
+
+        if (height !== undefined) {
+          context.style.height = `${height}px`
+        }
+
+        if (top !== undefined) {
+          context.style.top = `${top}px`
+        }
+
+        if (left !== undefined) {
+          context.style.left = `${left}px`
+        }
+
+        if (this.edgeX === 'left') {
+          this.previousX = 0
+        } else if (this.edgeX === 'right') {
+          this.previousX = window.innerWidth - context.offsetWidth
+        }
+
+        if (this.edgeY === 'top') {
+          this.previousY = 0
+        } else if (this.edgeY === 'bottom') {
+          this.previousY = window.innerHeight - context.offsetHeight
+        }
+
+        if (!this.edgeY || !this.edgeX) {
+          const [edgeTop, edgeRight, edgeBottom, edgeLeft] = this.useEdge()
+
+          if (edgeTop) {
+            context.style.top = `${edgeTop}px`
+          }
+          if (edgeRight) {
+            context.style.width = `${edgeRight - edgeLeft}px`
+          }
+          if (edgeLeft) {
+            context.style.left = `${edgeLeft}px`
+          }
+          if (edgeBottom) {
+            context.style.height = `${edgeBottom - edgeTop}px`
+          }
+
+          // context.style.left = context.style.width = `${this.edgeLeft}`
+
+          // if (this.edgeTop) {
+          //   context.style.top = `${}`
+          // }
+          console.log('FULLSCREEN')
+        }
       } else {
         context.style.top = `${this.previousY}px`
         context.style.left = `${this.previousX}px`
+
+        // Restore the initial Window width & height
+        if (this.previousWidth) {
+          context.style.width = `${this.previousWidth}px`
+        }
+
+        if (this.previousHeight) {
+          context.style.height = `${this.previousHeight}px`
+        }
+        // context.style.width
       }
     }
 
@@ -301,7 +496,11 @@ class EnlightenmentWindow extends Enlightenment {
   renderHeader(excludeControls?: boolean) {
     return html`
       <header class="window__header">
-        <span class="window__handle" @mousedown="${this.handleDragStart}"></span>
+        <span
+          class="window__handle"
+          @mousedown="${this.handleDragStart}"
+          @touchstart="${this.handleDragStart}"
+        ></span>
         ${this.renderMeta()} ${!excludeControls ? this.renderControls() : nothing}
       </header>
     `
