@@ -210,8 +210,6 @@ class EnlightenmentWindow extends Enlightenment {
 
     const [clientX, clientY] = this.usePointerPosition(event)
 
-    console.log('POINTER', clientX, clientY, window.innerWidth)
-
     if (clientX === undefined || clientY === undefined) {
       return
     }
@@ -468,7 +466,9 @@ class EnlightenmentWindow extends Enlightenment {
         if (this.previousHeight) {
           context.style.height = `${this.previousHeight}px`
         }
-        // context.style.width
+
+        // Restore the Window and remove any focus from it.
+        this.throttle(this.handleCurrentElement)
       }
     }
 
