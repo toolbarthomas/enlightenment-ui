@@ -40,6 +40,8 @@ class EnlightenmentWindow extends Enlightenment {
   edgeX?: string
   edgeY?: string
 
+  previousEdge?: string
+
   // Previous width value of the defined context Element.
   previousWidth?: number
 
@@ -94,6 +96,12 @@ class EnlightenmentWindow extends Enlightenment {
 
   @property({ converter: Enlightenment.isBoolean, type: Boolean })
   fullscreen?: boolean = false
+
+  @property({ type: String })
+  width?: '200px'
+
+  @property({ type: String })
+  height?: string
 
   public connectedCallback(): void {
     super.connectedCallback()
@@ -173,7 +181,8 @@ class EnlightenmentWindow extends Enlightenment {
         }
 
         if (this.edgeX || this.edgeY) {
-          this.handleZoom(event, { top, left, width, height })
+          console.log('EDGE ZOOM')
+          this.handleZoom(event)
         }
 
         console.log('STOP', this.fullscreen, top, left, width, height)
@@ -204,7 +213,7 @@ class EnlightenmentWindow extends Enlightenment {
     this.treshhold += 1
 
     // Delay the drag action while fullscreen is active.
-    if (this.fullscreen && this.treshhold < Enlightenment.FPS / devicePixelRatio) {
+    if (this.fullscreen && this.treshhold < Enlightenment.FPS) {
       return
     }
 
@@ -236,10 +245,24 @@ class EnlightenmentWindow extends Enlightenment {
   }
 
   handleResize(event: UIEvent) {
-    this.throttle(this.handleResizeCallback, 1000)
+    this.throttle(this.handleResizeCallback, Enlightenment.FPS, event)
   }
 
-  handleResizeCallback() {
+  handleResizeCallback(event: UIEvent) {
+    if (this.fullscreen) {
+      if (this.previousEdge) {
+        if (this.previousEdge === 'left' || this.previousEdge === 'right') {
+          this.edgeX = this.previousEdge
+        } else {
+          this.edgeY = this.previousEdge
+        }
+        console.log('RESTORE EDGE', this.edgeX, this.edgeY)
+      }
+
+      this.fullscreen = false
+      this.handleZoom(event)
+    }
+
     console.log('resize')
   }
 
@@ -382,95 +405,95 @@ class EnlightenmentWindow extends Enlightenment {
     }
   }
 
-  handleZoom(event?: Event, options?: WindowZoomOptions) {
+  handleZoom(event?: Event) {
     if (event && event.preventDefault) {
       event.preventDefault()
     }
 
     const context = this.useContext() as HTMLElement
 
-    if (context) {
-      if (!this.fullscreen) {
-        this.previousX = context.offsetLeft
-        this.previousY = context.offsetTop
+    if (!context) {
+      return
+    }
 
-        this.previousWidth = context.offsetWidth
-        this.previousHeight = context.offsetHeight
+    if (!this.fullscreen) {
+      this.previousX = context.offsetLeft
+      this.previousY = context.offsetTop
 
-        if (!options) {
-          context.removeAttribute('style')
-        }
+      this.previousWidth = context.offsetWidth
+      this.previousHeight = context.offsetHeight
 
-        const { height, left, top, width } = options || {}
+      // if (!options) {
+      context.removeAttribute('style')
+      // }
 
-        if (width !== undefined) {
-          context.style.width = `${width}px`
-        }
+      if (this.edgeX === 'left') {
+        this.previousX = 0
+      } else if (this.edgeX === 'right') {
+        this.previousX = window.innerWidth - context.offsetWidth
+      }
 
-        if (height !== undefined) {
-          context.style.height = `${height}px`
-        }
+      if (this.edgeY === 'top') {
+        this.previousY = 0
+      } else if (this.edgeY === 'bottom') {
+        this.previousY = window.innerHeight - context.offsetHeight
+      }
 
-        if (top !== undefined) {
-          context.style.top = `${top}px`
-        }
-
-        if (left !== undefined) {
-          context.style.left = `${left}px`
+      if (!this.edgeX && !this.edgeY) {
+        context.style.top = `${this.edgeTop || 0}px`
+        context.style.left = `${this.edgeLeft || 0}px`
+        context.style.width = `${window.innerWidth - this.edgeLeft - this.edgeRight}px`
+        context.style.height = `${window.innerHeight - this.edgeTop - this.edgeBottom}px`
+      } else {
+        if (this.edgeY === 'top') {
+          context.style.top = `${this.edgeTop || 0}px`
+          context.style.height = `${window.innerHeight - this.edgeTop - this.edgeBottom}px`
+          context.style.left = `${this.edgeLeft || 0}px`
+          context.style.width = `${window.innerWidth - this.edgeLeft - this.edgeRight}px`
+        } else if (this.edgeY === 'bottom') {
+          context.style.top = `${window.innerHeight / 2}px`
+          context.style.height = `${window.innerHeight / 2 - (this.edgeBottom || 0)}px`
+          context.style.width = `${window.innerWidth - this.edgeLeft - this.edgeRight}px`
+          context.style.left = `${this.edgeLeft || 0}px`
         }
 
         if (this.edgeX === 'left') {
-          this.previousX = 0
+          context.style.top = `${this.edgeTop || 0}px`
+          context.style.left = `${this.edgeLeft || 0}px`
+          context.style.width = `${window.innerWidth / 2 - this.edgeLeft}px`
+          context.style.height = `${window.innerHeight - this.edgeTop - this.edgeBottom}px`
         } else if (this.edgeX === 'right') {
-          this.previousX = window.innerWidth - context.offsetWidth
+          context.style.top = `${this.edgeTop || 0}px`
+          context.style.left = `${window.innerWidth / 2}px`
+          context.style.width = `${window.innerWidth / 2 - this.edgeRight}px`
+          context.style.height = `${window.innerHeight - this.edgeTop - this.edgeBottom}px`
         }
-
-        if (this.edgeY === 'top') {
-          this.previousY = 0
-        } else if (this.edgeY === 'bottom') {
-          this.previousY = window.innerHeight - context.offsetHeight
-        }
-
-        if (!this.edgeY || !this.edgeX) {
-          const [edgeTop, edgeRight, edgeBottom, edgeLeft] = this.useEdge()
-
-          if (edgeTop) {
-            context.style.top = `${edgeTop}px`
-          }
-          if (edgeRight) {
-            context.style.width = `${edgeRight - edgeLeft}px`
-          }
-          if (edgeLeft) {
-            context.style.left = `${edgeLeft}px`
-          }
-          if (edgeBottom) {
-            context.style.height = `${edgeBottom - edgeTop}px`
-          }
-
-          // context.style.left = context.style.width = `${this.edgeLeft}`
-
-          // if (this.edgeTop) {
-          //   context.style.top = `${}`
-          // }
-          console.log('FULLSCREEN')
-        }
-      } else {
-        context.style.top = `${this.previousY}px`
-        context.style.left = `${this.previousX}px`
-
-        // Restore the initial Window width & height
-        if (this.previousWidth) {
-          context.style.width = `${this.previousWidth}px`
-        }
-
-        if (this.previousHeight) {
-          context.style.height = `${this.previousHeight}px`
-        }
-
-        // Restore the Window and remove any focus from it.
-        this.throttle(this.handleCurrentElement)
       }
+    } else {
+      context.style.top = `${this.previousY}px`
+      context.style.left = `${this.previousX}px`
+
+      // Restore the initial Window width & height
+      if (this.previousWidth) {
+        context.style.width = `${this.previousWidth}px`
+      }
+
+      if (this.previousHeight) {
+        context.style.height = `${this.previousHeight}px`
+      }
+
+      // Restore the Window and remove any focus from it.
+      this.throttle(this.handleCurrentElement)
+
+      this.previousEdge = undefined
+
+      context.style.width = this.width || undefined
+      context.style.height = this.height || undefined
     }
+
+    this.previousEdge = this.edgeX || this.edgeY || undefined
+    this.edgeX = undefined
+    this.edgeY = undefined
 
     this.commit('fullscreen', !this.fullscreen)
   }
