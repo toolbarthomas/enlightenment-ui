@@ -24,11 +24,17 @@ class EnlightenmentWindow extends Enlightenment {
   // Enable the usage of currentElement.
   enableDocumentEvents: boolean = true
 
+  currentAction?: string = ''
+
   // Actual x position for the context Element.
   currentX?: number
 
   // Actual y position for the context Element.
   currentY?: number
+
+  currentWidth?: number
+
+  currentHeight?: number
 
   // Will be TRUE when the drag action is currently used.
   dragActive?: boolean
@@ -191,6 +197,9 @@ class EnlightenmentWindow extends Enlightenment {
       }
     }
 
+    this.currentAction = undefined
+    this.currentWidth = undefined
+    this.currentHeight = undefined
     this.dragActive = false
 
     this.omitGlobalEvent('mousemove', this.handleDragUpdate)
@@ -199,7 +208,7 @@ class EnlightenmentWindow extends Enlightenment {
     this.omitGlobalEvent('touchmove', this.handleDragUpdate)
   }
 
-  handleDragUpdate(event?: MouseEvent | TouchEvent) {
+  handleDragMove(event: MouseEvent | TouchEvent) {
     const context = this.useContext() as HTMLElement
 
     if (!event || !this.dragActive || !context) {
@@ -242,6 +251,49 @@ class EnlightenmentWindow extends Enlightenment {
       context.style.transform = `translate(${-x}px, ${-y}px)`
       // context.style.top = `${context.offsetLeft - x}px`
     })
+  }
+
+  handleDragResize(event?: MouseEvent | TouchEvent) {
+    const context = this.useContext() as HTMLElement
+
+    if (!context) {
+      return
+    }
+
+    if (event) {
+      if (!this.currentWidth) {
+        this.currentWidth = context.offsetWidth
+      }
+
+      if (!this.currentHeight) {
+        this.currentHeight = context.offsetHeight
+      }
+
+      const [clientX, clientY] = this.usePointerPosition(event)
+
+      const x = clientX - this.pointerX
+      const y = clientY - this.pointerY
+      // this.pointerX = clientX
+      // this.pointerY = clientY
+      console.log(this.previousWidth, this.previousHeight)
+
+      context.style.width = `${this.currentWidth + x}px`
+      context.style.height = `${this.currentHeight + y}px`
+
+      console.log('RESZiZE', this.currentWidth + x, this.currentHeight + y)
+    }
+  }
+
+  handleDragUpdate(event?: MouseEvent | TouchEvent) {
+    switch (this.currentAction) {
+      case 'resize-bottom-right':
+        this.handleDragResize(event)
+        break
+
+      default:
+        this.handleDragMove(event)
+        break
+    }
   }
 
   handleResize(event: UIEvent) {
@@ -293,26 +345,28 @@ class EnlightenmentWindow extends Enlightenment {
       clientY = event.touches[0].clientY
     }
 
-    if (clientY <= edgeTop + treshhold) {
-      this.edgeY = 'top'
-    } else if (clientY >= edgeBottom - treshhold) {
-      this.edgeY = 'bottom'
-    } else {
-      this.edgeY = undefined
-    }
+    if (this.currentAction === 'move') {
+      if (clientY <= edgeTop + treshhold) {
+        this.edgeY = 'top'
+      } else if (clientY >= edgeBottom - treshhold) {
+        this.edgeY = 'bottom'
+      } else {
+        this.edgeY = undefined
+      }
 
-    if (clientX <= edgeLeft + treshhold) {
-      this.edgeX = 'left'
-    } else if (clientX >= edgeRight - treshhold) {
-      this.edgeX = 'right'
-    } else {
-      this.edgeX = undefined
-    }
+      if (clientX <= edgeLeft + treshhold) {
+        this.edgeX = 'left'
+      } else if (clientX >= edgeRight - treshhold) {
+        this.edgeX = 'right'
+      } else {
+        this.edgeX = undefined
+      }
 
-    if (clientY < edgeTop || clientY > edgeBottom || clientX < edgeLeft || clientX > edgeRight) {
-      this.handleDragEnd(event)
+      if (clientY < edgeTop || clientY > edgeBottom || clientX < edgeLeft || clientX > edgeRight) {
+        this.handleDragEnd(event)
 
-      return []
+        return []
+      }
     }
 
     return [clientX, clientY]
@@ -331,6 +385,12 @@ class EnlightenmentWindow extends Enlightenment {
       }
     }
 
+    const target = event.target as HTMLSpanElement
+
+    if (target || target.hasAttribute('data-action')) {
+      this.currentAction = target.getAttribute('data-action')
+    }
+
     const context = this.useContext() as HTMLElement
 
     if (!context) {
@@ -339,34 +399,15 @@ class EnlightenmentWindow extends Enlightenment {
 
     this.dragActive = true
 
-    this.handleCurrentElement(this)
-
-    // let x = 0
-    // let y = 0
-    // if (context.style.transform) {
-    //   const matrix = context.style.transform.split('(')[1].split(')')[0].split(',').map(parseFloat)
-
-    //   if (matrix[0]) {
-    //     x = matrix[0]
-    //   }
-
-    //   if (matrix[1]) {
-    //     y = matrix[1]
-    //   }
-    // }
-
     this.currentX = context.offsetLeft
     this.currentY = context.offsetTop
 
-    if (event instanceof MouseEvent) {
-      this.pointerX = Math.round(event.clientX)
-      this.pointerY = Math.round(event.clientY)
-    } else if (event instanceof TouchEvent) {
-      this.pointerX = Math.round(event.touches[0].clientX)
-      this.pointerY = Math.round(event.touches[0].clientY)
-    }
+    const [clientX, clientY] = this.usePointerPosition(event)
 
-    console.log('Validate', this.pointerX, this.pointerY)
+    this.pointerX = Math.round(clientX)
+    this.pointerY = Math.round(clientY)
+
+    this.handleCurrentElement(this)
 
     this.assignGlobalEvent('mousemove', this.handleDragUpdate, {
       context: document.documentElement
@@ -521,6 +562,7 @@ class EnlightenmentWindow extends Enlightenment {
       <header class="window__header">
         <span
           class="window__handle"
+          data-action="move"
           @mousedown="${this.handleDragStart}"
           @touchstart="${this.handleDragStart}"
         ></span>
@@ -580,6 +622,12 @@ class EnlightenmentWindow extends Enlightenment {
           </main>
         </div>
         <footer class="window__footer"></footer>
+        <span
+          class="window__handle window__handle--bottom-right"
+          data-action="resize-bottom-right"
+          @mousedown="${this.handleDragStart}"
+          @touchstart="${this.handleDragStart}"
+        ></span>
       </div>
     `
   }
