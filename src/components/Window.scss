@@ -7,14 +7,25 @@
   overflow: hidden;
   background-color: var(--dawn-100);
   border: solid var(--space-1) var(--dawn-900-a20);
+  z-index: calc(var(--depth-foreground) + 1);
+  transition: var(--duration-default) var(--easing-default);
+  transition-property: box-shadow, opacity;
 
   box-shadow:
     var(--shadow-fixed) var(--dawn-900-a10),
     var(--edge-surface) var(--dawn-900-a5);
 
+  :host([aria-grabbed]) & {
+    opacity: 0.6;
+  }
+
+  :host([aria-grabbed][mode='dark']) & {
+    opacity: 0.8;
+  }
+
   // .window--is-zoomed & {
   :host([aria-current='true']) & {
-    z-index: var(--depth-overlay);
+    z-index: calc(var(--depth-overlay) + 1);
 
     box-shadow:
       var(--shadow-overlay) var(--dawn-900-a40),
@@ -61,8 +72,12 @@
     // }
   }
 
+  &--is-suspended {
+    display: none;
+  }
+
   &--is-zoomed {
-    z-index: var(--depth-fixed);
+    z-index: var(--depth-overlay);
     position: fixed;
     top: 0;
     left: 0;
@@ -88,6 +103,8 @@
     flex-shrink: 0;
     gap: var(--space-12);
     backdrop-filter: blur(var(--space-32));
+    transition: var(--duration-default) var(--easing-default);
+    transition-property: background-color;
 
     // border-bottom: none;
     // border-bottom-color: var(--dawn-900-a10);
@@ -119,13 +136,17 @@
       border-left: none;
     }
 
+    .window--type-is-compact & {
+      padding: var(--space-6) var(--space-16);
+    }
+
     &:hover {
       :host([aria-grabbed]) & {
         background-color: var(--dawn-300);
       }
 
       :host([aria-grabbed][accent]) & {
-        background-color: var(--accent-400);
+        background-color: var(--accent-500);
       }
 
       :host([aria-grabbed][mode='dark']) & {
@@ -139,9 +160,9 @@
 
     :host([accent]) & {
       color: var(--accent-900);
-      border-color: var(--accent-500);
-      background-color: var(--accent-300);
-      box-shadow: var(--edge-surface) var(--accent-800-a10);
+      border-color: var(--accent-600);
+      background-color: var(--accent-400);
+      box-shadow: var(--edge-surface) var(--accent-500-a20);
 
       &::before {
         color: var(--accent-200);
@@ -340,8 +361,6 @@
     // border-top-width: 0;
     // background-color: var(--dawn-900-a80);
     // padding: 0 var(--space-1) var(--space-1);
-    transition: var(--duration-default) var(--easing-default);
-    transition-property: box-shadow;
 
     :host([mode='dark']) & {
       // border-color: var(--dusk-900);
@@ -531,30 +550,65 @@
 
     &[data-pivot='4'],
     &[data-pivot='6'] {
-      top: calc(50% - var(--space-6));
+      top: var(--space-12);
+      bottom: var(--space-12);
+      // top: calc(50% - var(--space-6));
     }
 
-    &[data-pivot='2'],
+    &[data-pivot='1'] {
+      border-top-left-radius: var(--space-6);
+    }
+
+    &[data-pivot='3'] {
+      border-top-right-radius: var(--space-6);
+    }
+
+    &[data-pivot='7'] {
+      border-bottom-left-radius: var(--space-6);
+    }
+
+    &[data-pivot='9'] {
+      border-bottom-right-radius: var(--space-6);
+    }
+
+    &[data-pivot='2'] {
+      border-bottom-left-radius: var(--space-6);
+      border-bottom-right-radius: var(--space-6);
+      left: calc(50% - var(--space-6) * 3);
+    }
+
     &[data-pivot='8'] {
-      left: calc(50% - var(--space-6));
+      left: var(--space-12);
+      right: var(--space-12);
     }
 
     &[data-pivot]:not([data-pivot='5']) {
-      width: var(--space-12);
-      height: var(--space-12);
-      opacity: 1;
+      &[data-pivot='1'],
+      &[data-pivot='3'],
+      &[data-pivot='7'],
+      &[data-pivot='9'] {
+        width: var(--space-12);
+        height: var(--space-12);
+      }
+
+      &[data-pivot='4'],
+      &[data-pivot='6'] {
+        height: auto;
+        width: var(--space-12);
+      }
+
+      &[data-pivot='2'] {
+        height: var(--space-12);
+        width: calc(var(--space-12) * 3);
+      }
+
+      &[data-pivot='8'] {
+        width: auto;
+        height: var(--space-12);
+      }
+
+      opacity: 0.1;
     }
-
-    // &[data-pivot='7'] {
-    //   top: auto;
-    //   left: 0;
-    //   bottom: 0;
-    // }
-
-    // &[data-pivot='8'] {
-    //   top: auto;
-    //   bottom: 0;
-    // }
 
     &[data-pivot='3'],
     &[data-pivot='6'],
@@ -564,9 +618,6 @@
     }
   }
 
-  &__footer-corner {
-    position: relative;
-    width: var(--space-12);
-    height: var(--space-12);
+  &__overlay {
   }
 }

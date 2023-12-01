@@ -21,6 +21,9 @@ export type WindowZoomOptions = {
 class EnlightenmentWindow extends Enlightenment {
   static styles = [styles]
 
+  static minWidth = 300
+  static minHeight = 200
+
   // Enable the usage of currentElement.
   enableDocumentEvents: boolean = true
 
@@ -93,7 +96,7 @@ class EnlightenmentWindow extends Enlightenment {
 
   @property({
     reflect: true,
-    converter: (value) => Enlightenment.filterProperty(value, ['primary', 'secondary']),
+    converter: (value) => Enlightenment.filterProperty(value, ['primary', 'secondary', 'compact']),
     type: String
   })
   type?: string = 'primary'
@@ -116,6 +119,9 @@ class EnlightenmentWindow extends Enlightenment {
   @property({ converter: Enlightenment.isBoolean, type: Boolean })
   zoom?: boolean = false
 
+  @property({ converter: Enlightenment.isBoolean, type: Boolean })
+  suspend?: boolean = false
+
   @property({ converter: Enlightenment.isInteger, type: Number })
   width?: number
 
@@ -132,6 +138,18 @@ class EnlightenmentWindow extends Enlightenment {
     super.disconnectedCallback()
 
     this.omitGlobalEvent('resize', this.handleResize)
+  }
+
+  firstUpdated(properties: any) {
+    super.firstUpdated(properties)
+
+    const context = this.useContext()
+    if (context) {
+      context.style.width = `${EnlightenmentWindow.minWidth}px`
+      context.style.height = `${EnlightenmentWindow.minHeight}px`
+
+      console.log('WITH CONTEXT')
+    }
   }
 
   handleDragEnd(event?: MouseEvent | TouchEvent) {
@@ -424,8 +442,8 @@ class EnlightenmentWindow extends Enlightenment {
       }
 
       if (width) {
-        if (width < 300) {
-          width = 300
+        if (width < EnlightenmentWindow.minWidth) {
+          width = EnlightenmentWindow.minWidth
           translateX = 0
         }
 
@@ -433,8 +451,8 @@ class EnlightenmentWindow extends Enlightenment {
       }
 
       if (height) {
-        if (height < 100) {
-          height = 100
+        if (height < EnlightenmentWindow.minHeight) {
+          height = EnlightenmentWindow.minHeight
           translateY = 0
         }
 
@@ -766,9 +784,13 @@ class EnlightenmentWindow extends Enlightenment {
   }
 
   handleSuspend(event?: Event) {
+    console.log('suspend')
+
     if (event && event.preventDefault) {
       event.preventDefault()
     }
+
+    this.commit('suspend', true)
   }
 
   handleZoom(event?: Event) {
@@ -806,10 +828,20 @@ class EnlightenmentWindow extends Enlightenment {
       }
 
       if (!this.edgeX && !this.edgeY) {
-        context.style.top = `${this.edgeTop || 0}px`
-        context.style.left = `${this.edgeLeft || 0}px`
-        context.style.width = `${window.innerWidth - this.edgeLeft - this.edgeRight}px`
-        context.style.height = `${window.innerHeight - this.edgeTop - this.edgeBottom}px`
+        this.throttle(() => {
+          context.style.top = `${this.edgeTop || 0}px`
+          context.style.left = `${this.edgeLeft || 0}px`
+          context.style.width = `${window.innerWidth - this.edgeLeft - this.edgeRight}px`
+          context.style.height = `${window.innerHeight - this.edgeTop - this.edgeBottom}px`
+
+          // if ()
+
+          // console.log(
+          //   'ZOOM',
+          //   window.innerWidth - this.edgeLeft - this.edgeRight,
+          //   window.innerWidth / devicePixelRatio
+          // )
+        })
       } else if (this.currentPivot) {
         if (this.edgeY === 'top') {
           context.style.top = `${this.edgeTop || 0}px`
@@ -886,6 +918,24 @@ class EnlightenmentWindow extends Enlightenment {
     super.updated(properties)
 
     this.updateAttribute('views')
+    this.updateAttribute('zoom')
+    this.updateAttribute('suspend')
+
+    if (this.suspend) {
+      this.handleCurrentElement()
+    }
+  }
+
+  renderAside() {
+    if (this.type === 'compact') {
+      return nothing
+    }
+
+    return html`
+      <aside class="window__aside">
+        ${this.type === 'secondary' ? this.renderControls() : nothing}
+      </aside>
+    `
   }
 
   renderControls() {
@@ -893,7 +943,8 @@ class EnlightenmentWindow extends Enlightenment {
       <div class="window__controls">
         <button class="window__control window__control--exit" @click=${this.handleExit}></button>
         <button
-          class="window__control window__control--suspend @click=${this.handleSuspend}"
+          class="window__control window__control--suspend"
+          @click=${this.handleSuspend}
         ></button>
         <button class="window__control window__control--zoom" @click=${this.handleZoom}></button>
       </div>
@@ -914,8 +965,31 @@ class EnlightenmentWindow extends Enlightenment {
     `
   }
 
+  renderMain() {
+    if (this.suspend) {
+      return nothing
+    }
+
+    return html`
+      ${this.type !== 'secondary' ? this.renderHeader() : nothing}
+      <div class="window__body">
+        ${this.renderAside()}
+        <main class="window__content">
+          ${this.type === 'secondary' ? this.renderHeader(true) : nothing} ${this.renderViews()}
+        </main>
+      </div>
+      <footer class="window__footer"></footer>
+
+      ${this.renderOverlay()}
+    `
+  }
+
   renderMeta() {
     return html` <span class="window__meta">${this.title}</span> `
+  }
+
+  renderOverlay() {
+    return html`<div class="window__overlay"></div>`
   }
 
   renderViews() {
@@ -953,18 +1027,13 @@ class EnlightenmentWindow extends Enlightenment {
       classes.push(`window--is-zoomed`)
     }
 
+    if (this.suspend) {
+      classes.push('window--is-suspended')
+    }
+
     return html`
       <div ref="${ref(this.context)}" class="${classes.join(' ')}" draggable>
-        ${this.type === 'primary' ? this.renderHeader() : nothing}
-        <div class="window__body">
-          <aside class="window__aside">
-            ${this.type === 'secondary' ? this.renderControls() : nothing}
-          </aside>
-          <main class="window__content">
-            ${this.type === 'secondary' ? this.renderHeader(true) : nothing} ${this.renderViews()}
-          </main>
-        </div>
-        <footer class="window__footer"></footer>
+        ${this.renderMain()}
         ${Array.from({ length: 9 }).map((_, index) => {
           if (index === 4) {
             return
