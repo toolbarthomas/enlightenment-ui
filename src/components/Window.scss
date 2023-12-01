@@ -103,8 +103,8 @@
     flex-shrink: 0;
     gap: var(--space-12);
     backdrop-filter: blur(var(--space-32));
-    transition: var(--duration-default) var(--easing-default);
-    transition-property: background-color;
+    // transition: var(--duration-default) var(--easing-default);
+    // transition-property: background-color;
 
     // border-bottom: none;
     // border-bottom-color: var(--dawn-900-a10);

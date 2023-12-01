@@ -30,6 +30,10 @@ class EnlightenmentWindow extends Enlightenment {
   // Current timeout ID to reset while a click is triggered.
   clickRequest?: number
 
+  // Current timeout ID that should initiate the push window request to rest
+  // the window position.
+  pushRequest?: number
+
   // Keep track of the amount of repeating clicks
   currentClick?: number = 0
 
@@ -92,7 +96,7 @@ class EnlightenmentWindow extends Enlightenment {
   controls?: string = 'left'
 
   @property({ type: String })
-  title?: string
+  label?: string
 
   @property({
     reflect: true,
@@ -154,6 +158,7 @@ class EnlightenmentWindow extends Enlightenment {
 
   handleDragEnd(event?: MouseEvent | TouchEvent) {
     this.dragRequest && cancelAnimationFrame(this.dragRequest)
+    this.pushRequest && clearTimeout(this.pushRequest)
 
     if (this.dragActive) {
       const context = this.useContext() as HTMLElement
@@ -161,8 +166,8 @@ class EnlightenmentWindow extends Enlightenment {
       if (this.zoom && this.treshhold >= Enlightenment.FPS) {
         // this.commit('zoomed', false)
         if (!this.currentPivot || this.currentPivot === 5) {
-          this.handleZoom()
-          return this.handleDragEnd()
+          this.handleZoom(event)
+          return this.handleDragEnd(event)
         }
       }
 
@@ -497,6 +502,9 @@ class EnlightenmentWindow extends Enlightenment {
 
       // Mark as grabbed at the first movement
       if (this.treshhold >= 1) {
+        // Prevent the push request callback while draggin.
+        this.pushRequest && clearTimeout(this.pushRequest)
+
         if (!this.hasAttribute('aria-grabbed')) {
           this.setAttribute('aria-grabbed', 'true')
         }
@@ -558,6 +566,9 @@ class EnlightenmentWindow extends Enlightenment {
       return []
     }
 
+    const viewportWidth = window.innerWidth
+    const viewportHeight = window.innerHeight
+
     const [edgeTop, edgeRight, edgeBottom, edgeLeft] = this.useEdge()
 
     const treshhold = devicePixelRatio * 2
@@ -581,7 +592,7 @@ class EnlightenmentWindow extends Enlightenment {
       clientY = 0
     } else if (clientY >= edgeBottom - treshhold) {
       this.edgeY = 'bottom'
-      clientY = window.innerHeight
+      clientY = viewportHeight
     } else {
       this.edgeY = undefined
     }
@@ -592,10 +603,10 @@ class EnlightenmentWindow extends Enlightenment {
     } else if (clientX >= edgeRight - treshhold) {
       this.edgeX = 'right'
       console.log('EDGE')
-      clientX = window.innerWidth
+      clientX = viewportWidth
     } else {
-      if (initialX > window.innerWidth) {
-        clientX = window.innerWidth
+      if (initialX > viewportWidth) {
+        clientX = viewportWidth
       }
 
       this.edgeX = undefined
@@ -644,9 +655,15 @@ class EnlightenmentWindow extends Enlightenment {
     // moveable corner.
     if (this.currentClick === 1) {
       this.clickRequest && clearTimeout(this.clickRequest)
+      this.pushRequest && clearTimeout(this.pushRequest)
+
       this.clickRequest = setTimeout(() => {
         this.currentClick = 0
-      }, this.delay * 10)
+      }, this.delay * 12)
+
+      if (this.currentPivot === 5) {
+        this.pushRequest = setTimeout(() => this.handleReset(event), 1000)
+      }
     }
 
     if (this.currentClick > 1) {
@@ -697,6 +714,32 @@ class EnlightenmentWindow extends Enlightenment {
     }
 
     this.remove && this.remove()
+  }
+
+  handleReset(event?: MouseEvent | TouchEvent) {
+    const context = this.useContext() as HTMLElement
+
+    // this.setAttribute('')
+
+    console.log('RESET')
+
+    if (!context) {
+      return
+    }
+
+    if (event && event.preventDefault) {
+      event.preventDefault()
+    }
+
+    const height = (window.innerHeight / 3) * 2
+    const width = window.innerWidth / 2
+
+    context.style.width = `${width}px`
+    context.style.height = `${height}px`
+    context.style.top = `${(window.innerHeight - height) / 2}px`
+    context.style.left = `${(window.innerWidth - width) / 2}px`
+
+    this.handleDragEnd(event)
   }
 
   handleZoomFromPivot(event?: MouseEvent | TouchEvent) {
@@ -804,6 +847,9 @@ class EnlightenmentWindow extends Enlightenment {
       return
     }
 
+    const viewportWidth = window.innerWidth
+    const viewportHeight = window.innerHeight
+
     if (!this.zoom) {
       this.previousX = context.offsetLeft
       this.previousY = context.offsetTop
@@ -811,78 +857,83 @@ class EnlightenmentWindow extends Enlightenment {
       this.previousWidth = context.offsetWidth
       this.previousHeight = context.offsetHeight
 
-      // if (!options) {
-      context.removeAttribute('style')
-      // }
-
       if (this.edgeX === 'left') {
         this.previousX = 0
       } else if (this.edgeX === 'right') {
-        this.previousX = window.innerWidth - context.offsetWidth
+        this.previousX = viewportWidth - context.offsetWidth
       }
 
       if (this.edgeY === 'top') {
         this.previousY = 0
       } else if (this.edgeY === 'bottom') {
-        this.previousY = window.innerHeight - context.offsetHeight
+        this.previousY = viewportHeight - context.offsetHeight
       }
 
       if (!this.edgeX && !this.edgeY) {
-        this.throttle(() => {
-          context.style.top = `${this.edgeTop || 0}px`
-          context.style.left = `${this.edgeLeft || 0}px`
-          context.style.width = `${window.innerWidth - this.edgeLeft - this.edgeRight}px`
-          context.style.height = `${window.innerHeight - this.edgeTop - this.edgeBottom}px`
-
-          // if ()
-
-          // console.log(
-          //   'ZOOM',
-          //   window.innerWidth - this.edgeLeft - this.edgeRight,
-          //   window.innerWidth / devicePixelRatio
-          // )
-        })
+        context.style.top = `${this.edgeTop || 0}px`
+        context.style.left = `${this.edgeLeft || 0}px`
+        context.style.width = `${viewportWidth - this.edgeLeft - this.edgeRight}px`
+        context.style.height = `${viewportHeight - this.edgeTop - this.edgeBottom}px`
       } else if (this.currentPivot) {
+        console.log('ZOOM', viewportWidth / devicePixelRatio, document.documentElement.offsetWidth)
+
         if (this.edgeY === 'top') {
           context.style.top = `${this.edgeTop || 0}px`
-          context.style.height = `${window.innerHeight - this.edgeTop - this.edgeBottom}px`
+          context.style.height = `${viewportHeight - this.edgeTop - this.edgeBottom}px`
           context.style.left = `${this.edgeLeft || 0}px`
-          context.style.width = `${window.innerWidth - this.edgeLeft - this.edgeRight}px`
+          context.style.width = `${viewportWidth - this.edgeLeft - this.edgeRight}px`
         } else if (this.edgeY === 'bottom') {
-          context.style.top = `${window.innerHeight / 2}px`
-          context.style.height = `${window.innerHeight / 2 - (this.edgeBottom || 0)}px`
-          context.style.width = `${window.innerWidth - this.edgeLeft - this.edgeRight}px`
+          context.style.top = `${viewportHeight / 2}px`
+          context.style.height = `${viewportHeight / 2 - (this.edgeBottom || 0)}px`
+          context.style.width = `${viewportWidth - this.edgeLeft - this.edgeRight}px`
           context.style.left = `${this.edgeLeft || 0}px`
         }
 
         if (this.edgeX === 'left') {
           context.style.top = `${this.edgeTop || 0}px`
           context.style.left = `${this.edgeLeft || 0}px`
-          context.style.width = `${window.innerWidth / 2 - this.edgeLeft}px`
-          context.style.height = `${window.innerHeight - this.edgeTop - this.edgeBottom}px`
+          context.style.width = `${viewportWidth / 2 - this.edgeLeft}px`
+          context.style.height = `${viewportHeight - this.edgeTop - this.edgeBottom}px`
         } else if (this.edgeX === 'right') {
           context.style.top = `${this.edgeTop || 0}px`
-          context.style.left = `${window.innerWidth / 2}px`
-          context.style.width = `${window.innerWidth / 2 - this.edgeRight}px`
-          context.style.height = `${window.innerHeight - this.edgeTop - this.edgeBottom}px`
+          context.style.left = `${viewportWidth / 2}px`
+          context.style.width = `${viewportWidth / 2 - this.edgeRight}px`
+          context.style.height = `${viewportHeight - this.edgeTop - this.edgeBottom}px`
         }
       }
     } else {
-      context.style.top = `${this.previousY}px`
-      context.style.left = `${this.previousX}px`
+      console.log('RESTORE', this.previousX)
+      const [clientX, clientY] = this.usePointerPosition(event)
+      const [translateX, translateY] = Enlightenment.parseMatrix(context.style.transform)
+
+      let restoreX = this.previousX - (clientX || 0)
+      let restoreY = this.previousY - (clientY || 0)
+      console.log('RESTORE', translateX, translateY)
+
+      if (restoreX - translateX <= 0) {
+        restoreX = this.previousX >= 0 ? this.previousX : 0
+        context.style.transform = 'none'
+      }
+      context.style.left = `${restoreX}px`
+
+      if (restoreY - translateY <= 0) {
+        restoreY = this.previousY >= 0 ? this.previousY : 0
+        context.style.transform = 'none'
+      }
+      context.style.top = `${restoreY}px`
 
       // Restore the initial Window width & height
       if (this.previousWidth) {
-        if (this.previousWidth + context.offsetLeft >= window.innerWidth) {
-          context.style.width = `${window.innerWidth - context.offsetLeft}px`
+        if (this.previousWidth + context.offsetLeft >= viewportWidth) {
+          context.style.width = `${viewportWidth - context.offsetLeft}px`
         } else {
           context.style.width = `${this.previousWidth}px`
         }
       }
 
       if (this.previousHeight) {
-        if (this.previousHeight + context.offsetTop >= window.innerHeight) {
-          context.style.height = `${window.innerHeight - context.offsetTop}px`
+        if (this.previousHeight + context.offsetTop >= viewportHeight) {
+          context.style.height = `${viewportHeight - context.offsetTop}px`
         } else {
           context.style.height = `${this.previousHeight}px`
         }
@@ -900,8 +951,8 @@ class EnlightenmentWindow extends Enlightenment {
     this.edgeY = undefined
 
     // Ensure the Window fit's within the resized Viewport.
-    const maxWidth = window.innerWidth - this.edgeLeft - this.edgeRight
-    const maxHeight = window.innerHeight - this.edgeTop - this.edgeBottom
+    const maxWidth = viewportWidth - this.edgeLeft - this.edgeRight
+    const maxHeight = viewportHeight - this.edgeTop - this.edgeBottom
 
     if (context.offsetWidth + context.offsetLeft >= maxWidth) {
       context.style.width = `${maxWidth}px`
