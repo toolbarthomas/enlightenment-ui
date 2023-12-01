@@ -24,7 +24,7 @@ class EnlightenmentWindow extends Enlightenment {
   // Enable the usage of currentElement.
   enableDocumentEvents: boolean = true
 
-  currentAction?: string = ''
+  currentPivot: number = 0
 
   // Actual x position for the context Element.
   currentX?: number
@@ -41,6 +41,9 @@ class EnlightenmentWindow extends Enlightenment {
 
   // Defined Animation request that should render the current context position.
   dragRequest?: number
+
+  dragX: number = 0
+  dragY: number = 0
 
   // Keep track of the last edge that was interacted with.
   edgeX?: string
@@ -59,6 +62,10 @@ class EnlightenmentWindow extends Enlightenment {
 
   // Previous top position of the defined context Element.
   previousY?: number
+
+  previousPointerX?: number
+
+  previousPointerY?: number
 
   // Current defined X position of the used Pointer.
   pointerX?: number
@@ -101,7 +108,7 @@ class EnlightenmentWindow extends Enlightenment {
   edgeLeft: number = 0
 
   @property({ converter: Enlightenment.isBoolean, type: Boolean })
-  fullscreen?: boolean = false
+  zoom?: boolean = false
 
   @property({ type: String })
   width?: '200px'
@@ -127,11 +134,12 @@ class EnlightenmentWindow extends Enlightenment {
     if (this.dragActive) {
       const context = this.useContext() as HTMLElement
 
-      if (this.fullscreen) {
-        // this.commit('fullscreen', false)
-        this.handleZoom()
-
-        return this.handleDragEnd()
+      if (this.zoom) {
+        // this.commit('zoomed', false)
+        if (!this.currentPivot || this.currentPivot === 5) {
+          this.handleZoom()
+          return this.handleDragEnd()
+        }
       }
 
       if (context) {
@@ -187,17 +195,17 @@ class EnlightenmentWindow extends Enlightenment {
         }
 
         if (this.edgeX || this.edgeY) {
-          console.log('EDGE ZOOM')
-          this.handleZoom(event)
+          // console.log('EDGE ZOOM', this.currentAction)
+          this.currentPivot === 5 && this.handleZoom(event)
         }
 
-        console.log('STOP', this.fullscreen, top, left, width, height)
+        console.log('STOP', this.zoom, top, left, width, height)
 
         this.treshhold = 0
       }
     }
 
-    this.currentAction = undefined
+    this.currentPivot = undefined
     this.currentWidth = undefined
     this.currentHeight = undefined
     this.dragActive = false
@@ -222,7 +230,7 @@ class EnlightenmentWindow extends Enlightenment {
     this.treshhold += 1
 
     // Delay the drag action while fullscreen is active.
-    if (this.fullscreen && this.treshhold < Enlightenment.FPS) {
+    if (this.zoom && this.treshhold < Enlightenment.FPS) {
       return
     }
 
@@ -256,7 +264,7 @@ class EnlightenmentWindow extends Enlightenment {
   handleDragResize(event?: MouseEvent | TouchEvent) {
     const context = this.useContext() as HTMLElement
 
-    if (!context) {
+    if (!context || this.zoom) {
       return
     }
 
@@ -275,24 +283,141 @@ class EnlightenmentWindow extends Enlightenment {
       const y = clientY - this.pointerY
       // this.pointerX = clientX
       // this.pointerY = clientY
-      console.log(this.previousWidth, this.previousHeight)
 
-      context.style.width = `${this.currentWidth + x}px`
-      context.style.height = `${this.currentHeight + y}px`
+      let resizeX = false
+      let resizeY = false
+      let translateX = 0
+      let translateY = 0
+      let height = 0
+      let width = 0
 
-      console.log('RESZiZE', this.currentWidth + x, this.currentHeight + y)
+      if (Enlightenment.pivots.x.includes(this.currentPivot)) {
+        resizeX = true
+      }
+
+      if (Enlightenment.pivots.y.includes(this.currentPivot)) {
+        resizeY = true
+      }
+
+      if (resizeX) {
+        if (context.offsetLeft + context.offsetWidth >= window.innerWidth && this.edgeX) {
+          width = window.innerWidth - context.offsetLeft
+          // this.currentWidth = context.offsetWidth
+          console.log('TOO WIDE', this.edgeX)
+        } else {
+          console.log('to normal?', this.currentWidth, x)
+
+          // const right = clientX <= context.offsetLeft && [1, 4, 7].includes(this.currentPivot)
+          // const left = clientX <= context.offsetLeft && [1, 4, 7].includes(this.currentPivot)
+
+          if ([1, 4, 7].includes(this.currentPivot)) {
+            width = this.currentWidth - x
+
+            // if () {
+            translateX = x
+            // }
+          } else {
+            width = this.currentWidth + x
+          }
+
+          // let left = clientX <= context.offsetLeft
+
+          // console.log('POINTER', this.previousPointerX, clientX)
+
+          // if (clientX >= context.offsetLeft && [1, 4, 7].includes(this.currentPivot)) {
+          //   left = false
+          //   console.log('Should move left')
+          // }
+          console.log('Move to left', x)
+
+          // // left
+          // if (left) {
+          // } else {
+          //   // right
+          //   width = this.currentWidth + x
+          // }
+        }
+      }
+
+      if (resizeY) {
+        if (context.offsetTop + context.offsetHeight >= window.innerHeight && this.edgeY) {
+          height = window.innerHeight - context.offsetTop
+        } else {
+          if ([1, 2, 3].includes(this.currentPivot)) {
+            height = this.currentHeight - y
+
+            // if () {
+            translateY = y
+          } else {
+            height = this.currentHeight + y
+          }
+
+          // if (clientY <= context.offsetTop || [1, 2, 3].includes(this.currentPivot)) {
+          //   height = this.currentHeight - y
+          //   translateY = y
+          // } else {
+          //   context.style.height = `${this.currentHeight + y}px`
+          // }
+        }
+      }
+
+      if (width) {
+        if (width < 300) {
+          width = 300
+          translateX = 0
+        }
+
+        context.style.width = `${width}px`
+      }
+
+      if (height) {
+        context.style.height = `${height}px`
+      }
+
+      if (translateX || translateY) {
+        context.style.transform = `translate(${translateX}px, ${translateY}px)`
+      }
+
+      // console.log(context.offsetLeft + context.offsetWidth, window.innerWidth)
+
+      console.log('RESZiZE', translateX)
     }
   }
 
   handleDragUpdate(event?: MouseEvent | TouchEvent) {
-    switch (this.currentAction) {
-      case 'resize-bottom-right':
-        this.handleDragResize(event)
-        break
+    const [clientX, clientY] = this.usePointerPosition(event)
 
-      default:
-        this.handleDragMove(event)
-        break
+    if (this.previousPointerX === clientX && this.previousPointerY === clientY) {
+      return
+    }
+
+    // Defines the current drag directions based on the previous direction.
+    this.dragX = clientX > this.previousPointerX ? 1 : -1
+    this.dragY = clientY > this.previousPointerY ? 1 : -1
+
+    // Reset any drag direction that has not been changed
+    if (this.previousX === clientX) {
+      this.dragX = 0
+    }
+
+    if (this.previousY === clientY) {
+      this.dragY = 0
+    }
+
+    // Handle the actual drag action from the defined pivot value.
+    if (this.currentPivot !== 5 && this.currentPivot < 10) {
+      this.handleDragResize(event)
+    } else {
+      this.handleDragMove(event)
+    }
+
+    // Use the current clientX & clientY values for the next dragUpdate.
+    if (clientX) {
+      this.previousPointerX = clientX
+    }
+
+    if (clientY) {
+      this.previousPointerY = clientY
     }
   }
 
@@ -301,7 +426,7 @@ class EnlightenmentWindow extends Enlightenment {
   }
 
   handleResizeCallback(event: UIEvent) {
-    if (this.fullscreen) {
+    if (this.zoom) {
       if (this.previousEdge) {
         if (this.previousEdge === 'left' || this.previousEdge === 'right') {
           this.edgeX = this.previousEdge
@@ -311,7 +436,7 @@ class EnlightenmentWindow extends Enlightenment {
         console.log('RESTORE EDGE', this.edgeX, this.edgeY)
       }
 
-      this.fullscreen = false
+      this.zoom = false
       this.handleZoom(event)
     }
 
@@ -337,6 +462,7 @@ class EnlightenmentWindow extends Enlightenment {
     const treshhold = devicePixelRatio * 2
     let clientX = 0
     let clientY = 0
+
     if (event instanceof MouseEvent) {
       clientX = event.clientX
       clientY = event.clientY
@@ -345,29 +471,43 @@ class EnlightenmentWindow extends Enlightenment {
       clientY = event.touches[0].clientY
     }
 
-    if (this.currentAction === 'move') {
-      if (clientY <= edgeTop + treshhold) {
-        this.edgeY = 'top'
-      } else if (clientY >= edgeBottom - treshhold) {
-        this.edgeY = 'bottom'
-      } else {
-        this.edgeY = undefined
+    let initialX = clientX
+    let initialY = clientY
+
+    // if (this.currentAction === 'move') {
+    if (clientY <= edgeTop + treshhold) {
+      this.edgeY = 'top'
+      clientY = 0
+    } else if (clientY >= edgeBottom - treshhold) {
+      this.edgeY = 'bottom'
+      clientY = window.innerHeight
+    } else {
+      this.edgeY = undefined
+    }
+
+    if (clientX <= edgeLeft + treshhold) {
+      this.edgeX = 'left'
+      clientX = 0
+    } else if (clientX >= edgeRight - treshhold) {
+      this.edgeX = 'right'
+      console.log('EDGE')
+      clientX = window.innerWidth
+    } else {
+      if (initialX > window.innerWidth) {
+        clientX = window.innerWidth
       }
 
-      if (clientX <= edgeLeft + treshhold) {
-        this.edgeX = 'left'
-      } else if (clientX >= edgeRight - treshhold) {
-        this.edgeX = 'right'
-      } else {
-        this.edgeX = undefined
-      }
+      this.edgeX = undefined
+    }
 
+    if (!this.currentPivot || this.currentPivot === 5) {
       if (clientY < edgeTop || clientY > edgeBottom || clientX < edgeLeft || clientX > edgeRight) {
         this.handleDragEnd(event)
 
         return []
       }
     }
+    // }
 
     return [clientX, clientY]
   }
@@ -388,7 +528,7 @@ class EnlightenmentWindow extends Enlightenment {
     const target = event.target as HTMLSpanElement
 
     if (target || target.hasAttribute('data-action')) {
-      this.currentAction = target.getAttribute('data-action')
+      this.currentPivot = parseInt(target.getAttribute('data-pivot'))
     }
 
     const context = this.useContext() as HTMLElement
@@ -457,7 +597,7 @@ class EnlightenmentWindow extends Enlightenment {
       return
     }
 
-    if (!this.fullscreen) {
+    if (!this.zoom) {
       this.previousX = context.offsetLeft
       this.previousY = context.offsetTop
 
@@ -485,7 +625,7 @@ class EnlightenmentWindow extends Enlightenment {
         context.style.left = `${this.edgeLeft || 0}px`
         context.style.width = `${window.innerWidth - this.edgeLeft - this.edgeRight}px`
         context.style.height = `${window.innerHeight - this.edgeTop - this.edgeBottom}px`
-      } else {
+      } else if (this.currentPivot) {
         if (this.edgeY === 'top') {
           context.style.top = `${this.edgeTop || 0}px`
           context.style.height = `${window.innerHeight - this.edgeTop - this.edgeBottom}px`
@@ -513,14 +653,23 @@ class EnlightenmentWindow extends Enlightenment {
     } else {
       context.style.top = `${this.previousY}px`
       context.style.left = `${this.previousX}px`
+      console.log('Restore', this.currentPivot)
 
       // Restore the initial Window width & height
       if (this.previousWidth) {
-        context.style.width = `${this.previousWidth}px`
+        if (this.previousWidth + context.offsetLeft >= window.innerWidth) {
+          context.style.width = `${window.innerWidth - context.offsetLeft}px`
+        } else {
+          context.style.width = `${this.previousWidth}px`
+        }
       }
 
       if (this.previousHeight) {
-        context.style.height = `${this.previousHeight}px`
+        if (this.previousHeight + context.offsetTop >= window.innerHeight) {
+          context.style.height = `${window.innerHeight - context.offsetTop}px`
+        } else {
+          context.style.height = `${this.previousHeight}px`
+        }
       }
 
       // Restore the Window and remove any focus from it.
@@ -536,7 +685,7 @@ class EnlightenmentWindow extends Enlightenment {
     this.edgeX = undefined
     this.edgeY = undefined
 
-    this.commit('fullscreen', !this.fullscreen)
+    this.commit('zoom', !this.zoom)
   }
 
   protected updated(properties: any) {
@@ -562,7 +711,7 @@ class EnlightenmentWindow extends Enlightenment {
       <header class="window__header">
         <span
           class="window__handle"
-          data-action="move"
+          data-pivot="5"
           @mousedown="${this.handleDragStart}"
           @touchstart="${this.handleDragStart}"
         ></span>
@@ -606,8 +755,8 @@ class EnlightenmentWindow extends Enlightenment {
       classes.push(`window--has-controls-${this.controls}`)
     }
 
-    if (this.fullscreen) {
-      classes.push(`window--is-fullscreen`)
+    if (this.zoom) {
+      classes.push(`window--is-zoomed`)
     }
 
     return html`
@@ -622,12 +771,20 @@ class EnlightenmentWindow extends Enlightenment {
           </main>
         </div>
         <footer class="window__footer"></footer>
-        <span
-          class="window__handle window__handle--bottom-right"
-          data-action="resize-bottom-right"
-          @mousedown="${this.handleDragStart}"
-          @touchstart="${this.handleDragStart}"
-        ></span>
+        ${Array.from({ length: 9 }).map((_, index) => {
+          if (index === 4) {
+            return
+          }
+
+          return html`
+            <span
+              class="window__handle"
+              data-pivot="${index + 1}"
+              @mousedown="${this.handleDragStart}"
+              @touchstart="${this.handleDragStart}"
+            ></span>
+          `
+        })}
       </div>
     `
   }
