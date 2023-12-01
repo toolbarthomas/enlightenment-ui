@@ -24,6 +24,12 @@ class EnlightenmentWindow extends Enlightenment {
   // Enable the usage of currentElement.
   enableDocumentEvents: boolean = true
 
+  // Current timeout ID to reset while a click is triggered.
+  clickRequest?: number
+
+  // Keep track of the amount of repeating clicks
+  currentClick?: number = 0
+
   currentPivot: number = 0
 
   // Actual x position for the context Element.
@@ -110,11 +116,11 @@ class EnlightenmentWindow extends Enlightenment {
   @property({ converter: Enlightenment.isBoolean, type: Boolean })
   zoom?: boolean = false
 
-  @property({ type: String })
-  width?: '200px'
+  @property({ converter: Enlightenment.isInteger, type: Number })
+  width?: number
 
-  @property({ type: String })
-  height?: string
+  @property({ converter: Enlightenment.isInteger, type: Number })
+  height?: number
 
   public connectedCallback(): void {
     super.connectedCallback()
@@ -134,7 +140,7 @@ class EnlightenmentWindow extends Enlightenment {
     if (this.dragActive) {
       const context = this.useContext() as HTMLElement
 
-      if (this.zoom) {
+      if (this.zoom && this.treshhold >= Enlightenment.FPS) {
         // this.commit('zoomed', false)
         if (!this.currentPivot || this.currentPivot === 5) {
           this.handleZoom()
@@ -209,6 +215,7 @@ class EnlightenmentWindow extends Enlightenment {
     this.currentWidth = undefined
     this.currentHeight = undefined
     this.dragActive = false
+    this.removeAttribute('aria-grabbed')
 
     this.omitGlobalEvent('mousemove', this.handleDragUpdate)
     this.omitGlobalEvent('mouseup', this.handleDragEnd)
@@ -308,17 +315,46 @@ class EnlightenmentWindow extends Enlightenment {
           console.log('to normal?', this.currentWidth, x)
 
           // const right = clientX <= context.offsetLeft && [1, 4, 7].includes(this.currentPivot)
-          // const left = clientX <= context.offsetLeft && [1, 4, 7].includes(this.currentPivot)
+          // const left = clientX <= context.offsetLeft && [1, 4, 7].includes(this.currentPivot)mbv
 
-          if ([1, 4, 7].includes(this.currentPivot)) {
-            width = this.currentWidth - x
+          console.log(this.edgeX)
+          let right = false
 
-            // if () {
+          if (this.dragX === 1 && [3, 6, 9].includes(this.currentPivot)) {
+            right = true
+          } else if (this.dragX == -1 && [3, 6, 9].includes(this.currentPivot)) {
+            right = true
+
+            if (clientX <= context.offsetLeft) {
+              return this.handleDragEnd(event)
+            }
+          } else if (this.dragX === -1 && [1, 4, 7].includes(this.currentPivot)) {
+            right = false
             translateX = x
-            // }
-          } else {
-            width = this.currentWidth + x
+          } else if (this.dragX === 1 && [1, 4, 7].includes(this.currentPivot)) {
+            translateX = x
+            right = false
+
+            if (clientX >= context.offsetLeft + context.offsetWidth) {
+              return this.handleDragEnd(event)
+            }
           }
+
+          if (right) {
+            width = this.currentWidth + x
+          } else {
+            width = this.currentWidth - x
+          }
+
+          // if ([1, 4, 7].includes(this.currentPivot)) {
+          //   width = this.currentWidth - x
+
+          //   // if () {
+          //   translateX = x
+          //   // }
+          // } else {
+          //   width = this.currentWidth + x
+          // }
 
           // let left = clientX <= context.offsetLeft
 
@@ -343,13 +379,39 @@ class EnlightenmentWindow extends Enlightenment {
         if (context.offsetTop + context.offsetHeight >= window.innerHeight && this.edgeY) {
           height = window.innerHeight - context.offsetTop
         } else {
-          if ([1, 2, 3].includes(this.currentPivot)) {
-            height = this.currentHeight - y
+          // if ([1, 2, 3].includes(this.currentPivot)) {
+          //   height = this.currentHeight - y
 
-            // if () {
+          let up = false
+
+          if (this.dragY === 1 && [7, 8, 9].includes(this.currentPivot)) {
+            up = true
+          } else if (this.dragY == -1 && [7, 8, 9].includes(this.currentPivot)) {
+            up = true
+
+            if (clientY <= context.offsetTop) {
+              return this.handleDragEnd(event)
+            }
+          } else if (this.dragY === -1 && [1, 2, 3].includes(this.currentPivot)) {
+            up = false
             translateY = y
-          } else {
+          } else if (this.dragY === 1 && [1, 2, 3].includes(this.currentPivot)) {
+            translateY = y
+            up = false
+
+            if (clientY >= context.offsetTop + context.offsetHeight) {
+              return this.handleDragEnd(event)
+            }
+          }
+
+          //   // if () {
+          //   translateY = y
+          // } else {
+          // }
+          if (up) {
             height = this.currentHeight + y
+          } else {
+            height = this.currentHeight - y
           }
 
           // if (clientY <= context.offsetTop || [1, 2, 3].includes(this.currentPivot)) {
@@ -371,6 +433,11 @@ class EnlightenmentWindow extends Enlightenment {
       }
 
       if (height) {
+        if (height < 100) {
+          height = 100
+          translateY = 0
+        }
+
         context.style.height = `${height}px`
       }
 
@@ -409,6 +476,13 @@ class EnlightenmentWindow extends Enlightenment {
       this.handleDragResize(event)
     } else {
       this.handleDragMove(event)
+
+      // Mark as grabbed at the first movement
+      if (this.treshhold >= 1) {
+        if (!this.hasAttribute('aria-grabbed')) {
+          this.setAttribute('aria-grabbed', 'true')
+        }
+      }
     }
 
     // Use the current clientX & clientY values for the next dragUpdate.
@@ -436,7 +510,16 @@ class EnlightenmentWindow extends Enlightenment {
         console.log('RESTORE EDGE', this.edgeX, this.edgeY)
       }
 
-      this.zoom = false
+      if (!this.edgeX && !this.edgeY) {
+        this.zoom = false
+        this.handleZoom(event)
+      }
+    }
+
+    const context = this.useContext() as HTMLElement
+
+    if (context && context.offsetLeft + context.offsetWidth >= window.innerWidth) {
+      this.zoom = true
       this.handleZoom(event)
     }
 
@@ -537,6 +620,24 @@ class EnlightenmentWindow extends Enlightenment {
       return
     }
 
+    this.currentClick++
+
+    // Enable the zoom command while double click/tap is applied on the selected
+    // moveable corner.
+    if (this.currentClick === 1) {
+      this.clickRequest && clearTimeout(this.clickRequest)
+      this.clickRequest = setTimeout(() => {
+        this.currentClick = 0
+      }, this.delay * 10)
+    }
+
+    if (this.currentClick > 1) {
+      this.handleZoomFromPivot(event)
+      this.handleDragEnd(event)
+
+      return
+    }
+
     this.dragActive = true
 
     this.currentX = context.offsetLeft
@@ -578,6 +679,90 @@ class EnlightenmentWindow extends Enlightenment {
     }
 
     this.remove && this.remove()
+  }
+
+  handleZoomFromPivot(event?: MouseEvent | TouchEvent) {
+    const context = this.useContext() as HTMLElement
+
+    if (!context) {
+      return
+    }
+
+    switch (this.currentPivot) {
+      case 1:
+        if (!this.zoom) {
+          context.style.width = `${context.offsetLeft + context.offsetWidth}px`
+          context.style.height = `${context.offsetTop + context.offsetHeight}px`
+
+          context.style.left = 0 + this.edgeLeft
+          context.style.top = 0 + this.edgeTop
+        }
+
+        break
+
+      case 2:
+        if (!this.zoom) {
+          context.style.height = `${context.offsetTop + context.offsetHeight}px`
+
+          context.style.top = 0 + this.edgeTop
+        }
+
+        break
+
+      case 3:
+        if (!this.zoom) {
+          context.style.height = `${context.offsetTop + context.offsetHeight}px`
+          context.style.width = `${window.innerWidth - context.offsetLeft - this.edgeRight}px`
+
+          context.style.top = 0 + this.edgeTop
+        }
+
+        break
+
+      case 4:
+        if (!this.zoom) {
+          context.style.width = `${context.offsetLeft + context.offsetWidth - this.edgeRight}px`
+
+          context.style.left = 0 + this.edgeLeft
+        }
+
+        break
+
+      case 6:
+        if (!this.zoom) {
+          context.style.width = `${window.innerWidth - context.offsetLeft - this.edgeRight}px`
+        }
+
+        break
+
+      case 7:
+        if (!this.zoom) {
+          context.style.width = `${context.offsetLeft + context.offsetWidth}px`
+          context.style.height = `${window.innerHeight - context.offsetTop - this.edgeBottom}px`
+
+          context.style.left = 0 + this.edgeLeft
+        }
+        break
+
+      case 8:
+        if (!this.zoom) {
+          context.style.height = `${window.innerHeight - context.offsetTop - this.edgeBottom}px`
+        }
+
+        break
+
+      case 9:
+        if (!this.zoom) {
+          context.style.width = `${window.innerWidth - context.offsetLeft - this.edgeRight}px`
+          context.style.height = `${window.innerHeight - context.offsetTop - this.edgeBottom}px`
+        }
+
+        break
+
+      default:
+        this.handleZoom(event)
+        break
+    }
   }
 
   handleSuspend(event?: Event) {
@@ -653,7 +838,6 @@ class EnlightenmentWindow extends Enlightenment {
     } else {
       context.style.top = `${this.previousY}px`
       context.style.left = `${this.previousX}px`
-      console.log('Restore', this.currentPivot)
 
       // Restore the initial Window width & height
       if (this.previousWidth) {
@@ -675,15 +859,25 @@ class EnlightenmentWindow extends Enlightenment {
       // Restore the Window and remove any focus from it.
       this.throttle(this.handleCurrentElement)
 
+      // Detach from the current edge.
       this.previousEdge = undefined
-
-      context.style.width = this.width || undefined
-      context.style.height = this.height || undefined
     }
 
     this.previousEdge = this.edgeX || this.edgeY || undefined
     this.edgeX = undefined
     this.edgeY = undefined
+
+    // Ensure the Window fit's within the resized Viewport.
+    const maxWidth = window.innerWidth - this.edgeLeft - this.edgeRight
+    const maxHeight = window.innerHeight - this.edgeTop - this.edgeBottom
+
+    if (context.offsetWidth + context.offsetLeft >= maxWidth) {
+      context.style.width = `${maxWidth}px`
+    }
+
+    if (context.offsetHeight + context.offsetTop >= maxHeight) {
+      context.style.height = `${maxHeight}px`
+    }
 
     this.commit('zoom', !this.zoom)
   }

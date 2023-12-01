@@ -119,6 +119,24 @@
       border-left: none;
     }
 
+    &:hover {
+      :host([aria-grabbed]) & {
+        background-color: var(--dawn-300);
+      }
+
+      :host([aria-grabbed][accent]) & {
+        background-color: var(--accent-400);
+      }
+
+      :host([aria-grabbed][mode='dark']) & {
+        background: transparent;
+      }
+
+      :host([aria-grabbed][accent][mode='dark']) & {
+        background: var(--accent-700);
+      }
+    }
+
     :host([accent]) & {
       color: var(--accent-900);
       border-color: var(--accent-500);
