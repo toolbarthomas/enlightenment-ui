@@ -96,7 +96,7 @@ class EnlightenmentWindow extends Enlightenment {
   controls?: string = 'left'
 
   @property({ type: String })
-  label?: string
+  name?: string
 
   @property({
     reflect: true,
@@ -119,6 +119,9 @@ class EnlightenmentWindow extends Enlightenment {
 
   @property({ converter: Enlightenment.isInteger, type: Number })
   edgeLeft: number = 0
+
+  @property({ converter: Enlightenment.isBoolean, type: Boolean })
+  monochrome?: boolean = false
 
   @property({ converter: Enlightenment.isBoolean, type: Boolean })
   zoom?: boolean = false
@@ -146,6 +149,8 @@ class EnlightenmentWindow extends Enlightenment {
 
   firstUpdated(properties: any) {
     super.firstUpdated(properties)
+
+    console.log('Sib', Enlightenment.getRelatedComponents(this))
 
     const context = this.useContext()
     if (context) {
@@ -544,12 +549,12 @@ class EnlightenmentWindow extends Enlightenment {
 
     const context = this.useContext() as HTMLElement
 
-    if (context && context.offsetLeft + context.offsetWidth >= window.innerWidth) {
-      this.zoom = true
-      this.handleZoom(event)
+    if (this.zoom && context && context.offsetLeft + context.offsetWidth != window.innerWidth) {
+      this.throttle(() => {
+        this.zoom = true
+        this.handleZoom(event)
+      })
     }
-
-    console.log('resize')
   }
 
   useEdge() {
@@ -708,6 +713,14 @@ class EnlightenmentWindow extends Enlightenment {
     !this.currentElement && this.handleDragEnd()
   }
 
+  handleMinimize(event?: Event) {
+    if (event && event.preventDefault) {
+      event.preventDefault()
+    }
+
+    this.commit('isCollapsed', !this.isCollapsed)
+  }
+
   handleExit(event?: Event) {
     if (event && event.preventDefault) {
       event.preventDefault()
@@ -827,8 +840,6 @@ class EnlightenmentWindow extends Enlightenment {
   }
 
   handleSuspend(event?: Event) {
-    console.log('suspend')
-
     if (event && event.preventDefault) {
       event.preventDefault()
     }
@@ -875,8 +886,6 @@ class EnlightenmentWindow extends Enlightenment {
         context.style.width = `${viewportWidth - this.edgeLeft - this.edgeRight}px`
         context.style.height = `${viewportHeight - this.edgeTop - this.edgeBottom}px`
       } else if (this.currentPivot) {
-        console.log('ZOOM', viewportWidth / devicePixelRatio, document.documentElement.offsetWidth)
-
         if (this.edgeY === 'top') {
           context.style.top = `${this.edgeTop || 0}px`
           context.style.height = `${viewportHeight - this.edgeTop - this.edgeBottom}px`
@@ -892,31 +901,39 @@ class EnlightenmentWindow extends Enlightenment {
         if (this.edgeX === 'left') {
           context.style.top = `${this.edgeTop || 0}px`
           context.style.left = `${this.edgeLeft || 0}px`
-          context.style.width = `${viewportWidth / 2 - this.edgeLeft}px`
+          context.style.width = `${viewportWidth / 2 - this.edgeLeft || 0}px`
           context.style.height = `${viewportHeight - this.edgeTop - this.edgeBottom}px`
         } else if (this.edgeX === 'right') {
           context.style.top = `${this.edgeTop || 0}px`
           context.style.left = `${viewportWidth / 2}px`
           context.style.width = `${viewportWidth / 2 - this.edgeRight}px`
           context.style.height = `${viewportHeight - this.edgeTop - this.edgeBottom}px`
+          console.log('DDD', viewportWidth / 2 - this.edgeRight)
         }
       }
     } else {
-      console.log('RESTORE', this.previousX)
       const [clientX, clientY] = this.usePointerPosition(event)
       const [translateX, translateY] = Enlightenment.parseMatrix(context.style.transform)
 
       let restoreX = this.previousX - (clientX || 0)
       let restoreY = this.previousY - (clientY || 0)
-      console.log('RESTORE', translateX, translateY)
+      const maxX = restoreX - (translateX || 0)
+      const maxY = restoreY - (translateY || 0)
+      let restoreHeight = 0
+      let restoreWidth = 0
 
-      if (restoreX - translateX <= 0) {
-        restoreX = this.previousX >= 0 ? this.previousX : 0
+      if (maxX <= 0) {
+        restoreX = this.previousX >= 0 ? this.previousX : this.edgeLeft
+        context.style.transform = 'none'
+      } else if (maxX + this.previousWidth >= window.innerWidth - this.edgeRight) {
+        console.log('right?')
+        restoreX = window.innerWidth - this.edgeRight - this.previousWidth
         context.style.transform = 'none'
       }
+
       context.style.left = `${restoreX}px`
 
-      if (restoreY - translateY <= 0) {
+      if (maxY <= 0) {
         restoreY = this.previousY >= 0 ? this.previousY : 0
         context.style.transform = 'none'
       }
@@ -924,23 +941,20 @@ class EnlightenmentWindow extends Enlightenment {
 
       // Restore the initial Window width & height
       if (this.previousWidth) {
-        if (this.previousWidth + context.offsetLeft >= viewportWidth) {
-          context.style.width = `${viewportWidth - context.offsetLeft}px`
+        if (this.previousWidth + restoreX >= viewportWidth) {
+          context.style.width = `${viewportWidth - restoreX}px`
         } else {
           context.style.width = `${this.previousWidth}px`
         }
       }
 
       if (this.previousHeight) {
-        if (this.previousHeight + context.offsetTop >= viewportHeight) {
+        if (this.previousHeight + restoreY >= viewportHeight) {
           context.style.height = `${viewportHeight - context.offsetTop}px`
         } else {
           context.style.height = `${this.previousHeight}px`
         }
       }
-
-      // Restore the Window and remove any focus from it.
-      this.throttle(this.handleCurrentElement)
 
       // Detach from the current edge.
       this.previousEdge = undefined
@@ -950,31 +964,23 @@ class EnlightenmentWindow extends Enlightenment {
     this.edgeX = undefined
     this.edgeY = undefined
 
-    // Ensure the Window fit's within the resized Viewport.
-    const maxWidth = viewportWidth - this.edgeLeft - this.edgeRight
-    const maxHeight = viewportHeight - this.edgeTop - this.edgeBottom
-
-    if (context.offsetWidth + context.offsetLeft >= maxWidth) {
-      context.style.width = `${maxWidth}px`
-    }
-
-    if (context.offsetHeight + context.offsetTop >= maxHeight) {
-      context.style.height = `${maxHeight}px`
-    }
+    // this.resize(Math.random() * 1000, Math.random() * 1000, 1000, 2300)
 
     this.commit('zoom', !this.zoom)
   }
 
-  protected updated(properties: any) {
-    super.updated(properties)
-
+  protected handleUpdate(name?: string | undefined): void {
     this.updateAttribute('views')
     this.updateAttribute('zoom')
     this.updateAttribute('suspend')
+    this.updateAttribute('monochrome')
+    this.updateAttributeAlias('suspend', 'aria-hidden')
 
     if (this.suspend) {
       this.handleCurrentElement()
     }
+
+    super.handleUpdate(name)
   }
 
   renderAside() {
@@ -985,6 +991,7 @@ class EnlightenmentWindow extends Enlightenment {
     return html`
       <aside class="window__aside">
         ${this.type === 'secondary' ? this.renderControls() : nothing}
+        <slot name="aside"><div class="block" /></div></slot>
       </aside>
     `
   }
@@ -992,10 +999,13 @@ class EnlightenmentWindow extends Enlightenment {
   renderControls() {
     return html`
       <div class="window__controls">
-        <button class="window__control window__control--exit" @click=${this.handleExit}></button>
         <button
           class="window__control window__control--suspend"
           @click=${this.handleSuspend}
+        ></button>
+        <button
+          class="window__control window__control--hide"
+          @click=${this.handleMinimize}
         ></button>
         <button class="window__control window__control--zoom" @click=${this.handleZoom}></button>
       </div>
@@ -1036,7 +1046,7 @@ class EnlightenmentWindow extends Enlightenment {
   }
 
   renderMeta() {
-    return html` <span class="window__meta">${this.title}</span> `
+    return html` <span class="window__meta">${this.name}</span> `
   }
 
   renderOverlay() {
@@ -1078,28 +1088,86 @@ class EnlightenmentWindow extends Enlightenment {
       classes.push(`window--is-zoomed`)
     }
 
-    if (this.suspend) {
-      classes.push('window--is-suspended')
-    }
-
     return html`
       <div ref="${ref(this.context)}" class="${classes.join(' ')}" draggable>
-        ${this.renderMain()}
-        ${Array.from({ length: 9 }).map((_, index) => {
-          if (index === 4) {
-            return
-          }
+        <div class="window__canvas">
+          ${this.renderMain()}
+          ${Array.from({ length: 9 }).map((_, index) => {
+            if (index === 4) {
+              return
+            }
 
-          return html`
-            <span
-              class="window__handle"
-              data-pivot="${index + 1}"
-              @mousedown="${this.handleDragStart}"
-              @touchstart="${this.handleDragStart}"
-            ></span>
-          `
-        })}
+            return html`
+              <span
+                class="window__handle"
+                data-pivot="${index + 1}"
+                @mousedown="${this.handleDragStart}"
+                @touchstart="${this.handleDragStart}"
+              ></span>
+            `
+          })}
+        </div>
       </div>
     `
+  }
+
+  resize(width: number, height: number, x?: number, y?: number) {
+    const context = this.useContext() as HTMLElement
+
+    if (!context) {
+      return
+    }
+
+    let w = width
+    let h = height
+
+    let left = x || this.edgeLeft
+    let top = y || this.edgeTop
+
+    if (left >= window.innerWidth - this.edgeRight) {
+      left = thie.edgeLeft || 0
+    } else if (left < 0) {
+      left = this.edgeLeft || 0
+    }
+
+    if (top >= window.innerHeight - this.edgeBottom) {
+      top = window.innerHeight - h - this.edgeTop
+    } else if (top < 0) {
+      top = this.edgeTop
+    }
+
+    if (w + left >= window.innerWidth - this.edgeRight) {
+      w = window.innerWidth - left - this.edgeRight
+    }
+
+    if (h + top >= window.innerHeight - this.edgeBottom) {
+      h = window.innerHeight - top - this.edgeBottom
+    }
+
+    if (left !== context.offsetLeft) {
+      this.previousX = context.offsetLeft
+
+      context.style.left = `${left}px`
+    }
+
+    if (top !== context.offsetTop) {
+      this.previousY = context.offsetTop
+
+      context.style.top = `${top}px`
+    }
+
+    if (w !== context.offsetWidth) {
+      this.previousWidth = context.offsetWidth
+
+      context.style.width = `${w}px`
+    }
+
+    if (h !== context.offsetHeight) {
+      this.previousWidth = context.offsetWidth
+
+      context.style.height = `${h}px`
+    }
+
+    console.log('resize', w, h, left, top)
   }
 }
