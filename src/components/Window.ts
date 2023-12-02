@@ -121,6 +121,9 @@ class EnlightenmentWindow extends Enlightenment {
   edgeLeft: number = 0
 
   @property({ converter: Enlightenment.isBoolean, type: Boolean })
+  static?: boolean = false
+
+  @property({ converter: Enlightenment.isBoolean, type: Boolean })
   monochrome?: boolean = false
 
   @property({ converter: Enlightenment.isBoolean, type: Boolean })
@@ -156,8 +159,6 @@ class EnlightenmentWindow extends Enlightenment {
     if (context) {
       context.style.width = `${EnlightenmentWindow.minWidth}px`
       context.style.height = `${EnlightenmentWindow.minHeight}px`
-
-      console.log('WITH CONTEXT')
     }
   }
 
@@ -210,23 +211,24 @@ class EnlightenmentWindow extends Enlightenment {
           width = window.innerWidth / 2 - this.edgeLeft
         }
 
-        if (this.edgeY === 'top' || this.currentY + context.offsetHeight < edgeTop) {
-          height = window.innerHeight / 2 - this.edgeTop
+        // @TODO RESTORE
+        // if (this.edgeY === 'top' || this.currentY + context.offsetHeight < edgeTop) {
+        //   height = window.innerHeight / 2 - this.edgeTop
 
-          if (this.edgeTop) {
-            top = this.edgeTop
-          }
+        //   if (this.edgeTop) {
+        //     top = this.edgeTop
+        //   }
 
-          // if (edgeTop) {
-          //   height = window.innerHeight / 2 - 0
-          // }
-          console.log('REST TOP')
-        } else if (this.edgeY === 'bottom' || this.currentY > edgeBottom) {
-          top = window.innerHeight / 2
-          height = window.innerHeight / 2 - this.edgeBottom
+        //   // if (edgeTop) {
+        //   //   height = window.innerHeight / 2 - 0
+        //   // }
+        //   console.log('REST TOP')
+        // } else if (this.edgeY === 'bottom' || this.currentY > edgeBottom) {
+        //   top = window.innerHeight / 2
+        //   height = window.innerHeight / 2 - this.edgeBottom
 
-          console.log('REST BOTTOM')
-        }
+        //   console.log('REST BOTTOM')
+        // }
 
         if (this.edgeX || this.edgeY) {
           // console.log('EDGE ZOOM', this.currentAction)
@@ -538,23 +540,31 @@ class EnlightenmentWindow extends Enlightenment {
         } else {
           this.edgeY = this.previousEdge
         }
-        console.log('RESTORE EDGE', this.edgeX, this.edgeY)
+      } else {
+        this.edgeX = undefined
+        this.edgeY = undefined
       }
 
-      if (!this.edgeX && !this.edgeY) {
-        this.zoom = false
-        this.handleZoom(event)
-      }
+      this.zoom = false
+      this.handleZoom(event)
+
+      // if (!this.edgeX && !this.edgeY) {
+      //   this.zoom = false
+      //   this.handleZoom(event)
+      // }
     }
 
-    const context = this.useContext() as HTMLElement
+    // this.zoom = false
+    // this.throttle(() => this.handleZoom(event))
 
-    if (this.zoom && context && context.offsetLeft + context.offsetWidth != window.innerWidth) {
-      this.throttle(() => {
-        this.zoom = true
-        this.handleZoom(event)
-      })
-    }
+    // const context = this.useContext() as HTMLElement
+
+    // if (this.zoom && context && context.offsetLeft + context.offsetWidth != window.innerWidth) {
+    //   this.throttle(() => {
+    //     this.zoom = true
+    //     this.handleZoom(event)
+    //   })
+    // }
   }
 
   useEdge() {
@@ -756,6 +766,10 @@ class EnlightenmentWindow extends Enlightenment {
   }
 
   handleZoomFromPivot(event?: MouseEvent | TouchEvent) {
+    if (this.static) {
+      return
+    }
+
     const context = this.useContext() as HTMLElement
 
     if (!context) {
@@ -839,6 +853,48 @@ class EnlightenmentWindow extends Enlightenment {
     }
   }
 
+  protected handleSlotChange(event: Event): void {
+    super.handleSlotChange('change')
+
+    const context = this.useContext() as HTMLElement
+
+    if (!context) {
+      return
+    }
+
+    let width = 0
+    let height = 0
+
+    Object.values(this.slots).forEach((slot) => {
+      if (!slot || !slot.parentElement) {
+        return
+      }
+
+      console.log(slot.parentElement)
+
+      width += slot.parentElement.scrollWidth || 0
+      height += slot.parentElement.scrollHeight || 0
+    })
+
+    const std = this.static
+
+    if (std) {
+      this.static = false
+    }
+
+    // this.resize(width, height, context.offsetLeft, context.offsetTop)
+
+    if (std) {
+      this.static = std
+    }
+
+    console.log('Slot', width)
+
+    // this.throttle(() => {
+    //   console.log('WITH CONTEXT', Enlightenment.getElementsFromSlot(this.useSlot(), ['img']))
+    // }, 1000)
+  }
+
   handleSuspend(event?: Event) {
     if (event && event.preventDefault) {
       event.preventDefault()
@@ -852,6 +908,10 @@ class EnlightenmentWindow extends Enlightenment {
       event.preventDefault()
     }
 
+    if (this.static) {
+      return
+    }
+
     const context = this.useContext() as HTMLElement
 
     if (!context) {
@@ -862,107 +922,125 @@ class EnlightenmentWindow extends Enlightenment {
     const viewportHeight = window.innerHeight
 
     if (!this.zoom) {
-      this.previousX = context.offsetLeft
-      this.previousY = context.offsetTop
+      // this.previousX = context.offsetLeft
+      // this.previousY = context.offsetTop
 
-      this.previousWidth = context.offsetWidth
-      this.previousHeight = context.offsetHeight
+      // this.previousWidth = context.offsetWidth
+      // this.previousHeight = context.offsetHeight
 
-      if (this.edgeX === 'left') {
-        this.previousX = 0
-      } else if (this.edgeX === 'right') {
-        this.previousX = viewportWidth - context.offsetWidth
-      }
+      // if (this.edgeX === 'left') {
+      //   this.previousX = 0
+      // } else if (this.edgeX === 'right') {
+      //   this.previousX = viewportWidth - context.offsetWidth
+      // }
 
-      if (this.edgeY === 'top') {
-        this.previousY = 0
-      } else if (this.edgeY === 'bottom') {
-        this.previousY = viewportHeight - context.offsetHeight
-      }
+      // if (this.edgeY === 'top') {
+      //   this.previousY = 0
+      // } else if (this.edgeY === 'bottom') {
+      //   this.previousY = viewportHeight - context.offsetHeight
+      // }
 
-      if (!this.edgeX && !this.edgeY) {
-        context.style.top = `${this.edgeTop || 0}px`
-        context.style.left = `${this.edgeLeft || 0}px`
-        context.style.width = `${viewportWidth - this.edgeLeft - this.edgeRight}px`
-        context.style.height = `${viewportHeight - this.edgeTop - this.edgeBottom}px`
-      } else if (this.currentPivot) {
-        if (this.edgeY === 'top') {
-          context.style.top = `${this.edgeTop || 0}px`
-          context.style.height = `${viewportHeight - this.edgeTop - this.edgeBottom}px`
-          context.style.left = `${this.edgeLeft || 0}px`
-          context.style.width = `${viewportWidth - this.edgeLeft - this.edgeRight}px`
-        } else if (this.edgeY === 'bottom') {
-          context.style.top = `${viewportHeight / 2}px`
-          context.style.height = `${viewportHeight / 2 - (this.edgeBottom || 0)}px`
-          context.style.width = `${viewportWidth - this.edgeLeft - this.edgeRight}px`
-          context.style.left = `${this.edgeLeft || 0}px`
-        }
-
+      if (this.edgeY === 'top' || (!this.edgeX && !this.edgeY)) {
+        this.resize(window.innerWidth, window.innerHeight, 0, 0)
+      } else if (!this.currentPivot || this.currentPivot === 5) {
         if (this.edgeX === 'left') {
-          context.style.top = `${this.edgeTop || 0}px`
-          context.style.left = `${this.edgeLeft || 0}px`
-          context.style.width = `${viewportWidth / 2 - this.edgeLeft || 0}px`
-          context.style.height = `${viewportHeight - this.edgeTop - this.edgeBottom}px`
+          this.resize(window.innerWidth / 2, window.innerHeight, 0, 0)
         } else if (this.edgeX === 'right') {
-          context.style.top = `${this.edgeTop || 0}px`
-          context.style.left = `${viewportWidth / 2}px`
-          context.style.width = `${viewportWidth / 2 - this.edgeRight}px`
-          context.style.height = `${viewportHeight - this.edgeTop - this.edgeBottom}px`
-          console.log('DDD', viewportWidth / 2 - this.edgeRight)
+          console.log('RESIZE RIGHT')
+          this.resize(window.innerWidth / 2, window.innerHeight, window.innerWidth / 2, 0)
+        } else {
+          this.resize(window.innerWidth, window.innerHeight / 2, 0, window.innerHeight / 2)
         }
+
+        this.previousEdge = this.edgeX || this.edgeY || undefined
       }
+
+      // if (!this.edgeX && !this.edgeY) {
+      //   context.style.top = `${this.edgeTop || 0}px`
+      //   context.style.left = `${this.edgeLeft || 0}px`
+      //   context.style.width = `${viewportWidth - this.edgeLeft - this.edgeRight}px`
+      //   context.style.height = `${viewportHeight - this.edgeTop - this.edgeBottom}px`
+      // } else if (this.currentPivot) {
+      //   if (this.edgeY === 'top') {
+      //     context.style.top = `${this.edgeTop || 0}px`
+      //     context.style.height = `${viewportHeight - this.edgeTop - this.edgeBottom}px`
+      //     context.style.left = `${this.edgeLeft || 0}px`
+      //     context.style.width = `${viewportWidth - this.edgeLeft - this.edgeRight}px`
+      //   } else if (this.edgeY === 'bottom') {
+      //     context.style.top = `${viewportHeight / 2}px`
+      //     context.style.height = `${viewportHeight / 2 - (this.edgeBottom || 0)}px`
+      //     context.style.width = `${viewportWidth - this.edgeLeft - this.edgeRight}px`
+      //     context.style.left = `${this.edgeLeft || 0}px`
+      //   }
+
+      //   if (this.edgeX === 'left') {
+      //     context.style.top = `${this.edgeTop || 0}px`
+      //     context.style.left = `${this.edgeLeft || 0}px`
+      //     context.style.width = `${viewportWidth / 2 - this.edgeLeft || 0}px`
+      //     context.style.height = `${viewportHeight - this.edgeTop - this.edgeBottom}px`
+      //   } else if (this.edgeX === 'right') {
+      //     context.style.top = `${this.edgeTop || 0}px`
+      //     context.style.left = `${viewportWidth / 2}px`
+      //     context.style.width = `${viewportWidth / 2 - this.edgeRight}px`
+      //     context.style.height = `${viewportHeight - this.edgeTop - this.edgeBottom}px`
+      //     console.log('DDD', viewportWidth / 2 - this.edgeRight)
+      //   }
+      // }
     } else {
-      const [clientX, clientY] = this.usePointerPosition(event)
       const [translateX, translateY] = Enlightenment.parseMatrix(context.style.transform)
 
-      let restoreX = this.previousX - (clientX || 0)
-      let restoreY = this.previousY - (clientY || 0)
-      const maxX = restoreX - (translateX || 0)
-      const maxY = restoreY - (translateY || 0)
-      let restoreHeight = 0
-      let restoreWidth = 0
+      this.resize(this.previousWidth, this.previousHeight, translateX, translateY)
 
-      if (maxX <= 0) {
-        restoreX = this.previousX >= 0 ? this.previousX : this.edgeLeft
-        context.style.transform = 'none'
-      } else if (maxX + this.previousWidth >= window.innerWidth - this.edgeRight) {
-        console.log('right?')
-        restoreX = window.innerWidth - this.edgeRight - this.previousWidth
-        context.style.transform = 'none'
-      }
+      // const [clientX, clientY] = this.usePointerPosition(event)
+      // const [translateX, translateY] = Enlightenment.parseMatrix(context.style.transform)
 
-      context.style.left = `${restoreX}px`
+      // let restoreX = this.previousX - (clientX || 0)
+      // let restoreY = this.previousY - (clientY || 0)
+      // const maxX = restoreX - (translateX || 0)
+      // const maxY = restoreY - (translateY || 0)
+      // let restoreHeight = 0
+      // let restoreWidth = 0
 
-      if (maxY <= 0) {
-        restoreY = this.previousY >= 0 ? this.previousY : 0
-        context.style.transform = 'none'
-      }
-      context.style.top = `${restoreY}px`
+      // if (maxX <= 0) {
+      //   restoreX = this.previousX >= 0 ? this.previousX : this.edgeLeft
+      //   context.style.transform = 'none'
+      // } else if (maxX + this.previousWidth >= window.innerWidth - this.edgeRight) {
+      //   console.log('right?')
+      //   restoreX = window.innerWidth - this.edgeRight - this.previousWidth
+      //   context.style.transform = 'none'
+      // }
 
-      // Restore the initial Window width & height
-      if (this.previousWidth) {
-        if (this.previousWidth + restoreX >= viewportWidth) {
-          context.style.width = `${viewportWidth - restoreX}px`
-        } else {
-          context.style.width = `${this.previousWidth}px`
-        }
-      }
+      // context.style.left = `${restoreX}px`
 
-      if (this.previousHeight) {
-        if (this.previousHeight + restoreY >= viewportHeight) {
-          context.style.height = `${viewportHeight - context.offsetTop}px`
-        } else {
-          context.style.height = `${this.previousHeight}px`
-        }
-      }
+      // if (maxY <= 0) {
+      //   restoreY = this.previousY >= 0 ? this.previousY : 0
+      //   context.style.transform = 'none'
+      // }
+      // context.style.top = `${restoreY}px`
+
+      // // Restore the initial Window width & height
+      // if (this.previousWidth) {
+      //   if (this.previousWidth + restoreX >= viewportWidth) {
+      //     context.style.width = `${viewportWidth - restoreX}px`
+      //   } else {
+      //     context.style.width = `${this.previousWidth}px`
+      //   }
+      // }
+
+      // if (this.previousHeight) {
+      //   if (this.previousHeight + restoreY >= viewportHeight) {
+      //     context.style.height = `${viewportHeight - context.offsetTop}px`
+      //   } else {
+      //     context.style.height = `${this.previousHeight}px`
+      //   }
+      // }
 
       // Detach from the current edge.
       this.previousEdge = undefined
-    }
 
-    this.previousEdge = this.edgeX || this.edgeY || undefined
-    this.edgeX = undefined
-    this.edgeY = undefined
+      this.edgeX = undefined
+      this.edgeY = undefined
+    }
 
     // this.resize(Math.random() * 1000, Math.random() * 1000, 1000, 2300)
 
@@ -1007,7 +1085,14 @@ class EnlightenmentWindow extends Enlightenment {
           class="window__control window__control--hide"
           @click=${this.handleMinimize}
         ></button>
-        <button class="window__control window__control--zoom" @click=${this.handleZoom}></button>
+        ${!this.static
+          ? html`
+              <button
+                class="window__control window__control--zoom"
+                @click=${this.handleZoom}
+              ></button>
+            `
+          : nothing}
       </div>
     `
   }
@@ -1053,6 +1138,29 @@ class EnlightenmentWindow extends Enlightenment {
     return html`<div class="window__overlay"></div>`
   }
 
+  renderResizeHandlers() {
+    if (this.static) {
+      return nothing
+    }
+
+    return html`
+      ${Array.from({ length: 9 }).map((_, index) => {
+        if (index === 4) {
+          return
+        }
+
+        return html`
+          <span
+            class="window__handle"
+            data-pivot="${index + 1}"
+            @mousedown="${this.handleDragStart}"
+            @touchstart="${this.handleDragStart}"
+          ></span>
+        `
+      })}
+    `
+  }
+
   renderViews() {
     if (!this.views) {
       return
@@ -1088,30 +1196,22 @@ class EnlightenmentWindow extends Enlightenment {
       classes.push(`window--is-zoomed`)
     }
 
+    if (this.static) {
+      classes.push(`window--is-static`)
+    }
+
     return html`
       <div ref="${ref(this.context)}" class="${classes.join(' ')}" draggable>
-        <div class="window__canvas">
-          ${this.renderMain()}
-          ${Array.from({ length: 9 }).map((_, index) => {
-            if (index === 4) {
-              return
-            }
-
-            return html`
-              <span
-                class="window__handle"
-                data-pivot="${index + 1}"
-                @mousedown="${this.handleDragStart}"
-                @touchstart="${this.handleDragStart}"
-              ></span>
-            `
-          })}
-        </div>
+        <div class="window__canvas">${this.renderMain()} ${this.renderResizeHandlers()}</div>
       </div>
     `
   }
 
   resize(width: number, height: number, x?: number, y?: number) {
+    if (this.static) {
+      return
+    }
+
     const context = this.useContext() as HTMLElement
 
     if (!context) {
@@ -1120,12 +1220,13 @@ class EnlightenmentWindow extends Enlightenment {
 
     let w = width
     let h = height
+    const [translateX, translateY] = Enlightenment.parseMatrix(context.style.transform)
 
     let left = x || this.edgeLeft
     let top = y || this.edgeTop
 
     if (left >= window.innerWidth - this.edgeRight) {
-      left = thie.edgeLeft || 0
+      left = this.edgeLeft || 0
     } else if (left < 0) {
       left = this.edgeLeft || 0
     }
@@ -1144,7 +1245,7 @@ class EnlightenmentWindow extends Enlightenment {
       h = window.innerHeight - top - this.edgeBottom
     }
 
-    if (left !== context.offsetLeft) {
+    if (left !== context.offsetLeft || !context.style.left) {
       this.previousX = context.offsetLeft
 
       context.style.left = `${left}px`
@@ -1163,11 +1264,13 @@ class EnlightenmentWindow extends Enlightenment {
     }
 
     if (h !== context.offsetHeight) {
-      this.previousWidth = context.offsetWidth
+      this.previousHeight = context.offsetHeight
 
       context.style.height = `${h}px`
     }
 
-    console.log('resize', w, h, left, top)
+    context.style.transform = ''
+
+    console.log('resize', this.edgeX, this.edgeY)
   }
 }
