@@ -41,6 +41,7 @@ class EnlightenmentFocusTrap extends Enlightenment {
 
   // Will hold the Focus Trap instance.
   focusTrap?: FocusTrap
+  isActive?: boolean
 
   @property({
     converter: Enlightenment.convertToSelectors,
@@ -52,10 +53,10 @@ class EnlightenmentFocusTrap extends Enlightenment {
   @property({
     attribute: 'active',
     converter: Enlightenment.isBoolean,
-    reflect: true,
+    // reflect: true,
     type: Boolean
   })
-  isActive?: boolean
+  active?: boolean
 
   constructor() {
     super()
@@ -167,8 +168,10 @@ class EnlightenmentFocusTrap extends Enlightenment {
    * instance, this means that `this` is actually checked directly and the
    * optional HTML Attribute that could exist within the DOM.
    */
-  protected updated(properties: any) {
-    super.updated(properties)
+  protected handleUpdate(name?: string | undefined): void {
+    super.handleUpdate(name)
+
+    this.updateAttributeAlias('isActive', 'active')
 
     if (!this.slots) {
       return
