@@ -526,6 +526,21 @@ class EnlightenmentWindow extends Enlightenment {
     if (clientY) {
       this.previousPointerY = clientY
     }
+
+    const attrX = 'edge-x'
+    const attrY = 'edge-y'
+
+    if (this.edgeX || this.edgeY) {
+      this.updateAttributeAlias('edgeX', attrX)
+      this.updateAttributeAlias('edgeY', attrY)
+    } else {
+      !this.edgeX && this.hasAttribute(attrX) && this.removeAttribute(attrX)
+      !this.edgeY && this.hasAttribute(attrY) && this.removeAttribute(attrY)
+
+      console.log('reset')
+    }
+
+    console.log('DRAG', this.edgeX, this.edgeY)
   }
 
   handleResize(event: UIEvent) {
@@ -1007,8 +1022,10 @@ class EnlightenmentWindow extends Enlightenment {
       this.resize(
         this.previousWidth,
         this.previousHeight,
-        this.previousX + (translateX || 0),
-        this.previousY + (translateY || 0)
+        translateX
+          ? context.offsetLeft + context.offsetWidth / 2 + translateX - this.previousWidth
+          : this.previousX,
+        translateY ? context.offsetTop + translateY : this.previousY
       )
 
       // const [clientX, clientY] = this.usePointerPosition(event)
@@ -1178,22 +1195,30 @@ class EnlightenmentWindow extends Enlightenment {
       return nothing
     }
 
-    return html`
-      ${Array.from({ length: 9 }).map((_, index) => {
-        if (index === 4) {
-          return
-        }
+    const handlers = Array.from({ length: 9 }).map((_, index) => {
+      if (index === 4) {
+        return
+      }
 
-        return html`
-          <span
-            class="window__handle"
-            data-pivot="${index + 1}"
-            @mousedown="${this.handleDragStart}"
-            @touchstart="${this.handleDragStart}"
-          ></span>
-        `
-      })}
-    `
+      return html`
+        <span
+          class="window__handle"
+          data-pivot="${index + 1}"
+          @mousedown="${this.handleDragStart}"
+          @touchstart="${this.handleDragStart}"
+        ></span>
+      `
+    })
+
+    return html`${handlers}`
+  }
+
+  renderResizeIndicator() {
+    if (this.static) {
+      return nothing
+    }
+
+    return html`<div class="window__resize-indicator"></div>`
   }
 
   renderViews() {
@@ -1231,10 +1256,6 @@ class EnlightenmentWindow extends Enlightenment {
       classes.push(`window--is-static`)
     }
 
-    if (this.theme) {
-      classes.push(`window--theme-is-${this.theme}`)
-    }
-
     if (this.type) {
       classes.push(`window--type-is-${this.type}`)
     }
@@ -1243,6 +1264,7 @@ class EnlightenmentWindow extends Enlightenment {
       <div ref="${ref(this.context)}" class="${classes.join(' ')}" draggable>
         <div class="window__canvas">${this.renderMain()} ${this.renderResizeHandlers()}</div>
       </div>
+      ${this.renderResizeIndicator()}
     `
   }
 
