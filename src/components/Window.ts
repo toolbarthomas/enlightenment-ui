@@ -169,7 +169,7 @@ class EnlightenmentWindow extends Enlightenment {
     if (this.dragActive) {
       const context = this.useContext() as HTMLElement
 
-      if (this.zoom && this.treshhold >= Enlightenment.FPS) {
+      if (this.isFullscreen && this.treshhold >= Enlightenment.FPS) {
         // this.commit('zoomed', false)
         if (!this.currentPivot || this.currentPivot === 5) {
           this.handleZoom(event)
@@ -235,8 +235,6 @@ class EnlightenmentWindow extends Enlightenment {
           this.currentPivot === 5 && this.handleZoom(event)
         }
 
-        console.log('STOP', this.zoom, top, left, width, height)
-
         this.treshhold = 0
       }
     }
@@ -267,7 +265,7 @@ class EnlightenmentWindow extends Enlightenment {
     this.treshhold += 1
 
     // Delay the drag action while fullscreen is active.
-    if (this.zoom && this.treshhold < Enlightenment.FPS) {
+    if (this.isFullscreen && this.treshhold < Enlightenment.FPS) {
       return
     }
 
@@ -301,7 +299,7 @@ class EnlightenmentWindow extends Enlightenment {
   handleDragResize(event?: MouseEvent | TouchEvent) {
     const context = this.useContext() as HTMLElement
 
-    if (!context || this.zoom) {
+    if (!context || this.isFullscreen) {
       return
     }
 
@@ -533,7 +531,7 @@ class EnlightenmentWindow extends Enlightenment {
   }
 
   handleResizeCallback(event: UIEvent) {
-    if (this.zoom) {
+    if (this.isFullscreen) {
       if (this.previousEdge) {
         if (this.previousEdge === 'left' || this.previousEdge === 'right') {
           this.edgeX = this.previousEdge
@@ -545,7 +543,7 @@ class EnlightenmentWindow extends Enlightenment {
         this.edgeY = undefined
       }
 
-      this.zoom = false
+      this.isFullscreen = false
       this.handleZoom(event)
 
       // if (!this.edgeX && !this.edgeY) {
@@ -779,70 +777,88 @@ class EnlightenmentWindow extends Enlightenment {
     switch (this.currentPivot) {
       case 1:
         if (!this.zoom) {
-          context.style.width = `${context.offsetLeft + context.offsetWidth}px`
-          context.style.height = `${context.offsetTop + context.offsetHeight}px`
-
-          context.style.left = 0 + this.edgeLeft
-          context.style.top = 0 + this.edgeTop
+          this.resize(
+            context.offsetLeft + context.offsetWidth,
+            context.offsetTop + context.offsetHeight,
+            0,
+            0
+          )
         }
 
         break
 
       case 2:
         if (!this.zoom) {
-          context.style.height = `${context.offsetTop + context.offsetHeight}px`
-
-          context.style.top = 0 + this.edgeTop
+          this.resize(
+            context.style.width,
+            context.offsetTop + context.offsetHeight,
+            context.offsetLeft,
+            0
+          )
         }
 
         break
 
       case 3:
         if (!this.zoom) {
-          context.style.height = `${context.offsetTop + context.offsetHeight}px`
-          context.style.width = `${window.innerWidth - context.offsetLeft - this.edgeRight}px`
-
-          context.style.top = 0 + this.edgeTop
+          this.resize(
+            window.innerWidth - context.offsetLeft,
+            context.offsetTop + context.offsetHeight,
+            context.offsetLeft,
+            0
+          )
         }
 
         break
 
       case 4:
         if (!this.zoom) {
-          context.style.width = `${context.offsetLeft + context.offsetWidth - this.edgeRight}px`
-
-          context.style.left = 0 + this.edgeLeft
+          this.resize(context.offsetLeft + context.offsetWidth, context.offsetHeight, 0)
         }
 
         break
 
       case 6:
         if (!this.zoom) {
-          context.style.width = `${window.innerWidth - context.offsetLeft - this.edgeRight}px`
+          this.resize(
+            window.innerWidth - context.offsetLeft,
+            context.offsetHeight,
+            context.offsetLeft
+          )
         }
 
         break
 
       case 7:
         if (!this.zoom) {
-          context.style.width = `${context.offsetLeft + context.offsetWidth}px`
-          context.style.height = `${window.innerHeight - context.offsetTop - this.edgeBottom}px`
-
-          context.style.left = 0 + this.edgeLeft
+          this.resize(
+            context.offsetLeft + context.offsetWidth,
+            window.innerHeight - context.offsetTop,
+            0
+          )
         }
         break
 
       case 8:
         if (!this.zoom) {
-          context.style.height = `${window.innerHeight - context.offsetTop - this.edgeBottom}px`
+          this.resize(
+            context.offsetWidth,
+            window.innerHeight - context.offsetTop,
+            context.offsetLeft,
+            context.offsetTop
+          )
         }
 
         break
 
       case 9:
         if (!this.zoom) {
-          context.style.width = `${window.innerWidth - context.offsetLeft - this.edgeRight}px`
-          context.style.height = `${window.innerHeight - context.offsetTop - this.edgeBottom}px`
+          this.resize(
+            window.innerWidth - context.offsetLeft,
+            window.innerHeight - context.offsetTop,
+            context.offsetLeft,
+            context.offsetTop
+          )
         }
 
         break
@@ -888,8 +904,6 @@ class EnlightenmentWindow extends Enlightenment {
       this.static = std
     }
 
-    console.log('Slot', width)
-
     // this.throttle(() => {
     //   console.log('WITH CONTEXT', Enlightenment.getElementsFromSlot(this.useSlot(), ['img']))
     // }, 1000)
@@ -921,7 +935,7 @@ class EnlightenmentWindow extends Enlightenment {
     const viewportWidth = window.innerWidth
     const viewportHeight = window.innerHeight
 
-    if (!this.zoom) {
+    if (!this.isFullscreen) {
       // this.previousX = context.offsetLeft
       // this.previousY = context.offsetTop
 
@@ -946,7 +960,6 @@ class EnlightenmentWindow extends Enlightenment {
         if (this.edgeX === 'left') {
           this.resize(window.innerWidth / 2, window.innerHeight, 0, 0)
         } else if (this.edgeX === 'right') {
-          console.log('RESIZE RIGHT')
           this.resize(window.innerWidth / 2, window.innerHeight, window.innerWidth / 2, 0)
         } else {
           this.resize(window.innerWidth, window.innerHeight / 2, 0, window.innerHeight / 2)
@@ -989,7 +1002,12 @@ class EnlightenmentWindow extends Enlightenment {
     } else {
       const [translateX, translateY] = Enlightenment.parseMatrix(context.style.transform)
 
-      this.resize(this.previousWidth, this.previousHeight, translateX, translateY)
+      this.resize(
+        this.previousWidth,
+        this.previousHeight,
+        this.previousX + (translateX || 0),
+        this.previousY + (translateY || 0)
+      )
 
       // const [clientX, clientY] = this.usePointerPosition(event)
       // const [translateX, translateY] = Enlightenment.parseMatrix(context.style.transform)
@@ -1042,17 +1060,32 @@ class EnlightenmentWindow extends Enlightenment {
       this.edgeY = undefined
     }
 
-    // this.resize(Math.random() * 1000, Math.random() * 1000, 1000, 2300)
+    this.commit('isFullscreen', () => {
+      this.zoom = !this.isFullscreen
 
-    this.commit('zoom', !this.zoom)
+      return this.zoom
+    })
   }
 
   protected handleUpdate(name?: string | undefined): void {
-    this.updateAttribute('views')
-    this.updateAttribute('zoom')
-    this.updateAttribute('suspend')
-    this.updateAttribute('monochrome')
+    // console.log('this', this.zoom)
+    this.updateAttribute('views', this.views)
+    this.updateAttribute('monochrome', this.monochrome)
     this.updateAttributeAlias('suspend', 'aria-hidden')
+    this.updateAttributeAlias('isFullscreen', 'zoom', true)
+
+    // this.updateAttributeAlias('zoom', undefined, true)
+
+    // if (this.suspend) {
+    //   this.setAttribute('suspend', '')
+    // } else {
+    //   this.throttle(this.removeAttribute, 100, 'suspend')
+    //   // this.removeAttribute('suspend')
+    // }
+    // this.throttle(this.updateAttribute, 1000, 'suspend')
+    // this.updateAttributeAlias('suspend')
+    // this.updateAttribute('monochrome', this.monochrome)
+    // this.updateAttributeAlias('suspend', 'aria-hidden')
 
     if (this.suspend) {
       this.handleCurrentElement()
@@ -1192,7 +1225,7 @@ class EnlightenmentWindow extends Enlightenment {
       classes.push(`window--has-controls-${this.controls}`)
     }
 
-    if (this.zoom) {
+    if (this.isFullscreen && !this.static) {
       classes.push(`window--is-zoomed`)
     }
 
@@ -1222,8 +1255,8 @@ class EnlightenmentWindow extends Enlightenment {
     let h = height
     const [translateX, translateY] = Enlightenment.parseMatrix(context.style.transform)
 
-    let left = x || this.edgeLeft
-    let top = y || this.edgeTop
+    let left = Math.floor(x || this.edgeLeft)
+    let top = Math.floor(y || this.edgeTop)
 
     if (left >= window.innerWidth - this.edgeRight) {
       left = this.edgeLeft || 0
@@ -1245,32 +1278,38 @@ class EnlightenmentWindow extends Enlightenment {
       h = window.innerHeight - top - this.edgeBottom
     }
 
-    if (left !== context.offsetLeft || !context.style.left) {
-      this.previousX = context.offsetLeft
+    if (x !== undefined) {
+      if (left !== context.offsetLeft || !context.style.left) {
+        this.previousX = context.offsetLeft
 
-      context.style.left = `${left}px`
+        context.style.left = `${left}px`
+      }
     }
 
-    if (top !== context.offsetTop) {
-      this.previousY = context.offsetTop
+    if (y !== undefined) {
+      if (top !== context.offsetTop) {
+        this.previousY = context.offsetTop
 
-      context.style.top = `${top}px`
+        context.style.top = `${top}px`
+      }
     }
 
-    if (w !== context.offsetWidth) {
-      this.previousWidth = context.offsetWidth
+    if (width !== undefined) {
+      if (w !== context.offsetWidth) {
+        this.previousWidth = context.offsetWidth
 
-      context.style.width = `${w}px`
+        context.style.width = `${w}px`
+      }
     }
 
-    if (h !== context.offsetHeight) {
-      this.previousHeight = context.offsetHeight
+    if (height !== undefined) {
+      if (h !== context.offsetHeight) {
+        this.previousHeight = context.offsetHeight
 
-      context.style.height = `${h}px`
+        context.style.height = `${h}px`
+      }
     }
 
     context.style.transform = ''
-
-    console.log('resize', this.edgeX, this.edgeY)
   }
 }

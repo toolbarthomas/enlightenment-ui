@@ -77,6 +77,10 @@
       // }
     }
 
+    :host([aria-current='true'][accent]) & {
+      border-color: var(--dawn-900);
+    }
+
     :host([aria-current='true'][accent][monochrome='true']) & {
       background-color: var(--accent-300);
       border-color: var(--accent-900-a20);
@@ -84,6 +88,10 @@
       // &::before {
       //   background: var(--accent-900-a10);
       // }
+    }
+
+    :host([aria-current='true'][accent][mode='dark']) & {
+      border-color: var(--dusk-900);
     }
 
     :host([accent][mode='dark'][monochrome='true']) & {
@@ -607,12 +615,13 @@
 
   &__handle {
     position: absolute;
+    z-index: var(--depth-foreground);
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     display: block;
-    background-color: red;
+    background-color: black;
     opacity: 0;
     order: -2;
 
@@ -670,6 +679,7 @@
     }
 
     &[data-pivot]:not([data-pivot='5']) {
+      opacity: 0.5;
       &[data-pivot='1'],
       &[data-pivot='3'],
       &[data-pivot='7'],
