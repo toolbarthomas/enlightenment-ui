@@ -86,6 +86,8 @@ class EnlightenmentWindow extends Enlightenment {
   // Current defined Y position of the used Pointer.
   pointerY?: number
 
+  theme?: 'round' | 'square' | 'clear' = 'square'
+
   // Delays the actual drag action.
   treshhold: number = 0
 
@@ -1217,10 +1219,6 @@ class EnlightenmentWindow extends Enlightenment {
   render() {
     const classes = ['window']
 
-    if (this.type) {
-      classes.push(`window--type-is-${this.type}`)
-    }
-
     if (this.controls) {
       classes.push(`window--has-controls-${this.controls}`)
     }
@@ -1231,6 +1229,14 @@ class EnlightenmentWindow extends Enlightenment {
 
     if (this.static) {
       classes.push(`window--is-static`)
+    }
+
+    if (this.theme) {
+      classes.push(`window--theme-is-${this.theme}`)
+    }
+
+    if (this.type) {
+      classes.push(`window--type-is-${this.type}`)
     }
 
     return html`
