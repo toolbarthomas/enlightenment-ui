@@ -62,6 +62,8 @@ class EnlightenmentWindow extends Enlightenment {
   edgeX?: string
   edgeY?: string
 
+  hasOverlay?: boolean = true
+
   previousEdge?: string
 
   // Previous width value of the defined context Element.
@@ -1187,7 +1189,28 @@ class EnlightenmentWindow extends Enlightenment {
   }
 
   renderOverlay() {
-    return html`<div class="window__overlay"></div>`
+    console.log('this', this.slotReady)
+
+    return html`<div class="window__overlay">
+      <focus-trap ?active=${this.slotReady && this.hasOverlay}>
+        <div class="window__overlay-main">
+          <h3>Attention</h3>
+          <p>
+            Consectetur consequat et enim eu Lorem esse pariatur irure velit nostrud adipisicing.
+            Sunt ut esse nulla id sint minim aute amet nostrud sint minim. Pariatur dolor ea
+            proident ad sunt laboris nulla amet ad proident est esse. Aute voluptate irure ullamco
+            ex non sunt. Ullamco duis do enim eu ea duis commodo in nostrud anim. Fugiat nostrud
+            cupidatat officia pariatur duis veniam officia nisi. Culpa aute velit ullamco deserunt
+            nulla mollit qui pariatur laborum ut ad. Laboris est irure magna et nisi duis nostrud
+            eiusmod amet. Minim nulla nisi cupidatat mollit cupidatat. Nostrud qui consequat
+            cupidatat enim deserunt. Laboris irure consequat ad esse amet irure magna tempor aute
+            nostrud. Proident nisi eu consectetur eiusmod non ad cupidatat laboris aliquip proident
+            duis in consectetur eu.
+          </p>
+          <button>Shutdown</button>
+        </div>
+      </focus-trap>
+    </div>`
   }
 
   renderResizeHandlers() {
@@ -1250,6 +1273,10 @@ class EnlightenmentWindow extends Enlightenment {
 
     if (this.isFullscreen && !this.static) {
       classes.push(`window--is-zoomed`)
+    }
+
+    if (this.hasOverlay) {
+      classes.push(`window--has-overlay`)
     }
 
     if (this.static) {

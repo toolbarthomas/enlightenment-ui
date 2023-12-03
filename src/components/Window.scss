@@ -154,6 +154,19 @@
       }
     }
 
+    .window--has-overlay & {
+      &,
+      :host([aria-current='true']),
+      :host([accent]),
+      :host([aria-current='true'][accent]) &,
+      :host([aria-current='true'][mode='dark']),
+      :host([aria-current='true'][accent][mode='dark']) & {
+        box-shadow: none;
+        border-bottom-color: transparent;
+      }
+      // background: none transparent;
+    }
+
     &::before {
       position: absolute;
       top: var(--space-1);
@@ -838,5 +851,72 @@
 
     //   height: 50%;
     // }
+  }
+
+  &__overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: calc(var(--depth-foreground) - 1);
+    background-color: var(--dawn-900-a80);
+    padding: var(--space-64);
+    display: flex;
+    justify-content: center;
+    backdrop-filter: blur(var(--space-32));
+    overflow: auto;
+
+    :host([mode='dark']) & {
+      background-color: var(--dusk-900-a80);
+    }
+  }
+
+  &__overlay-main {
+    position: relative;
+    margin: auto;
+    flex-shrink: 0;
+    width: 100%;
+    max-width: var(--breakpoint-tablet);
+    background-color: var(--dawn-400-a90);
+    border: solid var(--space-1) var(--dawn-900-a80);
+    box-shadow:
+      var(--shadow-foreground) var(--dawn-900),
+      var(--edge-foreground) var(--dawn-900);
+
+    padding: var(--space-32);
+    border-radius: var(--space-8);
+    color: var(--dawn-100);
+
+    :host([mode='dark']) & {
+      background-color: var(--dusk-100-a20);
+      border: solid var(--space-1) var(--dusk-900-a80);
+      box-shadow:
+        var(--shadow-foreground) var(--dusk-900-a10),
+        var(--edge-foreground) var(--dusk-900-a5);
+
+      &::before {
+        color: var(--dusk-500);
+      }
+    }
+
+    &::before {
+      position: absolute;
+      top: var(--space-1);
+      left: var(--space-6);
+      right: var(--space-6);
+      height: var(--space-1);
+      content: ' ';
+      display: block;
+      color: var(--dawn-100);
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        currentColor var(--space-32),
+        currentColor calc(100% - var(--space-32)),
+        currentColor calc(100% - var(--space-32)),
+        transparent 100%
+      );
+    }
   }
 }
