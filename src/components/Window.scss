@@ -335,6 +335,11 @@
     width: 100%;
     display: block;
     flex-grow: 1;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    top: 0;
     margin-right: auto;
     text-align: center;
     font-weight: 700;
@@ -747,11 +752,7 @@
     }
 
     &[data-pivot]:not([data-pivot='5']) {
-      visibility: hidden;
-      transition:
-        opacity var(--duration-default) var(--easing-default),
-        visibility 0ms linear var(--duration-default);
-
+      transition: opacity var(--duration-default) var(--easing-default);
       .window--is-zoomed & {
         cursor: default;
         display: none;
@@ -759,10 +760,6 @@
 
       :host([aria-current='true']) & {
         opacity: 0.1;
-        visibility: visible;
-        transition:
-          opacity var(--duration-default) var(--easing-default),
-          visibility 0ms linear 0ms;
       }
 
       &[data-pivot='1'],

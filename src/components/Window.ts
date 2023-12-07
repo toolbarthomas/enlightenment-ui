@@ -321,47 +321,26 @@ class EnlightenmentWindow extends Enlightenment {
   }
 
   handleDragMove(event: MouseEvent | TouchEvent) {
-    const context = this.useContext() as HTMLElement
-
-    if (!event || !this.dragActive || !context) {
+    if (!event || !this.isGrabbed) {
       return
     }
 
-    if (this.dragRequest) {
-      cancelAnimationFrame(this.dragRequest)
+    const context = this.useContext() as HTMLElement
+
+    if (!context) {
+      return
     }
+
+    this.currentInteractionRequest && cancelAnimationFrame(this.currentInteractionRequest)
 
     this.treshhold += 1
 
-    // Delay the drag action while fullscreen is active.
-    if (this.isFullscreen && this.treshhold < Enlightenment.FPS) {
-      return
-    }
+    this.currentInteractionRequest = requestAnimationFrame(() => {
+      const [clientX, clientY] = this.usePointerPosition(event)
+      const x = (clientX || 0) - this.currentPointerX
+      const y = (clientY || 0) - this.currentPointerY
 
-    const [clientX, clientY] = this.usePointerPosition(event)
-
-    if (clientX === undefined || clientY === undefined) {
-      return
-    }
-
-    // if (clientY < 0) {
-    //   console.log('Top')
-    // } else if (clientY > window.innerHeight) {
-    //   console.log('Bottom')
-    // }
-
-    // if (clientX < 0) {
-    //   console.log('Left')
-    // } else if (clientX > window.innerWidth) {
-    //   console.log('Right')
-    // }
-
-    this.dragRequest = requestAnimationFrame(() => {
-      const x = this.pointerX - clientX
-      const y = this.pointerY - clientY
-
-      context.style.transform = `translate(${-x}px, ${-y}px)`
-      // context.style.top = `${context.offsetLeft - x}px`
+      context.style.transform = `translate(${x}px, ${y}px)`
     })
   }
 
@@ -549,67 +528,63 @@ class EnlightenmentWindow extends Enlightenment {
   }
 
   handleDragUpdate(event?: MouseEvent | TouchEvent) {
-    const [clientX, clientY] = this.usePointerPosition(event)
+    super.handleDragUpdate(event)
 
-    if (this.previousPointerX === clientX && this.previousPointerY === clientY) {
-      return
-    }
-
-    // Defines the current drag directions based on the previous direction.
-    this.dragX = clientX > this.previousPointerX ? 1 : -1
-    this.dragY = clientY > this.previousPointerY ? 1 : -1
-
-    // Reset any drag direction that has not been changed
-    if (this.previousX === clientX) {
-      this.dragX = 0
-    }
-
-    if (this.previousY === clientY) {
-      this.dragY = 0
-    }
-
-    // Handle the actual drag action from the defined pivot value.
     if (this.currentPivot !== 5 && this.currentPivot < 10) {
       this.handleDragResize(event)
-      this.throttle(this.handleCurrentViewport)
     } else {
       this.handleDragMove(event)
-
-      // Mark as grabbed at the first movement
-      if (this.treshhold >= 1) {
-        // Prevent the push request callback while draggin.
-        this.pushRequest && clearTimeout(this.pushRequest)
-
-        if (!this.hasAttribute('aria-grabbed')) {
-          this.setAttribute('aria-grabbed', 'true')
-        }
-      }
     }
 
-    // Use the current clientX & clientY values for the next dragUpdate.
-    if (clientX) {
-      this.previousPointerX = clientX
-    }
-
-    if (clientY) {
-      this.previousPointerY = clientY
-    }
-
-    const attrX = 'edge-x'
-    const attrY = 'edge-y'
-
-    if (!this.currentPivot || this.currentPivot === 5) {
-      if (this.edgeX || this.edgeY) {
-        this.updateAttributeAlias('edgeX', attrX)
-        this.updateAttributeAlias('edgeY', attrY)
-      } else {
-        !this.edgeX && this.hasAttribute(attrX) && this.removeAttribute(attrX)
-        !this.edgeY && this.hasAttribute(attrY) && this.removeAttribute(attrY)
-
-        console.log('reset')
-      }
-    }
-    console.log('DRAG', this.edgeX, this.edgeY)
+    // const [clientX, clientY] = this.usePointerPosition(event)
+    // if (this.previousPointerX === clientX && this.previousPointerY === clientY) {
+    //   return
+    // }
+    // // Defines the current drag directions based on the previous direction.
+    // this.dragX = clientX > this.previousPointerX ? 1 : -1
+    // this.dragY = clientY > this.previousPointerY ? 1 : -1
+    // // Reset any drag direction that has not been changed
+    // if (this.previousX === clientX) {
+    //   this.dragX = 0
+    // }
+    // if (this.previousY === clientY) {
+    //   this.dragY = 0
+    // }
+    // // Handle the actual drag action from the defined pivot value.
+    // if (this.currentPivot !== 5 && this.currentPivot < 10) {
+    //   this.handleDragResize(event)
+    //   this.throttle(this.handleCurrentViewport)
+    // } else {
+    //   this.handleDragMove(event)
+    //   // Mark as grabbed at the first movement
+    //   if (this.treshhold >= 1) {
+    //     // Prevent the push request callback while draggin.
+    //     this.pushRequest && clearTimeout(this.pushRequest)
+    //     if (!this.hasAttribute('aria-grabbed')) {
+    //       this.setAttribute('aria-grabbed', 'true')
+    //     }
+    //   }
+    // }
+    // // Use the current clientX & clientY values for the next dragUpdate.
+    // if (clientX) {
+    //   this.previousPointerX = clientX
+    // }
+    // if (clientY) {
+    //   this.previousPointerY = clientY
+    // }
+    // const attrX = 'edge-x'
+    // const attrY = 'edge-y'
+    // if (!this.currentPivot || this.currentPivot === 5) {
+    //   if (this.edgeX || this.edgeY) {
+    //     this.updateAttributeAlias('edgeX', attrX)
+    //     this.updateAttributeAlias('edgeY', attrY)
+    //   } else {
+    //     !this.edgeX && this.hasAttribute(attrX) && this.removeAttribute(attrX)
+    //     !this.edgeY && this.hasAttribute(attrY) && this.removeAttribute(attrY)
+    //     console.log('reset')
+    //   }
+    // }
+    // console.log('DRAG', this.edgeX, this.edgeY)
   }
 
   handleResize(event: UIEvent) {
@@ -660,153 +635,136 @@ class EnlightenmentWindow extends Enlightenment {
     return [top, right, bottom, left]
   }
 
-  usePointerPosition(event?: MouseEvent | TouchEvent) {
-    if (!event || !this.dragActive) {
-      return []
-    }
+  // usePointerPosition(event?: MouseEvent | TouchEvent) {
+  //   if (!event || !this.dragActive) {
+  //     return []
+  //   }
 
-    const viewportWidth = window.innerWidth
-    const viewportHeight = window.innerHeight
+  //   const viewportWidth = window.innerWidth
+  //   const viewportHeight = window.innerHeight
 
-    const [edgeTop, edgeRight, edgeBottom, edgeLeft] = this.useEdge()
+  //   const [edgeTop, edgeRight, edgeBottom, edgeLeft] = this.useEdge()
 
-    const treshhold = devicePixelRatio * 2
-    let clientX = 0
-    let clientY = 0
+  //   const treshhold = devicePixelRatio * 2
+  //   let clientX = 0
+  //   let clientY = 0
 
-    if (event instanceof MouseEvent) {
-      clientX = event.clientX
-      clientY = event.clientY
-    } else if (event instanceof TouchEvent) {
-      clientX = event.touches[0].clientX
-      clientY = event.touches[0].clientY
-    }
+  //   if (event instanceof MouseEvent) {
+  //     clientX = event.clientX
+  //     clientY = event.clientY
+  //   } else if (event instanceof TouchEvent) {
+  //     clientX = event.touches[0].clientX
+  //     clientY = event.touches[0].clientY
+  //   }
 
-    let initialX = clientX
-    let initialY = clientY
+  //   let initialX = clientX
+  //   let initialY = clientY
 
-    // if (this.currentAction === 'move') {
-    if (clientY <= edgeTop + treshhold) {
-      this.edgeY = 'top'
-      clientY = 0
-    } else if (clientY >= edgeBottom - treshhold) {
-      this.edgeY = 'bottom'
-      clientY = viewportHeight
-    } else {
-      this.edgeY = undefined
-    }
+  //   // if (this.currentAction === 'move') {
+  //   if (clientY <= edgeTop + treshhold) {
+  //     this.edgeY = 'top'
+  //     clientY = 0
+  //   } else if (clientY >= edgeBottom - treshhold) {
+  //     this.edgeY = 'bottom'
+  //     clientY = viewportHeight
+  //   } else {
+  //     this.edgeY = undefined
+  //   }
 
-    if (clientX <= edgeLeft + treshhold) {
-      this.edgeX = 'left'
-      clientX = 0
-    } else if (clientX >= edgeRight - treshhold) {
-      this.edgeX = 'right'
-      clientX = viewportWidth
-    } else {
-      if (initialX > viewportWidth) {
-        clientX = viewportWidth
-      }
+  //   if (clientX <= edgeLeft + treshhold) {
+  //     this.edgeX = 'left'
+  //     clientX = 0
+  //   } else if (clientX >= edgeRight - treshhold) {
+  //     this.edgeX = 'right'
+  //     clientX = viewportWidth
+  //   } else {
+  //     if (initialX > viewportWidth) {
+  //       clientX = viewportWidth
+  //     }
 
-      this.edgeX = undefined
-    }
+  //     this.edgeX = undefined
+  //   }
 
-    if (!this.currentPivot || this.currentPivot === 5) {
-      if (clientY < edgeTop || clientY > edgeBottom || clientX < edgeLeft || clientX > edgeRight) {
-        this.handleDragEnd(event)
+  //   if (!this.currentPivot || this.currentPivot === 5) {
+  //     if (clientY < edgeTop || clientY > edgeBottom || clientX < edgeLeft || clientX > edgeRight) {
+  //       this.handleDragEnd(event)
 
-        return []
-      }
-    }
-    // }
+  //       return []
+  //     }
+  //   }
+  //   // }
 
-    return [clientX, clientY]
-  }
+  //   return [clientX, clientY]
+  // }
 
   handleDragStart(event?: MouseEvent | TouchEvent) {
-    if (!event || this.dragActive) {
-      return
-    }
+    super.handleDragStart(event)
 
-    event.preventDefault()
+    console.log(this.currentContextX, this.currentContextY)
 
-    if (event instanceof MouseEvent) {
-      if (event.button !== 0) {
-        return
-      }
-    }
-
-    const target = event.target as HTMLSpanElement
-
-    if (target || target.hasAttribute('data-action')) {
-      this.currentPivot = parseInt(target.getAttribute('data-pivot'))
-    }
-
-    const context = this.useContext() as HTMLElement
-
-    if (!context) {
-      return
-    }
-
-    this.currentClick++
-
-    // Enable the zoom command while double click/tap is applied on the selected
-    // moveable corner.
-    if (this.currentClick === 1) {
-      this.clickRequest && clearTimeout(this.clickRequest)
-      this.pushRequest && clearTimeout(this.pushRequest)
-
-      this.clickRequest = setTimeout(() => {
-        this.currentClick = 0
-      }, this.delay * 12)
-
-      if (this.currentPivot === 5) {
-        this.pushRequest = setTimeout(() => this.handleReset(event), 1000)
-      }
-    }
-
-    if (this.currentClick > 1) {
-      this.handleZoomFromPivot(event)
-      this.handleDragEnd(event)
-
-      return
-    }
-
-    this.dragActive = true
-
-    if (context) {
-      this.currentX = context.offsetLeft
-      this.currentY = context.offsetTop
-    }
-
-    const [clientX, clientY] = this.usePointerPosition(event)
-
-    this.pointerX = Math.round(clientX)
-    this.pointerY = Math.round(clientY)
-
-    this.handleCurrentElement(this)
-
-    this.assignGlobalEvent('mousemove', this.handleDragUpdate, {
-      context: document.documentElement
-    })
-
-    this.assignGlobalEvent('touchmove', this.handleDragUpdate, {
-      context: document.documentElement
-    })
-
-    this.assignGlobalEvent('touchend', this.handleDragEnd, {
-      once: true
-    })
-
-    this.assignGlobalEvent('mouseup', this.handleDragEnd, {
-      once: true
-    })
+    // if (!event || this.dragActive) {
+    //   return
+    // }
+    // event.preventDefault()
+    // if (event instanceof MouseEvent) {
+    //   if (event.button !== 0) {
+    //     return
+    //   }
+    // }
+    // const target = event.target as HTMLSpanElement
+    // if (target || target.hasAttribute('data-action')) {
+    //   this.currentPivot = parseInt(target.getAttribute('data-pivot'))
+    // }
+    // const context = this.useContext() as HTMLElement
+    // if (!context) {
+    //   return
+    // }
+    // this.currentClick++
+    // // Enable the zoom command while double click/tap is applied on the selected
+    // // moveable corner.
+    // if (this.currentClick === 1) {
+    //   this.clickRequest && clearTimeout(this.clickRequest)
+    //   this.pushRequest && clearTimeout(this.pushRequest)
+    //   this.clickRequest = setTimeout(() => {
+    //     this.currentClick = 0
+    //   }, this.delay * 12)
+    //   if (this.currentPivot === 5) {
+    //     this.pushRequest = setTimeout(() => this.handleReset(event), 1000)
+    //   }
+    // }
+    // if (this.currentClick > 1) {
+    //   this.handleZoomFromPivot(event)
+    //   this.handleDragEnd(event)
+    //   return
+    // }
+    // this.dragActive = true
+    // if (context) {
+    //   this.currentX = context.offsetLeft
+    //   this.currentY = context.offsetTop
+    // }
+    // const [clientX, clientY] = this.usePointerPosition(event)
+    // this.pointerX = Math.round(clientX)
+    // this.pointerY = Math.round(clientY)
+    // this.handleCurrentElement(this)
+    // this.assignGlobalEvent('mousemove', this.handleDragUpdate, {
+    //   context: document.documentElement
+    // })
+    // this.assignGlobalEvent('touchmove', this.handleDragUpdate, {
+    //   context: document.documentElement
+    // })
+    // this.assignGlobalEvent('touchend', this.handleDragEnd, {
+    //   once: true
+    // })
+    // this.assignGlobalEvent('mouseup', this.handleDragEnd, {
+    //   once: true
+    // })
   }
 
-  protected handleCurrentElement(target: EventTarget | null): void {
-    super.handleCurrentElement(target)
+  // protected handleCurrentElement(target: EventTarget | null): void {
+  //   super.handleCurrentElement(target)
 
-    !this.currentElement && this.handleDragEnd()
-  }
+  //   !this.currentElement && this.handleDragEnd()
+  // }
 
   handleMinimize(event?: Event) {
     if (event && event.preventDefault) {

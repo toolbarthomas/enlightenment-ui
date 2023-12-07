@@ -213,7 +213,7 @@ class EnlightenmentModal extends Enlightenment {
     }
 
     return html`
-      <focus-trap ?active=${this.isActive}>
+      <focus-trap ?active=${this.slotReady && this.isActive}>
         <div
           ${ref(this.context)}
           class="modal ${classes.join(' ')}"
