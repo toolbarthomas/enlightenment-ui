@@ -42,9 +42,7 @@
     background-color: var(--dawn-100);
     border: solid var(--space-1) var(--dawn-900-a20);
     transition: var(--duration-default) var(--easing-default);
-    transition-property: box-shadow, opacity;
-    transition: var(--duration-default) var(--easing-default);
-    transition-property: opacity, transform;
+    transition-property: background-color, border-color, box-shadow, opacity, transform;
 
     box-shadow:
       var(--shadow-fixed) var(--dawn-900-a10),
