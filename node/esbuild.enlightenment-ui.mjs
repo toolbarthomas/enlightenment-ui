@@ -4,8 +4,6 @@ import { resolvePlugin } from '@toolbarthomas/enlightenment/node/esbuild.resolve
 import { argv } from '@toolbarthomas/enlightenment/node/argv.mjs'
 import { globSync } from 'glob'
 
-import { Enlightenment } from '@toolbarthomas/enlightenment/index.mjs'
-
 import config from './config.mjs'
 import { svgspritePlugin } from './esbuild.svgsprite.plugin.mjs'
 
@@ -23,8 +21,8 @@ import { defaultLoader } from './utils/loader.mjs'
     platform: argv.platform || 'browser',
     plugins: [
       resolvePlugin({
-        destination: `../${argv.name || 'Enlightenment'}${config.suffix}.js`,
-        minify: argv.m || argv.minify || false
+        destination: `../${argv.name || 'Enlightenment'}${config.outExtension['.js']}`,
+        extension: config.outExtension['.js']
       }),
       stylePlugin(),
       svgspritePlugin()

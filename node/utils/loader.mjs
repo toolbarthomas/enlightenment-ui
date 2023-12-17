@@ -1,4 +1,4 @@
-import { Enlightenment } from "@toolbarthomas/enlightenment/index.mjs";
+import { Enlightenment } from '@toolbarthomas/enlightenment/index.mjs'
 
 /**
  * Esbuild utility reducer to define a valid loader configuration to use within the
@@ -10,23 +10,21 @@ import { Enlightenment } from "@toolbarthomas/enlightenment/index.mjs";
  * loader behaviour.
  */
 export const staticLoader = (value, type) => {
-  const queue = (Array.isArray(value) ? value : [value]).filter(
-    (v) => typeof v === "string"
-  );
+  const queue = (Array.isArray(value) ? value : [value]).filter((v) => typeof v === 'string')
 
-  const n = typeof type === "string" ? type : "copy";
+  const n = typeof type === 'string' ? type : 'copy'
 
   const loader = queue.reduce((result, item) => {
     // current.defineProperty && current.defineProperty(previous);
     if (result instanceof Object) {
-      result[item] = "copy";
+      result[item] = 'copy'
     }
 
-    return result;
-  }, {});
+    return result
+  }, {})
 
-  return loader || {};
-};
+  return loader || {}
+}
 
 /**
  * Defines the default extensions that are used to generate the UI package
@@ -36,6 +34,6 @@ export const staticLoader = (value, type) => {
  *   2. Any imported asset from the script's imported assets: SCSS => @import(bar.png)
  */
 export const defaultLoader = {
-  ...staticLoader(Enlightenment.supportedImageExtensions, "copy"),
-  ...staticLoader(Enlightenment.supportedWebfontExtensions, "copy"),
-};
+  ...staticLoader(Enlightenment.imageExtensions, 'copy'),
+  ...staticLoader(Enlightenment.webfontExtensions, 'copy')
+}
