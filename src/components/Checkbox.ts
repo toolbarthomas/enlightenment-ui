@@ -8,7 +8,7 @@ import {
   ref
 } from '@toolbarthomas/enlightenment'
 
-import styles from '@/components/Checkbox.scss'
+import styles from './Checkbox.scss'
 
 @customElement('ui-checkbox')
 class EnlightenmentCheckbox extends Enlightenment {

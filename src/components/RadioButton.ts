@@ -8,7 +8,7 @@ import {
   ref
 } from '@toolbarthomas/enlightenment'
 
-import styles from '@/components/RadioButton.scss'
+import styles from './RadioButton.scss'
 
 @customElement('ui-radio-button')
 class EnlightenmentRadioButton extends Enlightenment {
