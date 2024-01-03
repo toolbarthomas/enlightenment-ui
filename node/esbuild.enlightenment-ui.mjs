@@ -22,7 +22,8 @@ import { defaultLoader } from './utils/loader.mjs'
     plugins: [
       resolvePlugin({
         destination: `../${argv.name || 'Enlightenment'}${config.outExtension['.js']}`,
-        extension: config.outExtension['.js']
+        extension: config.outExtension['.js'],
+        includeExtensions: true
       }),
       stylePlugin(),
       svgspritePlugin()
