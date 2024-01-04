@@ -21,9 +21,11 @@ import { defaultLoader } from './utils/loader.mjs'
     platform: argv.platform || 'browser',
     plugins: [
       resolvePlugin({
-        destination: `../${argv.name || 'Enlightenment'}${config.outExtension['.js']}`,
-        extension: config.outExtension['.js'],
-        includeExtensions: true
+        destination: `${argv.d ? './' : '../'}${argv.name || 'Enlightenment'}${
+          config.outExtension['.js']
+        }`,
+        excludeFramework: !argv.d,
+        extension: config.outExtension['.js']
       }),
       stylePlugin(),
       svgspritePlugin()

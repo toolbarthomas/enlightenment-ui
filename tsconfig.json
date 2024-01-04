@@ -35,7 +35,6 @@
   "include": [
     "src/*.ts",
     "src/components/*.ts",
-    "src/plugins/*.ts",
     "src/_types"
   ],
   "exclude": []

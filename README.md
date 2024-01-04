@@ -32,3 +32,28 @@ These assets have already been resolved by the default Esbuild workflow that is 
 #### defaultLoader
 
 The defaultLoader defines the required loader configuration for Esbuild and should resolve the defined sources to the builder destination directory. This UI package requires some assets from the imported component assets (like webfonts and static images) and writes them to the destination directory. Most of the stylesheets are inserted within the actual generated component, but a global stylesheet is also created to expose any imported asset (see *dist/index.css*).
+
+## Expected package structure
+
+The package will scaffold the required file sources during the installation.
+This package should be included within the actual Core Enlightenment package:
+
+```
+- js/enlightenment/enlightenment.js
+- js/enlightenment/ui/...
+```
+
+The defined Components will import the Core Enlightenment package from the
+parent directory (ui). This parent directory should contain the core package &
+extensions since relative imports are expected.
+
+This means you need to install both `@toolbarthomas/enlightenment` &
+`@toolbarthomas/enlightenment-ui` and resolve the UI package within the
+destination directory of the enlightenment package.
+
+```js
+// This example import is only resolved automatically for the Development flow.
+// The generated package should be included in the resolved Enlightenment
+// directory manually.
+import { Enlightenment } from '../Enlightenment.js'
+```
