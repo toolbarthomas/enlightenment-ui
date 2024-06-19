@@ -4,19 +4,19 @@
   "description": "Lit Element Component library with Enlightenment",
   "main": "index.js",
   "dependencies": {
-    "@fontsource/nunito-sans": "^5.0.7"
+    "@fontsource/nunito-sans": "^5.0.13"
   },
   "devDependencies": {
-    "esbuild": "^0.18.17",
-    "focus-trap": "^7.5.2",
-    "glob": "^10.3.3",
-    "imagemin": "^8.0.1",
-    "is-svg": "^5.0.0",
-    "prettier": "^3.0.3",
-    "rimraf": "^5.0.1",
-    "svgo": "^3.0.2",
+    "esbuild": "^0.21.5",
+    "focus-trap": "^7.5.4",
+    "glob": "^10.4.2",
+    "imagemin": "^9.0.0",
+    "is-svg": "^5.0.1",
+    "prettier": "^3.3.2",
+    "rimraf": "^5.0.7",
+    "svgo": "^3.3.2",
     "svgstore": "^3.0.1",
-    "typescript": "^5.1.6"
+    "typescript": "^5.4.5"
   },
   "scripts": {
     "test": "tsc --noEmit",
