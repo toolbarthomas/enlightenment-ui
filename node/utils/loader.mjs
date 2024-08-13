@@ -1,4 +1,4 @@
-import { Enlightenment } from '@toolbarthomas/enlightenment/index.mjs'
+import { Enlightenment } from '@toolbarthomas/enlightenment'
 
 /**
  * Esbuild utility reducer to define a valid loader configuration to use within the

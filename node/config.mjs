@@ -1,12 +1,14 @@
-import { argv } from "@toolbarthomas/enlightenment/node/argv.mjs";
+import { parse } from '@toolbarthomas/argumentje'
 
-const suffix = argv.m || argv.minify ? ".min" : "";
+const argv = parse()
+
+const suffix = argv.m || argv.minify ? '.min' : ''
 const outExtension = {
-  ".js": `${suffix}.js`,
-};
+  '.js': `${suffix}.js`
+}
 
 export default {
-  outdir: "dist",
+  outdir: 'dist',
   suffix,
-  outExtension,
-};
+  outExtension
+}

@@ -1,7 +1,7 @@
 import esbuild from 'esbuild'
-import { stylePlugin } from '@toolbarthomas/enlightenment/node/esbuild.style.plugin.mjs'
-import { resolvePlugin } from '@toolbarthomas/enlightenment/node/esbuild.resolve.plugin.mjs'
-import { argv } from '@toolbarthomas/enlightenment/node/argv.mjs'
+import { stylePlugin } from '@toolbarthomas/enlightenment/stylePlugin'
+import { resolvePlugin } from '@toolbarthomas/enlightenment/resolvePlugin'
+import { parse } from '@toolbarthomas/argumentje'
 import { globSync } from 'glob'
 
 import config from './config.mjs'
@@ -9,6 +9,8 @@ import { svgspritePlugin } from './esbuild.svgsprite.plugin.mjs'
 
 import { defaultLoader } from './utils/loader.mjs'
 ;(async () => {
+  const argv = parse()
+
   const options = {
     bundle: true,
     entryPoints: [...globSync('./src/components/*.ts'), ...globSync('./src/plugins/*.ts')],
