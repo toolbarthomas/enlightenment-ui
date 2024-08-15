@@ -38,8 +38,8 @@
 }
 
 ::slotted(:is(address, bdo, blockquote, cite, dl, p, ol, ul)) {
-  @include content-margin($margin: 1em);
   line-height: 1.875;
+  @include content-margin($margin: 1em);
 }
 
 ::slotted(:is(address, blockquote dl, p, ol, ul)) {
@@ -136,8 +136,11 @@
   &__summary {
     @include responsive-font-size('summary');
     @include content-margin($margin: 1em);
-    line-height: 1.125;
-    color: var(--grey-600);
+
+    & {
+      line-height: 1.125;
+      color: var(--grey-600);
+    }
 
     :host([mode='dark']) & {
       color: var(--grey-700);

@@ -34,10 +34,10 @@
     opacity: 0;
     border: none;
     outline: none;
-    @include responsive-font-size('summary');
     padding: var(--space-8);
     background-color: var(--grey-100);
     color: currentColor;
+    @include responsive-font-size('summary');
 
     :host([mode='dark']) & {
       background-color: var(--grey-900);

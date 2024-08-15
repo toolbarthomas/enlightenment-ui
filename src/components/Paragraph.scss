@@ -1,10 +1,13 @@
-@import "../styles/mixins/content-margin.scss";
-@import "../styles/mixins/responsive-font";
+@import '../styles/mixins/content-margin.scss';
+@import '../styles/mixins/responsive-font';
 
 .paragraph {
   @include content-margin($margin: 1em);
-  line-height: 1.875;
-  @include responsive-font-size("base");
+  @include responsive-font-size('base');
+
+  & {
+    line-height: 1.875;
+  }
 }
 
 ::slotted(a) {

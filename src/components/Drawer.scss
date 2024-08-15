@@ -182,10 +182,12 @@
     background-color: var(--dusk-900-a85);
   }
 
-  z-index: calc(var(--depth-foreground) - 2);
-  transition:
-    opacity var(--duration-default) var(--easing-default),
-    visibility 0ms linear var(--duration-default);
+  & {
+    z-index: calc(var(--depth-foreground) - 2);
+    transition:
+      opacity var(--duration-default) var(--easing-default),
+      visibility 0ms linear var(--duration-default);
+  }
 
   .drawer--is-active + & {
     opacity: 1;

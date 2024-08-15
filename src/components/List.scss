@@ -21,5 +21,8 @@ dl,
 :host {
   display: block;
   @include content-margin($margin: 2em);
-  margin-bottom: 2em;
+
+  & {
+    margin-bottom: 2em;
+  }
 }
