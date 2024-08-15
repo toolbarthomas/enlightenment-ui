@@ -387,6 +387,7 @@ button {
 
 .button {
   &__ripple {
+    display: block;
     animation: rippleMedium var(--duration-slow) 1;
     animation-fill-mode: forwards;
     background-color: var(--white);
