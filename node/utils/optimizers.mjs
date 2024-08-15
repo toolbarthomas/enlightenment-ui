@@ -1,6 +1,6 @@
-import { Buffer } from "node:buffer";
-import isSvg from "is-svg";
-import SVGO from "svgo";
+import { Buffer } from 'node:buffer'
+import isSvg from 'is-svg'
+import SVGO from 'svgo'
 
 /**
  * Custom Imagemin Plugin that will cleanup the unused SVG attributes to ensure
@@ -9,44 +9,42 @@ import SVGO from "svgo";
  * @param {Buffer} buffer Optimizes the given Buffer entry.
  */
 export const svgOptimizer = async (buffer) => {
-  let b = buffer;
+  let b = buffer
 
   if (!isSvg(b.toString())) {
-    return Promise.resolve(buffer);
+    return Promise.resolve(buffer)
   }
 
   if (Buffer.isBuffer(buffer)) {
-    b = buffer.toString();
+    b = buffer.toString()
   }
 
-  let result;
+  let result
 
   try {
     result = SVGO.optimize(b, {
       plugins: [
         {
-          name: "preset-default",
+          name: 'preset-default',
           params: {
             overrides: {
               convertPathData: false,
               removeViewBox: false,
               convertColors: {
-                currentColor: true,
-              },
+                currentColor: true
+              }
             },
             removeAttrs: {
               preserveCurrentColor: true,
-              attrs: "-",
-            },
-          },
-        },
-      ],
-    });
+              attrs: '-'
+            }
+          }
+        }
+      ]
+    })
   } catch (exception) {
-    throw Error(exception);
+    throw Error(exception)
   }
 
-  return result.data
-    ? Buffer.from(result.data)
-    : Error(`Unable to generate sprite...`);
-};
+  return result.data ? Buffer.from(result.data) : Error(`Unable to generate sprite...`)
+}

@@ -25,7 +25,9 @@
         color: var(--#{$color}-900);
       }
 
-      color: $textColor;
+      & {
+        color: $textColor;
+      }
     } @else {
       color: var(--#{$color}-#{$shade});
 

@@ -2,7 +2,7 @@ import { basename, extname, dirname, join, resolve, sep } from 'node:path'
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { globSync } from 'glob'
 import imagemin from 'imagemin'
-import svgstore from 'svgstore'
+import spriter from 'svg-sprite'
 
 import { svgOptimizer } from './utils/optimizers.mjs'
 
@@ -26,26 +26,33 @@ export const generateSVGSprite = (sources) => {
         throw Error(`Unable to optimize sprite, no valid Buffer has been assigned for ${this.name}`)
       }
 
-      const sprite = stream.reduce(
-        (store, blob, index) => {
-          const directory = dirname(blob.sourcePath).split(sep)
-          const name = basename(blob.sourcePath, extname(blob.sourcePath))
-
-          return store.add(`${directory[directory.length - 1]}--${name}`, blob.data)
-        },
-        svgstore({
-          inline: true,
-          svgAttrs: {
-            xmlns: 'http://www.w3.org/2000/svg'
+      const compiler = new spriter({
+        mode: {
+          css: false,
+          view: false,
+          defs: false,
+          symbol: {
+            inline: true
           }
-        })
-      )
+        }
+      })
 
-      if (!sprite) {
-        throw Error('Unable to generate sprite without any entries...')
-      }
+      stream.forEach((blob) => {
+        const directory = dirname(blob.sourcePath).split(sep)
+        const name = basename(blob.sourcePath)
 
-      return callback(sprite.toString())
+        compiler.add(blob.sourcePath, name, Buffer.from(blob.data).toString())
+      })
+
+      return compiler.compileAsync().then(({ result }) => {
+        const chunk = result.symbol ? result.symbol : result.defs
+
+        if (!chunk || !chunk.sprite || !chunk.sprite.contents) {
+          throw Error(`Unable to compile SVG sprite from: ${entry}...`)
+        }
+
+        return callback(chunk.sprite.contents.toString())
+      })
     })
   })
 }
