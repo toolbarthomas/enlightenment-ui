@@ -4,11 +4,11 @@
   "description": "Lit Element Component library with Enlightenment",
   "main": "index.js",
   "dependencies": {
-    "@fontsource/nunito-sans": "^5.0.13"
+    "@fontsource/nunito-sans": "^5.0.14"
   },
   "devDependencies": {
     "@toolbarthomas/argumentje": "^0.1.4",
-    "esbuild": "^0.23.0",
+    "esbuild": "^0.23.1",
     "focus-trap": "^7.5.4",
     "glob": "^11.0.0",
     "imagemin": "^9.0.0",
